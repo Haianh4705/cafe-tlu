@@ -1,23 +1,48 @@
 version: 2
+
+# Chính sách cập nhật thư viện (WORKFLOW.md mục 7.4):
+# - Phiên bản trong requirements.txt là CHỦ ĐÍCH, không tự động bump major.
+# - Chỉ nhận patch/minor, gom thành 1 PR/tuần để không làm nhiễu board.
+# - Mọi PR của Dependabot vẫn phải qua CI + 1 approval như PR thường.
+
 updates:
-  # Thư viện Python — gom 1 PR/tuần để không làm nhiễu board
+  # ── Thư viện Python ──────────────────────────────────────────
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 3
+      time: "08:00"
+      timezone: "Asia/Ho_Chi_Minh"
+    open-pull-requests-limit: 2
+
     commit-message:
       prefix: "chore(deps)"
+
+    labels:
+      - "deps"
+
+    ignore:
+      # Không tự bump major: PySide6/FastAPI/SQLAlchemy đổi major thường
+      # phá API. Khi cần, nâng tay theo Issue riêng.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
     groups:
-      python-minor:
+      python-minor-patch:
         patterns: ["*"]
         update-types: ["minor", "patch"]
 
-  # GitHub Actions
+  # ── GitHub Actions ───────────────────────────────────────────
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+    open-pull-requests-limit: 1
     commit-message:
       prefix: "chore(ci)"
+    labels:
+      - "infra"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

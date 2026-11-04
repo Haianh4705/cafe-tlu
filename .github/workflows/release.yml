@@ -19,7 +19,7 @@ jobs:
     name: Build bộ cài (.exe)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Kiểm tra đã có cấu hình đóng gói chưa
         id: probe
@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "::notice title=Chưa có installer/*.iss::Pipeline đóng gói sẽ bật ở cổng G4 (tuần 6). Bỏ qua."
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         if: steps.probe.outputs.ready == 'true'
         with:
           python-version: "3.12"
@@ -65,7 +65,7 @@ jobs:
 
       - name: Đính kèm vào GitHub Release
         if: steps.probe.outputs.ready == 'true' && startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: installer/Output/*.exe
           generate_release_notes: true
