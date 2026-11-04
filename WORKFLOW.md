@@ -80,6 +80,7 @@ Quy định của trường/GV (ưu tiên cao hơn nếu khác), quy định v�
 | `README.md` | Cách cài & chạy trong 3 lệnh | Tất cả, GV |
 | `CONTRIBUTING.md` | Bản rút gọn của mục 5–6 cho người mới | Thành viên mới |
 | `docs/decisions.md` | Nhật ký quyết định kỹ thuật (ADR-lite) | Tất cả |
+| `docs/workflow.md` | **Ai làm gì, xong thì bàn giao cho ai** | Tất cả |
 | `docs/api-contract.md` | Đặc tả API (nguồn chân lý của hợp đồng) | A, B, C |
 | `docs/erd.md` | Sơ đồ ERD + từ điển dữ liệu | A, B |
 | `CHANGELOG.md` | Lịch sử thay đổi theo phiên bản | D, GV |
