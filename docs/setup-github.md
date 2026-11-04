@@ -97,9 +97,6 @@ gh api "repos/{owner}/{repo}/branches/main/protection" --jq '.required_pull_requ
 
 - `contexts` **phải khớp chính xác** với `name:` của job trong `.github/workflows/ci.yml`
   (`Lint & format`, `Test`). Đổi tên job → phải cập nhật lại protection.
-- `require_code_owner_reviews: true` yêu cầu repo **private phải có gói trả phí**.
-  Nếu lệnh báo lỗi, bỏ dòng đó đi — vẫn còn `required_approving_review_count: 1`
-  (đủ dùng cho nhóm 4 người) và vẫn gán reviewer thủ công theo `CODEOWNERS`.
 - `required_linear_history: true` buộc dùng **Squash merge** (đúng WORKFLOW mục 5.6).
 
 Bật thêm trong giao diện (2 bước, không có CLI ổn định):
@@ -107,6 +104,32 @@ Bật thêm trong giao diện (2 bước, không có CLI ổn định):
 - Settings → General → Pull Requests → ✅ **Automatically delete head branches**
 - Settings → Actions → General → Workflow permissions → chọn **Read repository contents**
   (và ✅ Allow GitHub Actions to create and approve pull requests — cần cho Dependabot)
+
+### 4b. Nếu tài khoản đang dùng là bản Free (rất có thể)
+
+GitHub **chặn branch protection và rulesets với repo private trên tài khoản Free**:
+
+```
+Upgrade to GitHub Pro or make this repository public to enable this feature. (HTTP 403)
+```
+
+Ba cách xử lý, chọn một:
+
+| Cách | Ưu điểm | Nhược điểm |
+|---|---|---|
+| **1. Bật GitHub Student Developer Pack** (khuyến nghị) | Miễn phí, có **Pro** trong suốt thời gian còn là sinh viên → branch protection hoạt động đầy đủ | Cần xác minh bằng email trường (1–3 ngày) |
+| **2. Chuyển repo sang public** | Có protection ngay, đúng tinh thần "portfolio khi đi phỏng vấn" | **Rủi ro bị nhóm khác copy** → đề bài ghi copy = 0 điểm. Chỉ nên public **sau khi đã nộp** |
+| **3. Không bật protection** | Không làm gì cả | Không có hàng rào server-side; chỉ còn hook local + ý thức |
+
+Cách 1: https://education.github.com/pack → "Get your Student Developer Pack" → xác minh
+bằng email `@tlu.edu.vn` → bật lại 2 lần chạy lệnh ở mục 4.
+
+Nếu tạm thời dùng cách 3, nhóm vẫn còn **một lớp bảo vệ phía máy**: hook
+`no-commit-to-branch` trong `.pre-commit-config.yaml` sẽ **chặn commit trực tiếp**
+lên `main`/`develop` ở cả 4 máy (sau khi chạy `make install`).
+
+> Ngoại lệ hợp lệ duy nhất để bỏ qua hook: merge phát hành.
+> Dùng `git commit --no-verify` và ghi rõ lý do trong PR.
 
 ## 5. Tạo nhãn (labels)
 

@@ -25,9 +25,14 @@ repos:
       - id: mixed-line-ending
         args: ["--fix=lf"]
         exclude: \.(bat|cmd|ps1|iss)$
-      # Lưu ý: việc chặn commit lên main/develop do branch protection trên
-      # GitHub đảm nhiệm (xem docs/setup-github.md), không dùng hook này để
-      # tránh phải --no-verify ở lần setup đầu tiên.
+      # Hàng rào phía máy: chặn commit trực tiếp lên nhánh tích hợp.
+      # Cần thiết vì repo private + tài khoản free chưa bật được branch
+      # protection (xem docs/setup-github.md mục 4b). Khi đã có protection
+      # hoặc GitHub Pro, hook này chỉ còn là lớp bảo hiểm thứ hai.
+      # Ngoại lệ hợp lệ duy nhất: merge phát hành -> dùng `git commit --no-verify`
+      # và ghi rõ lý do trong PR.
+      - id: no-commit-to-branch
+        args: ["--branch", "main", "--branch", "develop"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.17.3
