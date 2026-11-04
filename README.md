@@ -91,12 +91,17 @@ Chi tiết đầy đủ: `WORKFLOW.md` mục 5–6.
 
 ## Thành viên & vai trò
 
-| | Vai trò | Vùng phụ trách |
-|---|---|---|
-| **A** | Backend/API Lead | `api/` — xác thực, phân quyền, nghiệp vụ |
-| **B** | Data & Reports | `db/`, query thống kê, xuất Excel/PDF |
-| **C** | GUI/UX Lead | `gui/`, theme, toàn bộ màn hình |
-| **D** | Infra + QA + Docs | `infra/`, `installer/`, `.github/`, `docs/`, báo cáo |
+| | Vai trò | Vùng phụ trách | GitHub |
+|---|---|---|---|
+| **A** | Backend/API Lead | `api/` — xác thực, phân quyền, nghiệp vụ | *(chốt ở buổi sync tuần 1)* |
+| **B** | Data & Reports | `db/`, query thống kê, xuất Excel/PDF | *(chốt ở buổi sync tuần 1)* |
+| **C** | GUI/UX Lead | `gui/`, theme, toàn bộ màn hình | *(chốt ở buổi sync tuần 1)* |
+| **D** | Infra + QA + Docs | `infra/`, `installer/`, `.github/`, `docs/`, báo cáo | [@Haianh4705](https://github.com/Haianh4705) |
+
+Tài khoản GitHub của nhóm: `@Haianh4705` · `@bao20062005dh-creator` · `@MeoCamGuitar` · `@trungdunxg`.
+
+Khi đã chốt vai, cập nhật `.github/CODEOWNERS` (mục 2) bằng một PR 1 dòng — sau đó bật
+**Require review from Code Owners** để GitHub tự gán đúng người review.
 
 Phân quyền chi tiết: `WORKFLOW.md` mục 3. Quyết định kỹ thuật: `docs/decisions.md`.
 
