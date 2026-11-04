@@ -48,12 +48,13 @@ install: ## Tạo venv + cài thư viện + cài pre-commit hook
 		     echo "   macOS : brew install python@3.12"; \
 		     echo "   Windows: winget install Python.Python.3.12"; exit 1; }
 	@test -d .venv || $(PY) -m venv .venv
-	@$(PY) -m pip install --upgrade pip -q
-	@$(PY) -m pip install -r requirements.txt -r requirements-dev.txt
-	@test -f .env || cp .env.example .env
-	@$(PY) -m pre_commit install
-	@echo ""
-	@echo "✅ Cài xong. Tiếp theo: make up && make doctor"
+	@VP=$$( [ -x .venv/bin/python ] && echo .venv/bin/python || echo .venv/Scripts/python.exe ); \
+	 echo "🐍 $$($$VP -V)"; \
+	 $$VP -m pip install --upgrade pip -q; \
+	 $$VP -m pip install -q -r requirements.txt -r requirements-dev.txt; \
+	 $$VP -m pre_commit install; \
+	 test -f .env || cp .env.example .env; \
+	 echo ""; echo "✅ Cài xong. Tiếp theo: make up && make doctor"
 
 # ------------------------------------------------------------
 # Hạ tầng (Docker)
