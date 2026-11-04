@@ -2,9 +2,11 @@
 
 Ứng dụng desktop quản lý quán café cho **BTL học phần Python 2026 — Đề tài 5**.
 
-> **Trạng thái hiện tại: GIAI ĐOẠN 0 — HẠ TẦNG.** Repo đã có khung công cụ, CSDL Docker,
-> CI và quy chuẩn làm việc. **Chưa có code ứng dụng** (`api/`, `gui/` sẽ được tạo ở tuần 1,
-> cổng G2).
+> **Trạng thái hiện tại: GIAI ĐOẠN 0 — HẠ TẦNG ĐÃ CHẠY.**
+> Đã kiểm chứng trên máy thật: `make install` → `make up` (MySQL 8.0 healthy ở cổng 3307)
+> → `make doctor` xanh → CI xanh trên `main`/`develop`. Repo **public**, branch protection
+> đã bật (1 approval + CI bắt buộc). **Chưa có code ứng dụng** — `api/`, `gui/` sẽ được tạo
+> ở tuần 1, cổng G2.
 
 ## Kiến trúc
 
@@ -113,11 +115,13 @@ Phân quyền chi tiết: `WORKFLOW.md` mục 3. Quyết định kỹ thuật: `
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách sửa |
 |---|---|---|
+| `make: docker: No such file or directory` | Docker CLI chưa nằm trong PATH của shell (Docker Desktop đặt ở `~/.docker/bin`) | Makefile đã tự dò đường dẫn này. Nếu vẫn lỗi: mở terminal mới, hoặc thêm `export PATH="$HOME/.docker/bin:$PATH"` vào `~/.zshrc` |
+| `error getting credentials - docker-credential-desktop not found` | Thiếu credential helper trong PATH | Docker Desktop → Settings → Advanced → ✅ **Install CLI tools to system**; hoặc để Makefile tự nạp `~/.docker/bin` |
 | `bind: address already in use` | Cổng 3307 bị chiếm | `lsof -i :3307` rồi tắt tiến trình, hoặc đổi `DB_PORT` trong `.env` |
 | `make up` treo ở "chờ MySQL" | Docker Desktop chưa chạy | Mở Docker Desktop, chờ biểu tượng hết nhấp nháy |
 | `python -V` ra 3.9 | macOS dùng python hệ thống | Dùng `python3.12` hoặc `make install` (Makefile ưu tiên `.venv`) |
 | `pytest` báo "no tests ran" | Chưa có test (giai đoạn setup) | Bình thường — Makefile coi exit code 5 là đạt |
-| `pre-commit` chặn commit | Code chưa format / có secret | `make fmt` rồi commit lại. **Không** dùng `--no-verify` |
+| `pre-commit` chặn commit | Code chưa format / có secret / đang ở nhánh `main`/`develop` | `make fmt` rồi commit lại, hoặc tạo nhánh `feature/*`. **Không** dùng `--no-verify` |
 | MySQL sai mật khẩu | `.env` khác với volume cũ | `make reset-db` (xoá dữ liệu local) |
 | Pylance báo đỏ toàn file | Chưa chọn interpreter | VS Code → chọn `.venv/bin/python` |
 
