@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "::notice title=Chưa có installer/*.iss::Pipeline đóng gói sẽ bật ở cổng G4 (tuần 6). Bỏ qua."
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         if: steps.probe.outputs.ready == 'true'
         with:
           python-version: "3.12"
