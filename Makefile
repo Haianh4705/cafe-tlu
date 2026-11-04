@@ -9,8 +9,8 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-# Dùng python trong venv nếu có, ngược lại dùng python3 của máy.
-PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
+# Ưu tiên python trong venv; nếu chưa có venv thì tìm python3.12 rồi mới tới python3.
+PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,$(shell command -v python3.12 2>/dev/null || echo python3))
 
 .PHONY: help doctor install up down reset-db logs tools api gui test lint fmt check build-installer clean
 
@@ -43,6 +43,10 @@ doctor: ## Kiểm tra môi trường máy (python, docker, git, .env)
 # Cài đặt
 # ------------------------------------------------------------
 install: ## Tạo venv + cài thư viện + cài pre-commit hook
+	@$(PY) -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)' \
+		|| { echo "❌ Cần Python 3.12+. Đang có: $$($(PY) -V 2>&1)"; \
+		     echo "   macOS : brew install python@3.12"; \
+		     echo "   Windows: winget install Python.Python.3.12"; exit 1; }
 	@test -d .venv || $(PY) -m venv .venv
 	@$(PY) -m pip install --upgrade pip -q
 	@$(PY) -m pip install -r requirements.txt -r requirements-dev.txt
