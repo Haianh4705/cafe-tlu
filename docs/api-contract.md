@@ -3,8 +3,9 @@
 > **Nguồn chân lý** về hợp đồng giữa GUI (C) và Backend (A). B viết phần số liệu báo cáo.
 > Định dạng request/response, mã lỗi, quy ước URL: xem `WORKFLOW.md` **mục 9** (không lặp lại ở đây).
 >
-> **Trạng thái:** 🟡 KHUNG — A điền đầy đủ trước cổng **G2** (cuối tuần 2).
-> Đổi contract sau khi C đã code → phải mở PR riêng vào file này + báo nhóm.
+> **Trạng thái:** ✅ Đã chốt v1 (2026-11-04) — 23 endpoint dưới đây là **hợp đồng** giữa
+> GUI (C) và Backend (A). Bổ sung endpoint mới thì được (thêm dòng + PR riêng); **đổi hoặc
+> bỏ endpoint đã đánh dấu ✅ thì phải báo nhóm trước**.
 
 ## 1. Thông tin chung
 

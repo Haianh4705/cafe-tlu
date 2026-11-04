@@ -14,6 +14,12 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - CI (lint + test) và pipeline đóng gói Windows (bật khi có `installer/*.iss`)
 - Template Issue/PR, `CODEOWNERS`, Dependabot, pre-commit hooks
 - Khung tài liệu: `docs/api-contract.md`, `docs/erd.md`, `docs/decisions.md`, `docs/test-cases.md`, `docs/setup-github.md`
+- **Chốt hợp đồng API v1** (23 endpoint) — `docs/api-contract.md`
+- **Chốt ERD v1** (9 bảng + từ điển dữ liệu + bất biến dữ liệu) — `docs/erd.md`
+
+### Fixed
+- `make install` chạy pip nhầm vào Python hệ thống (PEP 668) — nay dùng đúng python của `.venv`
+- Đồng bộ phiên bản ruff giữa `requirements-dev.txt` và pre-commit hook (0.17.3)
 
 ## [0.1.0] — 2026-11-04
 
