@@ -1,0 +1,44 @@
+# CODEOWNERS — người bắt buộc review theo vùng (WORKFLOW.md mục 3.2)
+#
+# ⚠️ VIỆC CẦN LÀM NGAY: thay các @TODO-* bằng GitHub username thật của 4 bạn.
+#    CODEOWNERS có username không tồn tại KHÔNG gây lỗi, nhưng sẽ không chặn
+#    được PR — tức là mất tác dụng bảo vệ.
+#
+# Quy ước: người được nêu sẽ tự động được thêm làm reviewer khi PR chạm file.
+# Cần bật thêm "Require review from Code Owners" trong branch protection.
+
+# Mặc định: mọi file cần ít nhất 1 trong 4 bạn review
+*                       @TODO-backend-a @TODO-data-b @TODO-gui-c @TODO-infra-d
+
+# --- A: Backend / API ---
+/api/                   @TODO-backend-a
+/shared/                @TODO-backend-a
+
+# --- B: Dữ liệu & báo cáo ---
+/db/                    @TODO-data-b
+/api/services/reports.py @TODO-data-b
+/reports/               @TODO-data-b
+
+# --- C: Giao diện ---
+/gui/                   @TODO-gui-c
+/assets/                @TODO-gui-c
+
+# --- D: Hạ tầng, CI, tài liệu ---
+/infra/                 @TODO-infra-d
+/installer/             @TODO-infra-d
+/scripts/               @TODO-infra-d
+/.github/               @TODO-infra-d
+/docs/                  @TODO-infra-d
+/report/                @TODO-infra-d
+/docker-compose.yml     @TODO-infra-d
+/Makefile               @TODO-infra-d
+/requirements.txt       @TODO-infra-d
+/requirements-dev.txt   @TODO-infra-d
+/pyproject.toml         @TODO-infra-d
+/.pre-commit-config.yaml @TODO-infra-d
+
+# --- Quy chuẩn chung: cần 2 phiếu, trong đó có D ---
+/WORKFLOW.md            @TODO-infra-d
+/AGENTS.md              @TODO-infra-d
+/README.md              @TODO-infra-d
+/CHANGELOG.md           @TODO-infra-d

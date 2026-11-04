@@ -1,0 +1,36 @@
+# ============================================================
+# Thư viện chạy ứng dụng (runtime).
+# Cài: pip install -r requirements.txt
+#
+# QUY TẮC (WORKFLOW.md mục 7.4):
+#  - Pin phiên bản cụ thể, KHÔNG dùng "latest".
+#  - Thêm thư viện mới => xin phép trong Issue trước.
+#  - Đổi phiên bản => PR riêng, ghi lý do.
+# ============================================================
+
+# --- Backend API ---
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# --- Cơ sở dữ liệu ---
+sqlalchemy==2.0.36
+alembic==1.14.0
+pymysql==1.1.1
+
+# --- Xác thực & phân quyền ---
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+python-jose[cryptography]==3.3.0
+
+# --- Cấu hình & tiện ích ---
+python-dotenv==1.0.1
+requests==2.32.3
+
+# --- Giao diện desktop ---
+PySide6==6.8.0
+
+# --- Báo cáo & xuất file ---
+openpyxl==3.1.5
+reportlab==4.2.5

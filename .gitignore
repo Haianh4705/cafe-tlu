@@ -1,0 +1,61 @@
+# ===== Python =====
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+
+# ===== Môi trường & bí mật =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# ===== Build & đóng gói =====
+build/
+dist/
+*.spec
+Output/
+installer/tmp/
+*.exe
+*.msi
+
+# ===== Dữ liệu & backup =====
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+*.dump
+backups/
+mysql_data/
+
+# ===== Log =====
+*.log
+logs/
+
+# ===== Hệ điều hành / IDE =====
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# ===== Tạm =====
+tmp/
+temp/
+*.tmp
+*.bak
+*~

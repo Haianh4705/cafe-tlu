@@ -1,0 +1,59 @@
+# ============================================================
+# Hạ tầng local cho môi trường dev — CHỈ dùng trên máy cá nhân.
+# Không dùng file này cho production (xem infra/deploy.md, sẽ có ở G4).
+#
+#   make up    -> khởi động MySQL 8.0
+#   make down  -> tắt
+#   make tools -> thêm Adminer (xem DB bằng trình duyệt) tại :8081
+# ============================================================
+
+name: cafetlu
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: cafetlu-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-cafetlu_dev_root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-cafe_tlu}
+      TZ: Asia/Ho_Chi_Minh
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+07:00
+    ports:
+      # 3307 ở máy host để không đụng MySQL cài sẵn. Trong container vẫn là 3306.
+      - "${DB_PORT:-3307}:3306"
+    volumes:
+      - cafetlu_mysql_data:/var/lib/mysql
+      # Khi đã có db/schema.sql + db/seed.sql (tuần 1), bỏ comment 2 dòng dưới
+      # để MySQL tự nạp cấu trúc + dữ liệu mẫu ở LẦN KHỞI TẠO ĐẦU TIÊN.
+      # - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      # - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h 127.0.0.1 -uroot -p"$$MYSQL_ROOT_PASSWORD" --silent
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  # Công cụ xem DB (tuỳ chọn): docker compose --profile tools up -d
+  adminer:
+    image: adminer:4
+    container_name: cafetlu-adminer
+    restart: unless-stopped
+    profiles: ["tools"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+
+volumes:
+  cafetlu_mysql_data:
+    name: cafetlu_mysql_data

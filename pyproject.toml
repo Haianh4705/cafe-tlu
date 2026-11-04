@@ -1,0 +1,56 @@
+[project]
+name = "cafe-tlu"
+version = "0.1.0"
+description = "Ứng dụng desktop quản lý quán café TLU (BTL học phần Python 2026 — Đề tài 5)"
+requires-python = ">=3.12,<3.14"
+readme = "README.md"
+
+# ============================================================
+# Cấu hình công cụ. Thư viện cài qua requirements*.txt
+# (không khai báo dependencies ở đây để tránh hai nguồn chân lý).
+# ============================================================
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+extend-exclude = '''
+(
+  \.venv
+| build
+| dist
+| db/migrations/versions
+)
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv", "build", "dist", "db/migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "C4"]
+ignore = [
+  "E501",  # độ dài dòng do black quản lý
+  "B008",  # Depends() trong tham số hàm là pattern chuẩn của FastAPI
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]        # cho phép assert trong test
+"db/migrations/*" = ["E", "W"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+markers = [
+  "unit: kiểm thử đơn vị",
+  "api: kiểm thử endpoint",
+  "gui: kiểm thử giao diện (cần Qt)",
+  "slow: chạy lâu",
+]
+
+[tool.coverage.run]
+source = ["api", "gui", "shared"]
+omit = ["*/migrations/*", "*/tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

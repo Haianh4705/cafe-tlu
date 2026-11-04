@@ -1,0 +1,46 @@
+# Cài hook: pre-commit install
+# Chạy tay toàn bộ: pre-commit run --all-files
+#
+# Hook chặn được: secret bị commit, file quá lớn, conflict marker,
+# line ending lộn xộn, code chưa format, code có lỗi lint cơ bản.
+
+default_language_version:
+  python: python3.12
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=5000"]
+      - id: check-yaml
+        args: ["--allow-multiple-documents"]
+      - id: check-toml
+      - id: check-json
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: ["--markdown-linebreak-ext=md"]
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+        exclude: \.(bat|cmd|ps1|iss)$
+      # Lưu ý: việc chặn commit lên main/develop do branch protection trên
+      # GitHub đảm nhiệm (xem docs/setup-github.md), không dùng hook này để
+      # tránh phải --no-verify ở lần setup đầu tiên.
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.2
+    hooks:
+      - id: ruff
+        args: ["--fix", "--exit-non-zero-on-fix"]
+      - id: ruff-format
+
+  # Chặn commit file .env thật (chỉ cho .env.example)
+  - repo: local
+    hooks:
+      - id: forbid-env-file
+        name: Không commit file .env
+        entry: File .env không được commit. Chỉ commit .env.example.
+        language: fail
+        files: '(^|/)\.env$'

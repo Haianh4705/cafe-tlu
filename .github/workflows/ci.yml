@@ -1,0 +1,100 @@
+name: CI
+
+# Chạy cho mọi PR và mọi push vào main/develop (WORKFLOW.md mục 13.3).
+# Cổng chặn merge: lint + test.
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ─────────────────────────────────────────────────────────
+  lint:
+    name: Lint & format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Cài công cụ
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: ruff
+        run: ruff check . --output-format=github
+
+      - name: black
+        run: black --check --diff .
+
+  # ─────────────────────────────────────────────────────────
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_root
+          MYSQL_DATABASE: cafe_tlu_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ptest_root --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      APP_ENV: test
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: test_root
+      DB_NAME: cafe_tlu_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Cài thư viện
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Chạy test
+        # Giai đoạn setup chưa có test: pytest trả mã 5 (no tests collected)
+        # => coi là đạt để đường ống CI thông. Khi có test thật, mã 5 không
+        # còn xảy ra và job sẽ chặn merge như bình thường.
+        shell: bash
+        run: |
+          set +e
+          pytest -q --cov --cov-report=term-missing
+          code=$?
+          if [ "$code" -eq 5 ]; then
+            echo "::notice title=Chưa có test::Repo chưa có test nào (giai đoạn setup) — bỏ qua."
+            exit 0
+          fi
+          exit "$code"

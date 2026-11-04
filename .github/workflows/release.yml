@@ -1,0 +1,72 @@
+name: Release
+
+# Đóng gói bộ cài Windows — BẮT BUỘC theo đề bài.
+# Build trên windows-latest để thành viên dùng macOS/Linux vẫn ra được .exe
+# mà không cần máy Windows hay máy ảo.
+#
+# Pipeline tự bỏ qua (không đỏ) khi chưa có installer/*.iss — sẽ bật ở cổng G4.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-installer:
+    name: Build bộ cài (.exe)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kiểm tra đã có cấu hình đóng gói chưa
+        id: probe
+        shell: bash
+        run: |
+          if ls installer/*.iss >/dev/null 2>&1; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Chưa sẵn sàng (bỏ qua)
+        if: steps.probe.outputs.ready != 'true'
+        shell: bash
+        run: |
+          echo "::notice title=Chưa có installer/*.iss::Pipeline đóng gói sẽ bật ở cổng G4 (tuần 6). Bỏ qua."
+
+      - uses: actions/setup-python@v5
+        if: steps.probe.outputs.ready == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Cài thư viện + PyInstaller
+        if: steps.probe.outputs.ready == 'true'
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller==6.11.1
+
+      - name: Build bằng PyInstaller
+        if: steps.probe.outputs.ready == 'true'
+        shell: bash
+        run: pyinstaller --noconfirm installer/cafetlu.spec
+
+      - name: Build bộ cài bằng Inno Setup
+        if: steps.probe.outputs.ready == 'true'
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer/cafetlu.iss
+
+      - name: Đính kèm vào GitHub Release
+        if: steps.probe.outputs.ready == 'true' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer/Output/*.exe
+          generate_release_notes: true
+          fail_on_unmatched_files: true
