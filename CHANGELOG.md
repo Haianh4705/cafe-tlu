@@ -9,6 +9,8 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ## [Unreleased]
 
 ### Added
+- `docs/workflow.md` — sơ đồ bàn giao giữa 4 vai trò, bảng "xong việc gì → đến ai",
+  SLA review, việc nên làm khi đang chờ người khác
 - **8 skill hướng dẫn trong `.claude/skills/`**: `fastapi-endpoint`, `sqlalchemy-model`,
   `pyside6-screen`, `ui-design` (chống "AI slop"), `pytest-db`, `win-installer`,
   `report-export`, `security`
