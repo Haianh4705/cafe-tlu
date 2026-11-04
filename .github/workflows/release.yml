@@ -19,7 +19,7 @@ jobs:
     name: Build bộ cài (.exe)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Kiểm tra đã có cấu hình đóng gói chưa
         id: probe
