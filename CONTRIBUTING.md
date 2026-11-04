@@ -44,7 +44,7 @@ bằng **Squash**.
 
 | ❌ Sai | ✅ Đúng |
 |---|---|
-| Commit thẳng lên `develop` | Luôn qua PR (branch protection sẽ chặn) |
+| Commit thẳng lên `develop` | Luôn qua PR (hook `no-commit-to-branch` sẽ chặn) |
 | `git add .` | `git add <file>` cụ thể, xem `git status` trước |
 | Sửa test cho pass | Sửa code; test sai thì nói rõ lý do trong PR |
 | GUI gọi thẳng MySQL | GUI → `api_client.py` → REST API |
