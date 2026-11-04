@@ -19,6 +19,25 @@
 
 Nếu thiếu file nào ở trên → **báo lại**, đừng tự tạo phiên bản riêng.
 
+## 1.5. Kỹ năng (skill) — đọc theo vùng việc
+
+Mỗi skill là một file hướng dẫn chi tiết cho một loại việc. **Đọc skill trước khi viết code**,
+không phải sau. Đường dẫn: `.claude/skills/<tên>/SKILL.md`.
+
+| Sắp làm gì | Đọc skill |
+|---|---|
+| Thêm/sửa endpoint API | `fastapi-endpoint` |
+| Thêm/sửa bảng, cột, migration, seed | `sqlalchemy-model` |
+| Làm màn hình, form, bố cục | `pyside6-screen` **+** `ui-design` |
+| Chỉnh màu, font, khoảng cách, "cho đẹp" | `ui-design` |
+| Viết test, sửa bug phải kèm test | `pytest-db` |
+| Build bộ cài, lỗi đóng gói | `win-installer` |
+| Xuất Excel/PDF, in hoá đơn, báo cáo | `report-export` |
+| Login, phân quyền, secret, trước deploy | `security` |
+
+**Skill không thay thế `WORKFLOW.md`.** Khi mâu thuẫn: `WORKFLOW.md` thắng.
+Nếu một skill sai hoặc thiếu, sửa skill đó bằng PR — đừng lách qua một bên.
+
 ---
 
 ## 2. Mười điều không được vi phạm
@@ -85,13 +104,15 @@ gui/  ──HTTP──►  api/routers  ──►  api/services  ──►  api/
 ## 6. Lệnh phải biết
 
 ```bash
-make up         # docker compose up -d mysql
-make api        # uvicorn api.main:app --reload   → http://localhost:8000/docs
-make gui        # python -m gui.main
-make lint       # ruff check . && black --check .
-make test       # pytest -q
-make smoke      # scripts/smoke_test.py (luồng chính end-to-end)
-make installer  # PyInstaller + Inno Setup (chỉ D)
+make up          # docker compose up -d mysql  (cổng 3307)
+make api         # uvicorn api.main:app --reload   → http://127.0.0.1:8000/docs
+make gui         # python -m gui.main
+make lint        # ruff check . && black --check .
+make test        # pytest -q  (chưa có test thì coi là đạt)
+make check       # lint + test — chạy trước khi mở PR
+make build-installer   # PyInstaller + Inno Setup (chỉ D, bật ở G4)
+make reset-db    # xoá sạch DB local rồi bật lại (nguy hiểm)
+make doctor      # kiểm tra môi trường máy
 ```
 
 ---

@@ -136,6 +136,7 @@ Phân quyền chi tiết: `WORKFLOW.md` mục 3. Quyết định kỹ thuật: `
 |---|---|
 | `WORKFLOW.md` | Quy chuẩn làm việc cho người và AI (nguồn chân lý) |
 | `AGENTS.md` | Quy tắc cho AI agent |
+| `.claude/skills/` | **8 skill** hướng dẫn theo loại việc (API, DB, GUI, UI, test, đóng gói, báo cáo, bảo mật) |
 | `docs/setup-github.md` | Thiết lập branch protection, nhãn, board |
 | `docs/decisions.md` | Nhật ký quyết định kỹ thuật |
 | `docs/api-contract.md` | Đặc tả API |

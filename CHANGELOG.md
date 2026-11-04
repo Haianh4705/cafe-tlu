@@ -9,6 +9,10 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ## [Unreleased]
 
 ### Added
+- **8 skill hướng dẫn trong `.claude/skills/`**: `fastapi-endpoint`, `sqlalchemy-model`,
+  `pyside6-screen`, `ui-design` (chống "AI slop"), `pytest-db`, `win-installer`,
+  `report-export`, `security`
+- `AGENTS.md` mục 1.5: bảng định tuyến "sắp làm gì → đọc skill nào"
 - Khung hạ tầng dự án: `Makefile`, `docker-compose` (MySQL 8.0, cổng 3307), `requirements*.txt`
 - Quy chuẩn làm việc `WORKFLOW.md` và điểm vào cho AI `AGENTS.md`
 - CI (lint + test) và pipeline đóng gói Windows (bật khi có `installer/*.iss`)
