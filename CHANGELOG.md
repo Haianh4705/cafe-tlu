@@ -20,6 +20,13 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ### Fixed
 - `make install` chạy pip nhầm vào Python hệ thống (PEP 668) — nay dùng đúng python của `.venv`
 - Đồng bộ phiên bản ruff giữa `requirements-dev.txt` và pre-commit hook (0.17.3)
+- `make up`/`down`/`logs`/`tools` không tìm thấy Docker CLI và credential helper khi
+  `~/.docker/bin` chưa nằm trong PATH (macOS Docker Desktop) — nay Makefile tự dò và dùng
+  đường dẫn tuyệt đối, tránh cả lỗi của fast-path trong GNU make 3.81
+
+### Changed
+- Repo chuyển sang **public** → bật được branch protection cho `main` và `develop`
+  (1 approval + CI `Lint & format` & `Test` bắt buộc, linear history, squash-only)
 
 ## [0.1.0] — 2026-11-04
 

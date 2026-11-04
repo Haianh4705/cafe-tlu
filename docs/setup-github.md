@@ -105,7 +105,11 @@ Bật thêm trong giao diện (2 bước, không có CLI ổn định):
 - Settings → Actions → General → Workflow permissions → chọn **Read repository contents**
   (và ✅ Allow GitHub Actions to create and approve pull requests — cần cho Dependabot)
 
-### 4b. Nếu tài khoản đang dùng là bản Free (rất có thể)
+### 4b. Nếu tài khoản đang dùng là bản Free
+
+> ✅ **Trạng thái hiện tại: ĐÃ XỬ LÝ.** Repo đã chuyển sang **public** nên branch protection
+> bật được bình thường (đã áp dụng cho `main` và `develop` ngày 2026-11-04).
+> Phần dưới giữ lại để tham khảo nếu sau này chuyển repo về private.
 
 GitHub **chặn branch protection và rulesets với repo private trên tài khoản Free**:
 

@@ -12,6 +12,13 @@ SHELL := /bin/bash
 # Ưu tiên python trong venv; nếu chưa có venv thì tìm python3.12 rồi mới tới python3.
 PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,$(shell command -v python3.12 2>/dev/null || echo python3))
 
+# Docker Desktop (macOS) đặt CLI và các credential helper (docker-credential-desktop)
+# trong ~/.docker/bin, nhưng không phải shell nào cũng đã nạp thư mục này vào PATH.
+# Bổ sung để cả `docker pull` cũng tìm được helper, không chỉ riêng lệnh docker.
+DOCKER_BIN := $(dir $(shell command -v docker 2>/dev/null || echo $(HOME)/.docker/bin/docker))
+export PATH := $(DOCKER_BIN):$(PATH)
+DOCKER := $(DOCKER_BIN)docker
+
 .PHONY: help doctor install up down reset-db logs tools api gui test lint fmt check build-installer clean
 
 # ------------------------------------------------------------
@@ -28,8 +35,8 @@ help: ## Hiện danh sách lệnh
 doctor: ## Kiểm tra môi trường máy (python, docker, git, .env)
 	@echo "── Kiểm tra môi trường ────────────────────────"
 	@printf "  python : "; ($(PY) -V 2>/dev/null) || echo "CHƯA CÀI"
-	@printf "  docker : "; (docker -v 2>/dev/null) || echo "CHƯA CÀI  -> cần Docker Desktop"
-	@printf "  compose: "; (docker compose version 2>/dev/null) || echo "CHƯA CÀI"
+	@printf "  docker : "; ($(DOCKER) -v 2>/dev/null) || echo "CHƯA CÀI  -> cần Docker Desktop"
+	@printf "  compose: "; ($(DOCKER) compose version 2>/dev/null) || echo "CHƯA CÀI"
 	@printf "  git    : "; (git --version 2>/dev/null) || echo "CHƯA CÀI"
 	@printf "  make   : "; (make -v 2>/dev/null | head -1) || echo "CHƯA CÀI"
 	@printf "  .env   : "; (test -f .env && echo "có" || echo "THIẾU -> cp .env.example .env")
@@ -60,28 +67,28 @@ install: ## Tạo venv + cài thư viện + cài pre-commit hook
 # Hạ tầng (Docker)
 # ------------------------------------------------------------
 up: ## Khởi động MySQL 8.0 (cổng 3307)
-	@docker compose up -d mysql
+	@$(DOCKER) compose up -d mysql
 	@echo -n "⏳ Đang chờ MySQL healthy "
-	@n=0; until [ "$$(docker inspect -f '{{.State.Health.Status}}' cafetlu-mysql 2>/dev/null)" = "healthy" ]; do \
+	@n=0; until [ "$$($(DOCKER) inspect -f '{{.State.Health.Status}}' cafetlu-mysql 2>/dev/null)" = "healthy" ]; do \
 		n=$$((n+1)); [ $$n -gt 60 ] && { echo ""; echo "❌ MySQL không lên sau 60s — xem: make logs"; exit 1; }; \
 		echo -n "."; sleep 1; done; echo ""
 	@port=$$(grep -E '^DB_PORT=' .env 2>/dev/null | cut -d= -f2); \
 		echo "✅ MySQL sẵn sàng tại 127.0.0.1:$${port:-3307} (db: cafe_tlu, user: root)"
 
 down: ## Tắt hạ tầng
-	@docker compose down
+	@$(DOCKER) compose down
 
 reset-db: ## XOÁ SẠCH dữ liệu MySQL rồi khởi động lại (nguy hiểm)
 	@read -p "Xoá toàn bộ dữ liệu MySQL local? [y/N] " ans; \
 	    [ "$$ans" = "y" ] || { echo "Đã huỷ."; exit 1; }
-	@docker compose down -v
+	@$(DOCKER) compose down -v
 	@$(MAKE) up
 
 logs: ## Xem log MySQL
-	@docker compose logs -f mysql
+	@$(DOCKER) compose logs -f mysql
 
 tools: ## Bật Adminer (xem DB tại http://localhost:8081)
-	@docker compose --profile tools up -d
+	@$(DOCKER) compose --profile tools up -d
 	@echo "✅ Adminer: http://localhost:8081 (server: mysql, user: root, pass: xem .env)"
 
 # ------------------------------------------------------------
