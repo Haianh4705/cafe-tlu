@@ -61,6 +61,19 @@
 - **Hệ quả:** phải chạy 2 tiến trình khi dev (`make up` + `make api` + `make gui`); cần
   `docs/api-contract.md` chốt sớm.
 
+## ADR-007: Giao diện theo nhận diện Trường Đại học Thăng Long
+
+- **Ngày:** 2026-11-05 · **Người quyết định:** C (đề xuất), cả nhóm duyệt · **Trạng thái:** 🟡 Đề xuất
+- **Bối cảnh:** app là đồ án của trường; giao diện mặc định (xanh Qt, gradient tím) trông generic.
+- **Quyết định:** dùng bảng màu lấy từ `thanglong.edu.vn` + logo chính thức:
+  navy `#000066` (hành động) · đỏ logo `#F32409` (chỉ hành động phá huỷ) · tint `#F1F5FF` (hàng chọn).
+  Header/sidebar navy, nội dung trắng. Font thay thế **Manrope** (font gốc `thangLongSans` là độc quyền).
+- **Đã cân nhắc:** tự chọn palette riêng (mất liên hệ với trường, GV khó thấy "sản phẩm của TLU");
+  dùng nguyên website style (web và desktop khác ngữ cảnh: website cần marketing, app cần dày dữ liệu).
+- **Hệ quả:** màu/typography chỉ khai báo trong `gui/theme.py`; `red-logo` không dùng cho chữ < 18px
+  (chỉ đạt AA-large — 4.14:1); không đóng gói font `thangLongSans` vào app.
+  Chi tiết + token: `.claude/skills/ui-design/SKILL.md`.
+
 ---
 
 ## Mẫu thêm ADR mới

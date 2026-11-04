@@ -31,6 +31,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   đường dẫn tuyệt đối, tránh cả lỗi của fast-path trong GNU make 3.81
 
 ### Changed
+- `ui-design` viết lại theo **nhận diện TLU**: bảng màu lấy từ token CSS của `thanglong.edu.vn`
+  + logo chính thức (navy `#000066`, đỏ logo `#F32409`, tint `#F1F5FF`), kèm ngưỡng tương phản
+  WCAG cho từng cặp màu và luật "navy = hành động, đỏ = nguy hiểm"
 - Repo chuyển sang **public** → bật được branch protection cho `main` và `develop`
   (1 approval + CI `Lint & format` & `Test` bắt buộc, linear history, squash-only)
 
