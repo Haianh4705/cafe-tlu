@@ -74,6 +74,19 @@
   (chỉ đạt AA-large — 4.14:1); không đóng gói font `thangLongSans` vào app.
   Chi tiết + token: `.claude/skills/ui-design/SKILL.md`.
 
+## ADR-008: Áp dụng tối giản có kiểm soát (lấy cảm hứng từ Ponytail)
+
+- **Ngày:** 2026-11-05 · **Người quyết định:** D · **Trạng thái:** 🟡 Đề xuất
+- **Bối cảnh:** lỗi phổ biến của đồ án dùng AI là **xây quá mức** — widget tự vẽ thay vì dùng Qt có sẵn,
+  abstraction "để sau này", cài thư viện cho vài dòng. Hậu quả: vỡ lúc tích hợp, không kịp sửa.
+- **Quyết định:** thêm skill `minimal-change` (bậc thang YAGNI, Việt hoá) + quy ước comment
+  `shortcut: <giới hạn>, <khi nào nâng cấp>`; reviewer phải **đọc cả vùng code bị chạm, không chỉ diff**.
+- **Đã cân nhắc:** cài nguyên [Ponytail](https://github.com/DietrichGebert/ponytail) (bật "lazy senior dev"
+  cho mọi session → ăn vào phần báo cáo/tài liệu mà GV chấm); không làm gì (giữ nguyên lỗi xây quá mức).
+- **Hệ quả:** skill quyết **cách làm**, không quyết **làm gì** — phạm vi vẫn do Issue/Definition of Ready.
+  Yêu cầu mơ hồ vẫn phải **hỏi trước** (WORKFLOW mục 9), không tự lấy bản nhỏ nhất.
+  Không được cắt: validate, xử lý lỗi, kiểm quyền server, test, ảnh chụp, CHANGELOG, báo cáo handoff.
+
 ---
 
 ## Mẫu thêm ADR mới
