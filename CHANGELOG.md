@@ -9,6 +9,11 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ## [Unreleased]
 
 ### Added
+- Skill **`minimal-change`**: bậc thang YAGNI (dùng cái đã có → stdlib → dependency đã cài → 1 dòng
+  → code tối thiểu), Việt hoá từ [Ponytail](https://github.com/DietrichGebert/ponytail), đã chặn 3 xung
+  đột với quy chuẩn dự án (phạm vi do Issue, yêu cầu mơ hồ phải hỏi, không cắt việc bắt buộc)
+- Quy ước comment `shortcut: <giới hạn>, <khi nào nâng cấp>` để gom nợ kỹ thuật (WORKFLOW mục 7.1)
+- Checklist review: bắt buộc **đọc cả vùng code bị chạm, không chỉ diff**
 - `docs/workflow.md` — sơ đồ bàn giao giữa 4 vai trò, bảng "xong việc gì → đến ai",
   SLA review, việc nên làm khi đang chờ người khác
 - **8 skill hướng dẫn trong `.claude/skills/`**: `fastapi-endpoint`, `sqlalchemy-model`,

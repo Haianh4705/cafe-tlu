@@ -26,6 +26,7 @@ không phải sau. Đường dẫn: `.claude/skills/<tên>/SKILL.md`.
 
 | Sắp làm gì | Đọc skill |
 |---|---|
+| **Bất kỳ việc code nào (đọc trước tiên)** | `minimal-change` |
 | Thêm/sửa endpoint API | `fastapi-endpoint` |
 | Thêm/sửa bảng, cột, migration, seed | `sqlalchemy-model` |
 | Làm màn hình, form, bố cục | `pyside6-screen` **+** `ui-design` |

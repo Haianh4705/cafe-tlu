@@ -290,12 +290,16 @@ Theo **Conventional Commits**: `<loại>(<scope>): <mô tả ngắn ở thể m�
 Reviewer **PHẢI** kiểm tra (checklist 18.3):
 
 - [ ] Đúng phạm vi Issue, không "tiện tay" sửa thứ khác
+- [ ] **Đọc cả vùng code bị chạm, không chỉ diff** — mở file gọi tới hàm/endpoint/component
+      vừa đổi và kiểm tra nó còn đúng không (lỗi hay nằm ở file *không* có trong diff)
 - [ ] Tuân thủ ranh giới kiến trúc mục 4 (GUI không gọi SQL, router không chứa logic)
 - [ ] Có test; test thực sự kiểm tra hành vi, không phải test cho có
 - [ ] Không có secret, không có `print()`, không có code comment-out
 - [ ] Xử lý lỗi & trường hợp biên (dữ liệu rỗng, trùng, số âm, mất kết nối)
 - [ ] Ảnh chụp/docs cập nhật
 - [ ] Đặt tên & style đúng mục 7
+- [ ] Diff không chứa code "để sau này" (abstraction, option, config không ai yêu cầu) —
+      nếu có chủ ý cắt bớt thì đã ghi `shortcut:` đúng mục 7.1
 
 **Thời hạn review: 24 giờ.** Reviewer bận → nhắn trong PR và chuyển reviewer khác, không im lặng.
 
@@ -360,6 +364,24 @@ Chỉ được kéo sang `Done` khi **tất cả** đúng:
 - **CẤM** `print()` trong code sản phẩm → dùng `logger`.
 - **CẤM** `except:` trần hoặc `except Exception: pass`. Phải bắt cụ thể và xử lý/log.
 - **CẤM** hardcode: mật khẩu, connection string, đường dẫn tuyệt đối (`C:\Users\...`), URL server, magic number có ý nghĩa → đưa vào `api/core/config.py` hoặc `shared/constants.py`.
+
+#### Quy ước `shortcut:` — đánh dấu chỗ cắt bớt có chủ ý
+
+Khi cố ý làm bản đơn giản hơn để kịp tiến độ, **BẮT BUỘC** để lại một comment đúng dạng:
+
+```python
+# shortcut: bỏ gộp bàn khác khu vực, nâng cấp khi có yêu cầu từ quán (mốc 8)
+# shortcut: chưa giới hạn số lần đăng nhập sai, thêm rate limit trước G4
+```
+
+Lý do: "để sau" rất dễ thành "không bao giờ". Comment này cho phép:
+
+- `grep -rn "shortcut:" --include=*.py .` ra toàn bộ nợ kỹ thuật hiện có;
+- đưa thẳng vào chương **"Khó khăn & hướng phát triển"** của báo cáo;
+- reviewer biết đó là quyết định, không phải sơ suất.
+
+**CẤM** lạm dụng: `shortcut:` không phải giấy phép bỏ qua validate ở trust boundary, xử lý lỗi
+chống mất dữ liệu, bảo mật, hay accessibility (xem `WORKFLOW.md` mục 9 và skill `security`).
 
 ### 7.2 Đặt tên
 

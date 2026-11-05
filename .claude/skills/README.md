@@ -10,6 +10,7 @@
 
 | Skill | Dùng khi | Người phụ trách | Dòng |
 |---|---|---|---|
+| [`minimal-change`](minimal-change/SKILL.md) | **Mọi việc code** — chọn cách nhỏ nhất đủ dùng | Cả nhóm | ~135 |
 | [`fastapi-endpoint`](fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | A | ~100 |
 | [`sqlalchemy-model`](sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | B | ~130 |
 | [`pyside6-screen`](pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | C | ~90 |
