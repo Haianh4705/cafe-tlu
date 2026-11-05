@@ -18,6 +18,8 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   `installer/`, `assets/`, `report/`) — mỗi thư mục có README nêu owner, đặt gì, **không** đặt gì
 
 ### Added — quy trình & tài liệu
+- `docs/plan.md` — kế hoạch 8 tuần: mục tiêu + cổng từng tuần, thứ tự giao việc theo "sóng",
+  thứ tự cắt scope khi trễ, việc điều phối của D
 - `WORKFLOW.md` — quy chuẩn làm việc cho người và AI (nguồn chân lý)
 - `AGENTS.md` — điểm vào cho AI agent + bảng định tuyến "sắp làm gì → đọc skill nào"
 - `CONTRIBUTING.md`, `docs/standup.md`, `docs/setup-github.md`

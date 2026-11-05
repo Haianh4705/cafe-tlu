@@ -105,6 +105,7 @@ Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán),
 
 ## 7. Theo giai đoạn: ai làm gì, xong bàn giao gì
 
+> **Chi tiết từng tuần làm gì, giao theo thứ tự nào:** [`docs/plan.md`](plan.md).
 > Điều kiện "xanh" của từng cổng nằm ở **`WORKFLOW.md` mục 16.3** — mục này chỉ nói **ai làm gì**
 > trong mỗi giai đoạn, không định nghĩa lại cổng.
 
