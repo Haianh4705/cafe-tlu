@@ -68,6 +68,7 @@ report/         báo cáo BTL (mỗi người 1 chương)
 | Tài liệu | Nội dung |
 |---|---|
 | [`WORKFLOW.md`](WORKFLOW.md) | Quy chuẩn làm việc đầy đủ — **nguồn chân lý** |
+| [`docs/plan.md`](docs/plan.md) | **Kế hoạch 8 tuần: tuần này làm gì, giao theo thứ tự nào** |
 | [`docs/workflow.md`](docs/workflow.md) | **Ai làm gì, xong thì bàn giao cho ai** |
 | [`docs/defense.md`](docs/defense.md) | **Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết** |
 | [`AGENTS.md`](AGENTS.md) | Quy tắc cho AI agent |
