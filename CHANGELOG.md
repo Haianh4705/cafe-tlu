@@ -9,6 +9,12 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ## [Unreleased]
 
 ### Added
+- Khung thư mục code: `api/`, `gui/`, `db/`, `shared/`, `tests/`, `scripts/`, `infra/`,
+  `installer/`, `assets/`, `report/` — mỗi thư mục có README nêu owner, đặt gì, **không** đặt gì
+- `docs/defense.md`: ngân hàng câu hỏi bảo vệ theo từng vùng (chung/A/B/C/D), câu hỏi bẫy,
+  quy trình hỏi chéo thứ 6, sổ "chưa trả lời được", checklist trước bảo vệ
+- Cơ chế "hiểu bài": mục **"Giải thích được"** 3 câu bắt buộc trong template PR;
+  `WORKFLOW.md` mục 6.3 + DoD; `AGENTS.md` mục 7
 - Skill **`minimal-change`**: bậc thang YAGNI (dùng cái đã có → stdlib → dependency đã cài → 1 dòng
   → code tối thiểu), Việt hoá từ [Ponytail](https://github.com/DietrichGebert/ponytail), đã chặn 3 xung
   đột với quy chuẩn dự án (phạm vi do Issue, yêu cầu mơ hồ phải hỏi, không cắt việc bắt buộc)

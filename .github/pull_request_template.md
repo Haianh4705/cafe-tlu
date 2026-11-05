@@ -11,6 +11,14 @@ Closes #
 -
 -
 
+## Giải thích được (bắt buộc — xem `docs/defense.md`)
+
+> Không viết được 3 câu này = chưa hiểu bài, đừng mở PR.
+
+1. **Đoạn code này làm gì:** <!-- 1 câu, không dùng "xử lý"/"quản lý" chung chung -->
+2. **Vì sao chọn cách này thay vì cách khác:** <!-- 1 câu, nêu trade-off -->
+3. **Nếu thầy hỏi "sao không dùng X?" thì trả lời:** <!-- 1 câu -->
+
 ## Cách kiểm chứng
 
 <!-- Dán kết quả THẬT. Không viết "em đã test rồi". -->

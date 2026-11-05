@@ -346,6 +346,21 @@ Chỉ được kéo sang `Done` khi **tất cả** đúng:
 - [ ] Đã cập nhật `CHANGELOG.md` (mục `Unreleased`)
 - [ ] **Có ảnh chụp màn hình** lưu vào `docs/screenshots/<module>/` (nếu là UI)
 - [ ] Đã ghi vào `docs/decisions.md` nếu có quyết định kỹ thuật mới
+- [ ] **Giải thích được**: PR có mục "Giải thích được" 3 câu (`docs/defense.md`) và người viết
+      trả lời được câu hỏi bất kỳ về đoạn code mình vừa viết
+
+## 6.3 Hiểu bài — điều kiện không thể thương lượng
+
+Đề bài: **copy = 0 điểm**. Giảng viên có thể hỏi **bất kỳ phần nào**, kể cả phần của người khác.
+
+| Việc | Ở đâu |
+|---|---|
+| Mỗi PR phải có 3 câu "Giải thích được" | Template PR, `docs/defense.md` |
+| Ngân hàng câu hỏi GV hay hỏi theo từng vùng | `docs/defense.md` mục "Ngân hàng câu hỏi" |
+| Hỏi chéo 15 phút mỗi thứ 6 (2 câu về vùng người khác) | `docs/defense.md` mục "Quy trình 15 phút" |
+| Câu chưa trả lời được → ghi sổ, trả lời lại tuần sau | `docs/defense.md` mục "Sổ chưa trả lời được" |
+
+**Luật cứng:** không merge PR mà mình không giải thích được, kể cả khi CI xanh.
 
 > 💡 Ảnh chụp lưu **ngay khi xong việc** là mẹo ăn điểm mốc 8 ("chụp ảnh các bước đầy đủ, cẩn thận") — đến tuần 7 không phải dựng lại app để chụp.
 
