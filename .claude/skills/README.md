@@ -8,17 +8,17 @@
 
 ## Danh sách
 
-| Skill | Dùng khi | Người phụ trách | Dòng |
-|---|---|---|---|
-| [`minimal-change`](minimal-change/SKILL.md) | **Mọi việc code** — chọn cách nhỏ nhất đủ dùng | Cả nhóm | ~135 |
-| [`fastapi-endpoint`](fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | A | ~100 |
-| [`sqlalchemy-model`](sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | B | ~130 |
-| [`pyside6-screen`](pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | C | ~90 |
-| [`ui-design`](ui-design/SKILL.md) | Bố cục, màu, font, chống "AI slop" | C (+ cả nhóm review) | ~150 |
-| [`pytest-db`](pytest-db/SKILL.md) | Fixture DB, test API, test hồi quy | A/B | ~120 |
-| [`win-installer`](win-installer/SKILL.md) | Build `.exe`, lỗi đóng gói | D | ~130 |
-| [`report-export`](report-export/SKILL.md) | Xuất Excel/PDF, in hoá đơn | B/C | ~110 |
-| [`security`](security/SKILL.md) | Auth, phân quyền, review trước deploy | Cả nhóm (D review) | ~120 |
+| Skill | Đọc khi | Người phụ trách |
+|---|---|---|
+| [`minimal-change`](minimal-change/SKILL.md) | **Mọi việc code** — chọn cách nhỏ nhất đủ dùng | Cả nhóm |
+| [`fastapi-endpoint`](fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | A |
+| [`sqlalchemy-model`](sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | B |
+| [`pyside6-screen`](pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | C |
+| [`ui-design`](ui-design/SKILL.md) | Bố cục, màu, font, chống "AI slop" | C (+ cả nhóm review) |
+| [`pytest-db`](pytest-db/SKILL.md) | Fixture DB, test API, test hồi quy | A/B |
+| [`win-installer`](win-installer/SKILL.md) | Build `.exe`, lỗi đóng gói | D |
+| [`report-export`](report-export/SKILL.md) | Xuất Excel/PDF, in hoá đơn | B/C |
+| [`security`](security/SKILL.md) | Auth, phân quyền, review trước deploy | Cả nhóm (D review) |
 
 ## Quy ước viết skill mới
 

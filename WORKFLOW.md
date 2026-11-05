@@ -83,6 +83,12 @@ Quy định của trường/GV (ưu tiên cao hơn nếu khác), quy định v�
 | `docs/workflow.md` | **Ai làm gì, xong thì bàn giao cho ai** | Tất cả |
 | `docs/api-contract.md` | Đặc tả API (nguồn chân lý của hợp đồng) | A, B, C |
 | `docs/erd.md` | Sơ đồ ERD + từ điển dữ liệu | A, B |
+| `docs/defense.md` | Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết | Tất cả |
+| `docs/test-cases.md` | Danh sách ca kiểm thử (PASS/FAIL) | C, D |
+| `docs/setup-github.md` | Thiết lập GitHub một lần (đã xong, giữ để tra cứu) | D |
+| `docs/standup.md` | Mẫu standup hằng ngày | Tất cả |
+| `.claude/skills/` | 9 skill hướng dẫn theo loại việc | Tất cả + AI |
+| `<thư mục>/README.md` | Mỗi thư mục code có README: owner, đặt gì, **không** đặt gì | Người làm thư mục đó |
 | `CHANGELOG.md` | Lịch sử thay đổi theo phiên bản | D, GV |
 | `db/schema.sql`, `db/seed.sql` | Cấu trúc DB + dữ liệu mẫu | B, tất cả khi setup |
 
@@ -287,19 +293,13 @@ Theo **Conventional Commits**: `<loại>(<scope>): <mô tả ngắn ở thể m�
 
 ### 5.5 Review
 
-Reviewer **PHẢI** kiểm tra (checklist 18.3):
+Reviewer **PHẢI** kiểm tra **checklist đầy đủ ở [mục 18.3](#183-checklist-reviewer)** — đó là nguồn duy nhất.
+Ba điểm hay bị bỏ qua nhất:
 
-- [ ] Đúng phạm vi Issue, không "tiện tay" sửa thứ khác
-- [ ] **Đọc cả vùng code bị chạm, không chỉ diff** — mở file gọi tới hàm/endpoint/component
-      vừa đổi và kiểm tra nó còn đúng không (lỗi hay nằm ở file *không* có trong diff)
-- [ ] Tuân thủ ranh giới kiến trúc mục 4 (GUI không gọi SQL, router không chứa logic)
-- [ ] Có test; test thực sự kiểm tra hành vi, không phải test cho có
-- [ ] Không có secret, không có `print()`, không có code comment-out
-- [ ] Xử lý lỗi & trường hợp biên (dữ liệu rỗng, trùng, số âm, mất kết nối)
-- [ ] Ảnh chụp/docs cập nhật
-- [ ] Đặt tên & style đúng mục 7
-- [ ] Diff không chứa code "để sau này" (abstraction, option, config không ai yêu cầu) —
-      nếu có chủ ý cắt bớt thì đã ghi `shortcut:` đúng mục 7.1
+- **Đọc cả vùng code bị chạm, không chỉ diff** — mở file gọi tới hàm/endpoint/component vừa đổi.
+  Lỗi hay nằm ở file *không* có trong diff.
+- **Test phải kiểm tra hành vi**, không phải test cho có (assert phải đỏ được nếu logic sai).
+- **Diff không chứa code "để sau này"**; chỗ cố ý cắt bớt phải có `shortcut:` (mục 7.1).
 
 **Thời hạn review: 24 giờ.** Reviewer bận → nhắn trong PR và chuyển reviewer khác, không im lặng.
 
@@ -836,116 +836,73 @@ Bất kỳ ai (người hoặc AI) bị chặn **> 2 giờ** phải báo. Bị c
 
 ## 18. Phụ lục: template & lệnh thường dùng
 
+> Các template **sống ở đúng chỗ GitHub dùng** — không chép lại ở đây để khỏi lệch nhau.
+
 ### 18.1 Template Issue
 
-```markdown
-## Mục tiêu
-<kết quả mong đợi, 1–2 câu>
-
-## Tiêu chí nghiệm thu
-- [ ] ...
-- [ ] ...
-
-## Phạm vi
-- Vùng ảnh hưởng: api / gui / db / infra / docs
-- File dự kiến sửa: ...
-
-## Phụ thuộc
-- Cần: <endpoint/bảng/người>
-
-## Ước lượng
-S / M / L
-```
+[`.github/ISSUE_TEMPLATE/task.md`](.github/ISSUE_TEMPLATE/task.md) (việc cần làm) ·
+[`.github/ISSUE_TEMPLATE/bug.md`](.github/ISSUE_TEMPLATE/bug.md) (báo lỗi).
+GitHub tự hiện khi bấm **New issue** — không cần nhớ.
 
 ### 18.2 Template Pull Request
 
-```markdown
-## Liên kết
-Closes #<issue>
-
-## Đã làm gì
-...
-
-## Cách kiểm chứng
-| Lệnh / bước | Kết quả |
-|---|---|
-| `make test` | 48 passed |
-| `make lint` | clean |
-| Thủ công | ... |
-
-## Ảnh chụp
-<img ...> (nếu là UI)
-
-## Ghi chú cho reviewer
-- ...
-
-## Checklist
-- [ ] Đúng phạm vi Issue
-- [ ] Tuân thủ kiến trúc mục 4
-- [ ] Có test
-- [ ] Đã cập nhật docs + CHANGELOG
-- [ ] Không có secret / print / code chết
-```
+[`.github/pull_request_template.md`](.github/pull_request_template.md) — GitHub tự điền khi mở PR.
+Phần **"Giải thích được" 3 câu** trong đó là bắt buộc (mục 6.3, `docs/defense.md`).
 
 ### 18.3 Checklist reviewer
 
-- [ ] Logic đúng theo tiêu chí nghiệm thu
-- [ ] Ranh giới kiến trúc (GUI không SQL, router không logic)
-- [ ] Trường hợp biên: rỗng, trùng, số âm, quá dài, mất mạng
-- [ ] Phân quyền được kiểm ở server
-- [ ] Test có ý nghĩa, không phải test hình thức
+> Đây là **nguồn duy nhất** của checklist review. Mục 5.5 chỉ nhắc 3 điểm hay bị bỏ qua.
+
+- [ ] Logic đúng theo tiêu chí nghiệm thu của Issue
+- [ ] Đúng phạm vi Issue, không "tiện tay" sửa thứ khác
+- [ ] **Đã đọc cả vùng code bị chạm, không chỉ diff** (file gọi tới hàm/endpoint/component vừa đổi)
+- [ ] Ranh giới kiến trúc mục 4: GUI không gọi SQL, router không chứa logic, không circular import
+- [ ] Trường hợp biên: rỗng, trùng, số âm, quá dài, mất kết nối
+- [ ] Phân quyền được kiểm **ở server**, không chỉ ẩn nút
+- [ ] Có test; test kiểm tra hành vi thật (assert đỏ được nếu logic sai)
+- [ ] Không N+1 query; cột lọc/sắp xếp mới có index
+- [ ] Không có secret, `print()`, code comment-out
+- [ ] Thông báo lỗi thân thiện với người dùng cuối (tiếng Việt, có cách khắc phục)
 - [ ] Tên biến/hàm rõ nghĩa, không viết tắt khó hiểu
-- [ ] Không N+1 query; có index cho cột lọc mới
-- [ ] Thông báo lỗi thân thiện với người dùng cuối
-- [ ] Docs/ảnh chụp đã cập nhật
+- [ ] Diff không chứa code "để sau này"; chỗ cố ý cắt có `shortcut:` (mục 7.1)
+- [ ] Docs / ảnh chụp / `CHANGELOG.md` đã cập nhật
+- [ ] Người viết trả lời được 3 câu "Giải thích được" trong PR (mục 6.3)
 
-### 18.4 Template ADR (thêm vào `docs/decisions.md`)
+### 18.4 Template ADR
 
-```markdown
-### ADR-007: Dùng PySide6 thay vì Tkinter
-- **Ngày:** 2026-11-06 · **Người quyết định:** C · **Trạng thái:** Chấp nhận
-- **Bối cảnh:** cần biểu đồ, theme hiện đại, bundle installer.
-- **Quyết định:** dùng PySide6 + QSS.
-- **Đã cân nhắc:** Tkinter (nhẹ nhưng xấu, chart kém), Flet (mới, ít tài liệu).
-- **Hệ quả:** installer nặng thêm ~60MB; cần Qt Designer cho layout.
-```
+Mẫu nằm ở cuối [`docs/decisions.md`](docs/decisions.md) — chép vào đó, đánh số tiếp theo.
+ADR đã `Chấp nhận` thì không mở lại trừ khi có dữ liệu mới.
 
 ### 18.5 Lệnh thường dùng
 
 ```bash
 # Thiết lập lần đầu
-python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
-pip install -r requirements.txt -r requirements-dev.txt
-cp .env.example .env
+make install     # tạo .venv + thư viện + pre-commit + .env
+make up          # MySQL 8.0 trong Docker (cổng 3307)
+make doctor      # kiểm tra môi trường
 
-# Chạy hệ thống
-make up          # docker compose up -d mysql
-make api         # uvicorn api.main:app --reload
-make gui         # python -m gui.main
-make test        # pytest -q
-make lint        # ruff check . && black --check .
+# Hằng ngày
+make api         # backend  → http://127.0.0.1:8000/docs
+make gui         # giao diện desktop
+make check       # lint + test — BẮT BUỘC trước khi mở PR
 
 # Git
 git switch develop && git pull --ff-only
 git switch -c feature/order-merge-table-cuong
-git rebase develop
 git add api/routers/orders.py
 git commit -m "feat(order): thêm endpoint gộp bàn"
 git push -u origin HEAD
+gh pr create --base develop --fill
 
-# Build installer (D)
-make installer   # PyInstaller + Inno Setup
+# Đóng gói (D)
+make build-installer   # PyInstaller + Inno Setup
 ```
+
+> Danh sách lệnh đầy đủ: `make` (không tham số). Nguồn chân lý là `Makefile`, không phải mục này.
 
 ### 18.6 Mẫu standup
 
-```
-Hôm qua: xong endpoint merge-table (#42), còn thiếu test
-Hôm nay: viết test + cập nhật api-contract
-Đang chặn: cần B xác nhận cột order_items.status có cần không
-```
-
----
+[`docs/standup.md`](docs/standup.md) — 3 dòng, trước 10:00, trên chat nhóm.
 
 ## 19. Lịch sử thay đổi
 

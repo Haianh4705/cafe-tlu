@@ -56,7 +56,7 @@ infra/          Dockerfile, deploy — D
 installer/      Inno Setup .iss — D
 docs/           erd, api-contract, decisions, test-cases, screenshots
 report/         báo cáo BTL (mỗi người 1 chương)
-.claude/skills/ 8 skill hướng dẫn theo loại việc
+.claude/skills/ 9 skill hướng dẫn theo loại việc
 ```
 
 ## Làm việc nhóm
@@ -102,4 +102,5 @@ Nhóm: `@Haianh4705` · `@bao20062005dh-creator` · `@MeoCamGuitar` · `@trungdu
 
 [`docs/erd.md`](docs/erd.md) · [`docs/api-contract.md`](docs/api-contract.md) ·
 [`docs/decisions.md`](docs/decisions.md) · [`docs/test-cases.md`](docs/test-cases.md) ·
-[`docs/setup-github.md`](docs/setup-github.md) · [`CHANGELOG.md`](CHANGELOG.md)
+[`docs/setup-github.md`](docs/setup-github.md) · [`CHANGELOG.md`](CHANGELOG.md) ·
+[đề bài gốc (PDF)](Danh-sach-BTL-hoc-phan-Python-TLU-2026.pdf)

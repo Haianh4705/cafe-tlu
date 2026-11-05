@@ -1,11 +1,9 @@
 # Nhật ký standup (tuỳ chọn)
 
-> Nhóm có thể dùng file này để lưu standup hằng ngày (WORKFLOW.md mục 16.1) hoặc chỉ
-> trao đổi trên Zalo. Mục đích là để **tra cứu lại "ai đang chặn việc gì"** khi cần.
->
-> 3 dòng, trước 10:00. Không họp, không giải thích dài.
+> Dùng file này nếu nhóm muốn **lưu lại** standup để tra cứu "ai đang chặn việc gì".
+> Không dùng cũng được — (WORKFLOW.md mục 16.1). Chat chỉ để trao đổi nhanh; việc cần làm vẫn là Issue.
 
-## Mẫu
+## Mẫu — 3 dòng, trước 10:00
 
 ```
 ### YYYY-MM-DD
@@ -15,11 +13,14 @@
 - **D:** hôm qua … / hôm nay … / chặn: …
 ```
 
-## Tuần 1
+Quy ước:
 
-### 2026-11-04
+- **Chặn: không** nếu không bị chặn — đừng để trống.
+- Bị chặn **> 2 giờ** phải báo, không chờ tới hôm sau.
+- Chỉ ghi việc, không ghi cảm xúc.
 
-- **A:** setup môi trường xong / viết `docs/api-contract.md` / chặn: chờ chốt ERD
-- **B:** setup môi trường xong / dựng `db/schema.sql` + `seed.sql` / chặn: chưa có
-- **C:** setup môi trường xong / dựng khung `gui/` + theme / chặn: chờ contract
-- **D:** khởi tạo repo + CI + template / build thử installer lần 1 / chặn: chưa có
+## Nhật ký
+
+> Ngày đầu tiên bắt đầu ghi là ngày cả nhóm bắt tay vào code (cổng G2).
+
+_(chưa có — sẽ bắt đầu khi nhóm nhận vai)_
