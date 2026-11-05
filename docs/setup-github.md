@@ -1,7 +1,11 @@
 # Thiết lập GitHub — làm một lần, ~30 phút
 
-> Người thực hiện: **D**. Chạy đúng thứ tự, đừng bỏ bước 3 (contexts của CI phải
-> tồn tại trước khi bật branch protection, nếu không PR sẽ không bao giờ merge được).
+> ✅ **TRẠNG THÁI: ĐÃ HOÀN TẤT (2026-11-05).** Repo đã có branch protection, CI, nhãn, milestone,
+> 4 collaborator. Tài liệu này giữ lại để **tra cứu** khi cần dựng lại hoặc giải thích với GV —
+> **đừng chạy lại từ đầu**, chỉ chạy phần còn thiếu.
+>
+> Người thực hiện: **D**. Thứ tự bắt buộc: bước 3 (chờ CI xanh một lần) phải xong **trước** bước 4
+> (bật protection), nếu không PR sẽ không bao giờ merge được.
 
 ## 0. Chuẩn bị
 
