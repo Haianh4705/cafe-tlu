@@ -89,6 +89,28 @@
 
 ---
 
+## ADR-009: Phân công vai trò A/B/C/D
+
+- **Ngày:** 2026-11-06 · **Người quyết định:** cả nhóm · **Trạng thái:** ✅ Chấp nhận
+- **Bối cảnh:** nhóm 4 người, cần chia theo **tầng kiến trúc** (không chia theo màn hình) để bốn
+  người code song song mà không giẫm chân.
+- **Quyết định:**
+
+  | Vai | Người | Vùng sở hữu |
+  |---|---|---|
+  | A — Backend/API | @bao20062005dh-creator | `api/`, `shared/` |
+  | B — Data & Reports | @trungdunxg | `db/`, `api/services/reports.py`, seed |
+  | C — GUI/UX | @MeoCamGuitar | `gui/`, `assets/` |
+  | D — Infra + QA + Docs | @Haianh4705 | `infra/`, `installer/`, `.github/`, `docs/`, `report/` |
+
+- **Đã cân nhắc:** chia theo màn hình (form Món / form Bàn…) → conflict liên tục, code trùng;
+  chia 2 frontend – 2 backend → không ai lo đóng gói, báo cáo, QA.
+- **Hệ quả:** **không** bật "Require review from Code Owners" — mỗi người là owner duy nhất vùng
+  mình, GitHub không cho tự approve nên PR sẽ kẹt. Dùng 1 approval bất kỳ + gán reviewer theo
+  `CODEOWNERS`. Thứ tự giao việc từng tuần: `docs/plan.md`.
+
+---
+
 ## Mẫu thêm ADR mới
 
 ```markdown
