@@ -9,6 +9,7 @@
 2. [`WORKFLOW.md`](WORKFLOW.md) mục 0 (TL;DR) + mục 4 (ranh giới sở hữu)
 3. [`docs/decisions.md`](docs/decisions.md) — những gì đã chốt, không mở lại
 4. [`docs/api-contract.md`](docs/api-contract.md) + [`docs/erd.md`](docs/erd.md)
+   (ERD **do B thiết kế** — có thể còn là khung khi bạn mới vào)
 
 ## Cài đặt
 

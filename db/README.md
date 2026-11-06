@@ -6,7 +6,7 @@
 
 | File | Nội dung |
 |---|---|
-| `schema.sql` | DDL tạo 9 bảng — **khớp 100%** với `docs/erd.md` |
+| `schema.sql` | DDL tạo các bảng — **khớp 100%** với `docs/erd.md` (B tự thiết kế) |
 | `seed.sql` | Dữ liệu mẫu: 3 roles, 5 users, 6 categories, **50 món**, 12 bàn, ~120 đơn/30 ngày. Phải **idempotent** |
 | `migrations/` | Alembic `versions/` — mỗi lần đổi cấu trúc là 1 file mới |
 

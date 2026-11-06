@@ -17,7 +17,7 @@
 
 ```mermaid
 flowchart TD
-    B1["B — db/schema.sql<br/>9 bảng theo ERD"] -->|"schema chốt"| A1["A — models SQLAlchemy"]
+    B1["B — thiết kế ERD<br/>+ db/schema.sql"] -->|"schema chốt"| A1["A — models SQLAlchemy"]
     B1 -->|"schema + seed"| D1["D — mount vào compose<br/>test make reset-db"]
     B2["B — db/seed.sql<br/>50 món, 120 đơn"] --> A2
     A1 --> A2["A — API: auth + CRUD"]

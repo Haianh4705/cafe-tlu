@@ -61,14 +61,14 @@ Nếu không viết được 3 câu này → **chưa hiểu bài**, đừng mở
 
 | # | Câu hỏi | Chỉ vào |
 |---|---|---|
-| 1 | Vì sao 9 bảng, sao không gộp bớt? | `docs/erd.md`, chuẩn hoá |
-| 2 | Vì sao `order_items` lưu `unit_price` riêng? | Giá tại thời điểm bán |
+| 1 | Vì sao em chia bảng như vậy? Sao không gộp bớt (hoặc sao lại gộp)? | `docs/erd.md` — **em tự viết** |
+| 2 | Giá món đổi sau khi bán — hoá đơn cũ hiển thị giá nào? Em lưu thế nào? | cột giá trong bảng chi tiết đơn |
 | 3 | Vì sao tiền là `DECIMAL` không `FLOAT`? | sai số nhị phân |
 | 4 | Index đặt ở đâu, vì sao? | `db/schema.sql`, `EXPLAIN` |
 | 5 | Viết query doanh thu theo ngày. | `api/services/reports.py` |
-| 6 | Vì sao `is_deleted` thay vì `DELETE`? | `WORKFLOW.md` mục 8.3 |
-| 7 | `ON DELETE RESTRICT` để làm gì? | FK trong `schema.sql` |
-| 8 | Seed 120 đơn, tổng tiền có khớp không? Kiểm thế nào? | `scripts/seed_data.py`, test |
+| 6 | Em xoá món thế nào? Xoá cứng hay mềm, vì sao? | `WORKFLOW.md` mục 8.3 + `schema.sql` |
+| 7 | Từng khoá ngoại em đặt `ON DELETE` gì, vì sao? | FK trong `schema.sql` |
+| 8 | Dữ liệu mẫu của em có tự mâu thuẫn không? Kiểm bằng cách nào? | `scripts/seed_data.py`, test |
 | 9 | N+1 query là gì? Bài em có bị không? | `selectinload`/`joinedload` |
 | 10 | Số trên báo cáo lấy từ đâu, có thể lệch màn hình không? | cùng 1 hàm service |
 

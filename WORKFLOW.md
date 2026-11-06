@@ -83,7 +83,7 @@ Quy định của trường/GV (ưu tiên cao hơn nếu khác), quy định v�
 | `docs/plan.md` | **Kế hoạch 8 tuần + thứ tự giao việc theo sóng** | D, cả nhóm |
 | `docs/workflow.md` | **Ai làm gì, xong thì bàn giao cho ai** | Tất cả |
 | `docs/api-contract.md` | Đặc tả API (nguồn chân lý của hợp đồng) | A, B, C |
-| `docs/erd.md` | Sơ đồ ERD + từ điển dữ liệu | A, B |
+| `docs/erd.md` | **Khung** thiết kế dữ liệu — B tự điền (chưa có bản thiết kế) | A, B |
 | `docs/defense.md` | Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết | Tất cả |
 | `docs/test-cases.md` | Danh sách ca kiểm thử (PASS/FAIL) | C, D |
 | `docs/setup-github.md` | Thiết lập GitHub một lần (đã xong, giữ để tra cứu) | D |
@@ -331,7 +331,8 @@ Phân loại comment (bắt buộc dùng tiền tố):
 - [ ] Có **tiêu chí nghiệm thu** kiểm tra được (VD: "thêm món trùng tên → báo lỗi, không tạo bản ghi")
 - [ ] Biết rõ **phụ thuộc** (API nào, bảng nào, ai cung cấp)
 - [ ] Có **assignee** và ước lượng S/M/L
-- [ ] Nếu ảnh hưởng schema/API → **đã chốt trong `docs/api-contract.md` / `docs/erd.md`**
+- [ ] Nếu ảnh hưởng API → đã chốt trong `docs/api-contract.md`; nếu ảnh hưởng schema →
+      đã có trong `docs/erd.md` **do B thiết kế** (không có bản viết sẵn)
 - [ ] Nếu cần thư viện mới → **đã được duyệt**
 
 ### 6.2 Definition of Done (việc thực sự xong)
@@ -588,7 +589,7 @@ Lỗi:
 | Tài liệu | Người viết | Ghi chú |
 |---|---|---|
 | `docs/api-contract.md` | A | Cập nhật mỗi khi đổi endpoint |
-| `docs/erd.md` | B | Kèm hình ERD (draw.io/dbdiagram) |
+| `docs/erd.md` | **B** — B tự thiết kế (ERD + từ điển + bất biến) | Kèm hình ERD (mermaid/dbdiagram) |
 | `README.md` | D biên tập | Cài & chạy trong 3 lệnh |
 | `CHANGELOG.md` | D biên tập | Mọi người thêm mục `Unreleased` khi merge |
 | `docs/decisions.md` | Người ra quyết định | ADR-lite, xem 18.4 |
