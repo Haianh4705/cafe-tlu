@@ -23,7 +23,8 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - `WORKFLOW.md` — quy chuẩn làm việc cho người và AI (nguồn chân lý)
 - `AGENTS.md` — điểm vào cho AI agent + bảng định tuyến "sắp làm gì → đọc skill nào"
 - `CONTRIBUTING.md`, `docs/standup.md`, `docs/setup-github.md`
-- `docs/erd.md` — **chốt v1**: 9 bảng, từ điển dữ liệu, 7 bất biến dữ liệu, kế hoạch seed
+- `docs/erd.md` — **khung** thiết kế dữ liệu: quy ước bắt buộc, khung để điền, 6 câu hỏi tự kiểm,
+  deliverable. **B tự thiết kế** (nhóm cố ý không có bản ERD viết sẵn)
 - `docs/api-contract.md` — **chốt v1**: 23 endpoint, envelope `data/meta/error`, 7 mã lỗi
 - `docs/workflow.md` — sơ đồ bàn giao giữa 4 vai trò, "xong việc gì → đến ai", SLA review
 - `docs/defense.md` — ngân hàng 48 câu hỏi bảo vệ theo vùng + 6 câu bẫy + hỏi chéo thứ 6
@@ -39,6 +40,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Cơ chế "hiểu bài": mục **"Giải thích được" 3 câu** bắt buộc trong template PR (WORKFLOW 6.3)
 
 ### Changed
+- **Bỏ bản ERD viết sẵn**: `docs/erd.md` chuyển thành khung, B (Data & Reports) tự thiết kế trước khi
+  viết `db/schema.sql` — để hiểu và bảo vệ được trước GV (đề bài: copy = 0 điểm). Mọi tài liệu
+  liên quan (WORKFLOW, AGENTS, plan, workflow, defense, skills, db/README) đã cập nhật theo.
 - **Chốt phân vai**: A = @bao20062005dh-creator (backend) · B = @trungdunxg (data/reports) ·
   C = @MeoCamGuitar (GUI) · D = @Haianh4705 (infra/QA/docs) — 16 issue đã gán assignee, chia theo
   sóng phụ thuộc; `CODEOWNERS` điền tên thật (ADR-009)

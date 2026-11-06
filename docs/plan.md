@@ -41,7 +41,7 @@
 
 | # | Việc | Ai | Issue | ~giờ |
 |---|---|---|---|---|
-| 1 | `db/schema.sql` — 9 bảng theo ERD | B | #17 | 4 |
+| 1 | **Thiết kế ERD** (`docs/erd.md`) + `db/schema.sql` | B | #17 | 6 |
 | 2 | Khung `api/` + `/health` | A | #19 | 2 |
 | 3 | Khung `gui/` + `theme.py` (palette TLU) + `BaseView` | C | #23 | 4 |
 | 4 | Build installer lần 1 trên CI | D | #26 | 3 |
@@ -52,7 +52,7 @@
 |---|---|---|---|---|
 | 5 | `db/seed.sql` — 50 món, 5 users bcrypt | B | #18 | #17 |
 | 6 | Config + kết nối MySQL (`get_db`) | A | #20 | #19 |
-| 7 | Models 9 bảng | A | #21 | #17 |
+| 7 | Models theo ERD của B | A | #21 | **#17** |
 | 8 | `api_client.py` + `i18n.py` | C | #24 | contract (đã có) |
 | 9 | `make doctor` kiểm tra MySQL + Dockerfile | D | #27 | – |
 
@@ -124,7 +124,7 @@ mỗi PR có "Giải thích được" 3 câu.
 | 8 | QA: 2 người cùng bàn, huỷ đơn, thanh toán lại | D |
 
 > **Rủi ro lớn nhất tuần này:** transaction của `checkout`. Nếu A và B không thống nhất bất biến
-> ở `docs/erd.md` mục 4, dữ liệu sẽ lệch và báo cáo sai. Chốt trước khi code (thứ 3).
+> đã ghi ở mục 3.3 của `docs/erd.md` (do B viết), dữ liệu sẽ lệch và báo cáo sai. Chốt trước khi code (thứ 3).
 
 ---
 

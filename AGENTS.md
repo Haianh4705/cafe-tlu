@@ -14,7 +14,7 @@
 | 1 | `WORKFLOW.md` | **Toàn bộ quy chuẩn.** Mục 15 là quy tắc dành riêng cho bạn |
 | 2 | `docs/decisions.md` | Các quyết định kỹ thuật đã chốt (không mở lại) |
 | 3 | `docs/api-contract.md` | Hợp đồng API — nguồn chân lý, không tự đổi |
-| 4 | `docs/erd.md` | Sơ đồ dữ liệu + từ điển cột |
+| 4 | `docs/erd.md` | Thiết kế dữ liệu **do B viết** — có thể còn là khung nếu B chưa chốt |
 | 5 | Issue được giao | Phạm vi duy nhất bạn được làm |
 
 Nếu thiếu file nào ở trên → **báo lại**, đừng tự tạo phiên bản riêng.

@@ -24,7 +24,7 @@ Một thay đổi cấu trúc **luôn** chạm 4 file — thiếu một là hỏ
 - Đổi tên/xoá cột đang dùng trong cùng một bước → thêm cột mới, migrate dữ liệu, xoá ở phiên bản sau.
 - Viết `seed.sql` không idempotent.
 
-## Quy ước (đã chốt trong docs/erd.md mục 2)
+## Quy ước (nguồn: `WORKFLOW.md` mục 8 — bắt buộc, không phụ thuộc thiết kế cụ thể)
 
 | Mục | Giá trị |
 |---|---|
@@ -80,7 +80,7 @@ CREATE TABLE products (
 
 ## Quy trình
 
-1. Sửa `docs/erd.md` trước (bảng + từ điển + bất biến nếu có).
+1. Sửa `docs/erd.md` trước (bảng + từ điển + bất biến). **B là người viết file này**, không copy từ đâu.
 2. Sửa `db/schema.sql`.
 3. Sửa/thêm model.
 4. `alembic revision -m "mô tả"` → điền `upgrade()`/`downgrade()`.

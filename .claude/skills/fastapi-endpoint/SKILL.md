@@ -8,7 +8,7 @@ description: Thêm hoặc sửa một endpoint FastAPI trong dự án CafeTLU (a
 ## Trước khi viết dòng nào
 
 1. Đọc `docs/api-contract.md` — endpoint đó đã có trong bảng chưa? Nếu có, **làm đúng như bảng**.
-2. Đọc mục mô tả liên quan trong `docs/erd.md` để biết bảng/cột được dùng.
+2. Đọc mục mô tả liên quan trong `docs/erd.md` để biết bảng/cột (do B thiết kế — nếu còn khung thì hỏi B) được dùng.
 3. Kiểm tra `shared/error_codes.py` — đã có mã lỗi cần dùng chưa?
 4. Nếu endpoint chưa có trong hợp đồng: thêm dòng vào `docs/api-contract.md` **trong cùng PR**,
    và báo nhóm (C cần biết để gọi).
