@@ -9,6 +9,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ## [Unreleased]
 
 ### Added — hạ tầng & công cụ
+- `make next` + `scripts/next_task.sh`: in việc tiếp theo của mỗi người từ Issue được gán,
+  sắp theo milestone rồi số Issue (thứ tự phụ thuộc), kèm skill phải đọc
+- Skill `next-task`: dạy AI agent trả lời "tôi cần làm gì?" theo đúng khuôn, không tự bịa việc
 - `Makefile` (17 lệnh, tự dò `python3.12` và Docker CLI), `docker-compose.yml` (MySQL 8.0, cổng 3307,
   Adminer ở profile `tools`), `requirements*.txt` pin phiên bản, `pyproject.toml` (ruff/black/pytest/coverage)
 - `pre-commit` 11 hook: chặn secret, file lớn, `.env`, commit lên `main`/`develop`; format ruff/black

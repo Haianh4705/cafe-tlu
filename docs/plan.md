@@ -8,7 +8,17 @@
 > C = [@MeoCamGuitar](https://github.com/MeoCamGuitar) ·
 > D = [@Haianh4705](https://github.com/Haianh4705)
 
-## 0. Năm quy tắc giao việc
+## 0. Không biết làm gì thì hỏi
+
+```bash
+make next                     # người dùng
+```
+
+Hoặc mở AI agent trong repo và hỏi: *"Đọc AGENTS.md và skill next-task, cho tôi biết việc tiếp
+theo của tôi."* — agent chạy `make next`, đọc Issue và trả lời: làm gì · xong khi nào · skill
+nào phải đọc · đang chờ ai.
+
+## 0.1 Năm quy tắc giao việc
 
 1. **Đường găng trước.** `db/schema.sql` chặn A và C → giao cho B **ngay ngày 1**, không chờ họp.
 2. **Giao theo "sóng", không giao phẳng.** Sóng 1 = việc không phụ thuộc ai (4 người chạy song song).
