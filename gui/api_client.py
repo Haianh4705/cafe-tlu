@@ -211,3 +211,4 @@ class ApiClient:
     def get_top_products_report(self, limit: int = 10) -> list[dict[str, Any]]:
         """GET /reports/top-products - Lấy danh sách món bán chạy nhất."""
         return self._request("GET", "/reports/top-products", params={"limit": limit})
+

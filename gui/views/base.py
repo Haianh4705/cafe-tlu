@@ -263,3 +263,4 @@ class BaseView(QWidget):
         layout.addLayout(btn_layout)
         layout.addStretch()
         return widget
+

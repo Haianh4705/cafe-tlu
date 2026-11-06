@@ -1,6 +1,5 @@
 """Kiểm thử đơn vị cho các thành phần giao diện tĩnh: Theme, i18n và ApiClient."""
 
-import pytest
 from gui.api_client import ApiClient, ApiClientError
 from gui.i18n import STRINGS, t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
@@ -66,3 +65,4 @@ def test_api_client_token_management() -> None:
     client.clear_tokens()
     assert client.access_token is None
     assert "Authorization" not in client._headers()
+

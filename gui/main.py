@@ -1,11 +1,12 @@
 """Điểm vào chính của ứng dụng giao diện desktop CafeTLU (PySide6).
 
-Khởi tạo QApplication, nạp theme TLU (gui.theme), thiết lập cửa sổ chính và điều hướng.
+Khởi tạo QApplication, nạp theme TLU (gui.theme), quản lý phiên đăng nhập và điều hướng.
 Chạy bằng lệnh: python -m gui.main hoặc make gui
 """
 
 import logging
 import sys
+from typing import Any
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QKeySequence, QShortcut
@@ -21,8 +22,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from gui.api_client import ApiClient
+from gui.i18n import t
 from gui.theme import COLOR, FONT, GLOBAL_QSS, RADIUS, SPACE
 from gui.views.base import BaseView
+from gui.views.login_view import LoginView
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,66 +35,37 @@ logging.basicConfig(
 logger = logging.getLogger("gui.main")
 
 
-class PlaceholderWelcomeView(BaseView):
-    """Màn hình hiển thị mẫu cho tuần 1 để kiểm tra hoạt động của BaseView."""
+class DashboardPlaceholderView(BaseView):
+    """Màn hình Tổng quan / Dashboard chính sau khi đăng nhập."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._init_ui()
 
     def _init_ui(self) -> None:
-        title = QLabel("Hệ thống Quản lý Quán Café TLU", self)
+        title = QLabel("Tổng quan hoạt động quán Café", self)
         title.setStyleSheet(
             f"color: {COLOR['navy']}; font-size: {FONT['h1']}px; font-weight: bold;"
         )
 
         subtitle = QLabel(
-            "BTL Học phần Python 2026 — Trường Đại học Thăng Long\n"
-            "Giao diện đã tích hợp Palette TLU, chuẩn 4 trạng thái và sẵn sàng kết nối API.",
+            "Chào mừng bạn đến với hệ thống POS CafeTLU.\n"
+            "Chọn chức năng ở thanh menu bên trái để bắt đầu thao tác.",
             self,
         )
         subtitle.setStyleSheet(
             f"color: {COLOR['muted']}; font-size: {FONT['body']}px; line-height: 1.5;"
         )
 
-        btn_box = QHBoxLayout()
-        test_loading_btn = QPushButton("Xem Loading", self)
-        test_loading_btn.clicked.connect(lambda: self._set_state(self.STATE_LOADING))
-
-        test_empty_btn = QPushButton("Xem Empty", self)
-        test_empty_btn.setProperty("variant", "secondary")
-        test_empty_btn.clicked.connect(
-            lambda: self._set_state(
-                self.STATE_EMPTY,
-                message="Chưa có món nào trong thực đơn",
-                action_text="Thêm món đầu tiên",
-                on_action=lambda: self._set_state(self.STATE_DATA),
-            )
-        )
-
-        test_error_btn = QPushButton("Xem Error", self)
-        test_error_btn.setProperty("variant", "danger")
-        test_error_btn.clicked.connect(
-            lambda: self._set_state(self.STATE_ERROR, "Không thể kết nối đến máy chủ API")
-        )
-
-        btn_box.addWidget(test_loading_btn)
-        btn_box.addWidget(test_empty_btn)
-        btn_box.addWidget(test_error_btn)
-        btn_box.addStretch()
-
         self._data_layout.addWidget(title)
         self._data_layout.addWidget(subtitle)
-        self._data_layout.addSpacing(SPACE["md"])
-        self._data_layout.addLayout(btn_box)
         self._data_layout.addStretch()
 
-        # Hiển thị dữ liệu
         self._set_state(self.STATE_DATA)
 
 
 class MainWindow(QMainWindow):
-    """Cửa sổ chính của ứng dụng theo bố cục Header Navy + Sidebar Navy + Content."""
+    """Cửa sổ chính của ứng dụng hỗ trợ phân quyền người dùng và chuyển đổi màn hình."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -98,40 +73,58 @@ class MainWindow(QMainWindow):
         self.resize(1280, 720)
         self.setMinimumSize(1024, 600)
 
+        self.api = ApiClient()
+        self.current_user: dict[str, Any] | None = None
+
         self._init_ui()
         self._setup_shortcuts()
 
     def _init_ui(self) -> None:
-        central_widget = QWidget(self)
-        self.setCentralWidget(central_widget)
+        self._root_stack = QStackedWidget(self)
+        self.setCentralWidget(self._root_stack)
 
-        main_layout = QVBoxLayout(central_widget)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        # 1. Màn hình Đăng nhập (Index 0)
+        self._login_view = LoginView(self.api, self)
+        self._login_view.login_success.connect(self._on_login_success)
+        self._root_stack.addWidget(self._login_view)
 
-        # 1. Header (Navy #000066, cao 56px)
-        header = self._build_header()
-        main_layout.addWidget(header)
+        # 2. Khung làm việc chính của ứng dụng sau đăng nhập (Index 1)
+        self._app_shell = self._build_app_shell()
+        self._root_stack.addWidget(self._app_shell)
 
-        # 2. Body: Sidebar (Navy) + Content (Trắng)
-        body_widget = QWidget(self)
-        body_layout = QHBoxLayout(body_widget)
+        # Bắt đầu tại màn hình đăng nhập
+        self._root_stack.setCurrentWidget(self._login_view)
+
+    def _build_app_shell(self) -> QWidget:
+        """Dựng khung làm việc gồm Header Navy + Sidebar Navy + Content."""
+        shell = QWidget(self)
+        layout = QVBoxLayout(shell)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        # Header (56px)
+        self._header = self._build_header()
+        layout.addWidget(self._header)
+
+        # Body (Sidebar + Content)
+        body = QWidget(shell)
+        body_layout = QHBoxLayout(body)
         body_layout.setContentsMargins(0, 0, 0, 0)
         body_layout.setSpacing(0)
 
-        sidebar = self._build_sidebar()
-        body_layout.addWidget(sidebar)
+        self._sidebar = self._build_sidebar()
+        body_layout.addWidget(self._sidebar)
 
-        # Content area (QStackedWidget)
-        self._content_stack = QStackedWidget(self)
+        # Vùng chứa các view nghiệp vụ
+        self._content_stack = QStackedWidget(body)
         self._content_stack.setStyleSheet(f"background-color: {COLOR['surface']};")
 
-        # Gắn view mặc định
-        self._welcome_view = PlaceholderWelcomeView(self)
-        self._content_stack.addWidget(self._welcome_view)
+        self._dashboard_view = DashboardPlaceholderView(self)
+        self._content_stack.addWidget(self._dashboard_view)
 
         body_layout.addWidget(self._content_stack, stretch=1)
-        main_layout.addWidget(body_widget, stretch=1)
+        layout.addWidget(body, stretch=1)
+        return shell
 
     def _build_header(self) -> QWidget:
         header = QFrame(self)
@@ -144,7 +137,6 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(SPACE["md"], 0, SPACE["md"], 0)
         layout.setSpacing(SPACE["md"])
 
-        # Logo / Title
         logo_label = QLabel("CafeTLU", header)
         logo_label.setStyleSheet(
             f"color: {COLOR['surface']}; font-size: {FONT['title']}px; "
@@ -158,8 +150,8 @@ class MainWindow(QMainWindow):
             f"border-radius: {RADIUS['sm']}px; padding: 2px 6px;"
         )
 
-        user_info = QLabel("Nhân viên thu ngân", header)
-        user_info.setStyleSheet(
+        self._user_label = QLabel("", header)
+        self._user_label.setStyleSheet(
             f"color: {COLOR['tint_100']}; font-size: {FONT['body']}px; background: transparent;"
         )
 
@@ -169,11 +161,12 @@ class MainWindow(QMainWindow):
             f"background-color: transparent; color: {COLOR['surface']}; "
             f"border: 1px solid {COLOR['tint_200']};"
         )
+        logout_btn.clicked.connect(self._handle_logout)
 
         layout.addWidget(logo_label)
         layout.addWidget(badge_label)
         layout.addStretch()
-        layout.addWidget(user_info)
+        layout.addWidget(self._user_label)
         layout.addWidget(logout_btn)
         return header
 
@@ -185,48 +178,71 @@ class MainWindow(QMainWindow):
             f"border-right: 1px solid {COLOR['navy_600']};"
         )
 
-        layout = QVBoxLayout(sidebar)
-        layout.setContentsMargins(SPACE["sm"], SPACE["md"], SPACE["sm"], SPACE["md"])
-        layout.setSpacing(SPACE["xs"])
+        self._sidebar_layout = QVBoxLayout(sidebar)
+        self._sidebar_layout.setContentsMargins(SPACE["sm"], SPACE["md"], SPACE["sm"], SPACE["md"])
+        self._sidebar_layout.setSpacing(SPACE["xs"])
 
-        menu_items = [
-            ("Tổng quan", True),
-            ("Bán hàng / Order", False),
-            ("Quản lý thực đơn", False),
-            ("Quản lý bàn", False),
-            ("Báo cáo doanh thu", False),
+        self._menu_buttons: dict[str, QPushButton] = {}
+        items = [
+            ("dashboard", "Tổng quan", ["admin", "staff", "barista"]),
+            ("orders", "Bán hàng / Order", ["admin", "staff"]),
+            ("products", "Quản lý thực đơn", ["admin"]),
+            ("tables", "Quản lý bàn", ["admin", "staff"]),
+            ("reports", "Báo cáo doanh thu", ["admin"]),
         ]
 
-        for text, is_active in menu_items:
-            btn = QPushButton(text, sidebar)
-            btn.setCheckable(True)
-            btn.setChecked(is_active)
-            if is_active:
-                btn.setStyleSheet(
-                    f"QPushButton {{ background-color: {COLOR['navy_600']}; color: {COLOR['surface']}; "
-                    f"text-align: left; padding: {SPACE['sm']}px {SPACE['md']}px; "
-                    f"border-left: 3px solid {COLOR['brand_400']}; border-radius: 0px; }}"
-                )
-            else:
-                btn.setStyleSheet(
-                    f"QPushButton {{ background-color: transparent; color: {COLOR['tint_200']}; "
-                    f"text-align: left; padding: {SPACE['sm']}px {SPACE['md']}px; "
-                    f"border: none; border-radius: {RADIUS['sm']}px; }}"
-                    f"QPushButton:hover {{ background-color: {COLOR['navy']}; color: {COLOR['surface']}; }}"
-                )
-            layout.addWidget(btn)
+        for key, label, roles in items:
+            btn = QPushButton(label, sidebar)
+            btn.setProperty("required_roles", roles)
+            btn.setStyleSheet(
+                f"QPushButton {{ background-color: transparent; color: {COLOR['tint_200']}; "
+                f"text-align: left; padding: {SPACE['sm']}px {SPACE['md']}px; "
+                f"border: none; border-radius: {RADIUS['sm']}px; }}"
+                f"QPushButton:hover {{ background-color: {COLOR['navy']}; color: {COLOR['surface']}; }}"
+            )
+            self._sidebar_layout.addWidget(btn)
+            self._menu_buttons[key] = btn
 
-        layout.addStretch()
+        self._sidebar_layout.addStretch()
 
-        version_label = QLabel("Phiên bản 1.0 (Dev)", sidebar)
+        version_label = QLabel("Phiên bản 1.0", sidebar)
         version_label.setStyleSheet(
             f"color: {COLOR['muted']}; font-size: {FONT['caption']}px; background: transparent;"
         )
-        layout.addWidget(version_label)
+        self._sidebar_layout.addWidget(version_label)
         return sidebar
 
+    def _update_sidebar_permissions(self, role: str) -> None:
+        """Ẩn/Hiện menu theo quyền vai trò người dùng (TC-AUTH-03)."""
+        for btn in self._menu_buttons.values():
+            allowed_roles = btn.property("required_roles") or []
+            btn.setVisible(role in allowed_roles)
+
+    def _on_login_success(self, user_info: dict[str, Any]) -> None:
+        """Chuyển vào ứng dụng khi đăng nhập thành công."""
+        self.current_user = user_info
+        full_name = user_info.get("full_name") or user_info.get("username", "Người dùng")
+        role = user_info.get("role", "staff")
+
+        role_display = {
+            "admin": "Quản trị viên",
+            "staff": "Thu ngân",
+            "barista": "Pha chế",
+        }.get(role, role)
+
+        self._user_label.setText(f"{full_name} ({role_display})")
+        self._update_sidebar_permissions(role)
+
+        self._root_stack.setCurrentWidget(self._app_shell)
+        self._dashboard_view.load()
+
+    def _handle_logout(self) -> None:
+        """Đăng xuất tài khoản và quay về màn hình đăng nhập."""
+        self.api.logout()
+        self.current_user = None
+        self._root_stack.setCurrentWidget(self._login_view)
+
     def _setup_shortcuts(self) -> None:
-        """Thiết lập các phím tắt phổ biến theo quy chuẩn."""
         refresh_shortcut = QShortcut(QKeySequence("F5"), self)
         refresh_shortcut.activated.connect(self._on_refresh)
 
@@ -237,19 +253,13 @@ class MainWindow(QMainWindow):
 
 
 def main() -> None:
-    """Hàm khởi động chính."""
     app = QApplication(sys.argv)
-
-    # Cài đặt font ứng dụng
     font = QFont(str(FONT["family"]), int(FONT["body"]))
     app.setFont(font)
-
-    # Nạp toàn bộ stylesheet TLU
     app.setStyleSheet(GLOBAL_QSS)
 
     window = MainWindow()
     window.show()
-
     sys.exit(app.exec())
 
 
