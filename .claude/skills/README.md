@@ -10,6 +10,7 @@
 
 | Skill | Đọc khi | Người phụ trách |
 |---|---|---|
+| [`next-task`](next-task/SKILL.md) | **"Tôi cần làm gì?"** — tra Issue, trả lời theo thứ tự | Cả nhóm |
 | [`minimal-change`](minimal-change/SKILL.md) | **Mọi việc code** — chọn cách nhỏ nhất đủ dùng | Cả nhóm |
 | [`fastapi-endpoint`](fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | A |
 | [`sqlalchemy-model`](sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | B |

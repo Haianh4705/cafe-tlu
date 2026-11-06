@@ -6,6 +6,7 @@
 
 | File | Việc |
 |---|---|
+| `next_task.sh` | In việc tiếp theo của bạn từ Issue được gán (`make next`). Không cần cài gì thêm ngoài `gh` |
 | `smoke_test.py` | Chạy luồng chính end-to-end: login → tạo đơn → thanh toán → xem báo cáo. Không có test nào đỏ thì chạy cái này trước khi demo |
 | `seed_data.py` | Sinh ~120 đơn trải 30 ngày để biểu đồ có dữ liệu (B dùng) |
 | `build_installer.sh` | Gọi PyInstaller + Inno Setup (CI cũng dùng) |

@@ -19,7 +19,7 @@ DOCKER_BIN := $(dir $(shell command -v docker 2>/dev/null || echo $(HOME)/.docke
 export PATH := $(DOCKER_BIN):$(PATH)
 DOCKER := $(DOCKER_BIN)docker
 
-.PHONY: help doctor install up down reset-db logs tools api gui test lint fmt check build-installer clean
+.PHONY: help next doctor install up down reset-db logs tools api gui test lint fmt check build-installer clean
 
 # ------------------------------------------------------------
 # Trợ giúp
@@ -31,6 +31,9 @@ help: ## Hiện danh sách lệnh
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 	    | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 	@echo ""
+
+next: ## Việc tiếp theo của bạn (lấy từ Issue được gán)
+	@bash scripts/next_task.sh $(u)
 
 doctor: ## Kiểm tra môi trường máy (python, docker, git, .env)
 	@echo "── Kiểm tra môi trường ────────────────────────"
