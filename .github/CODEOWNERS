@@ -1,38 +1,35 @@
-# CODEOWNERS — người bắt buộc review theo vùng (WORKFLOW.md mục 3.2)
+# CODEOWNERS — ai review vùng nào (WORKFLOW.md mục 3.2)
 #
-# Nhóm 4 người:
-#   @Haianh4705              — D: Infra + QA + Docs
-#   @bao20062005dh-creator   — chờ chốt vai
-#   @MeoCamGuitar            — chờ chốt vai
-#   @trungdunxg              — chờ chốt vai
+# Phân vai (đã chốt 2026-11-06):
+#   @bao20062005dh-creator  → A: Backend / API
+#   @trungdunxg             → B: Data & Reports
+#   @MeoCamGuitar           → C: GUI / UX
+#   @Haianh4705             → D: Infra + QA + Docs
 #
-# ⚠️ Khi đã chốt ai là A (Backend) / B (Data) / C (GUI), sửa mục 2 dưới đây
-#    bằng PR 1 dòng. Mục 1 hiện gán cả 4 người nên PR nào cũng có reviewer,
-#    không bị "PR mồ côi".
-#
-# Lưu ý kỹ thuật:
-#  - Tên phải khớp CHÍNH XÁC username GitHub (phân biệt hoa/thường không quan
-#    trọng, nhưng sai ký tự thì dòng đó bị bỏ qua và không báo lỗi).
-#  - CODEOWNERS chỉ có tác dụng khi bật "Require review from Code Owners".
-#    Repo đang để tắt vì mỗi PR đã bắt buộc 1 approval; bật lên khi đã chốt vai.
+# ⚠️ KHÔNG bật "Require review from Code Owners" (Settings → Branches).
+#    Lý do: mỗi người là owner duy nhất của vùng mình, mà GitHub không cho tự
+#    approve PR của chính mình → PR của A sẽ kẹt vĩnh viễn vì chỉ @A được duyệt.
+#    Thay vào đó: PR bắt buộc 1 approval (bất kỳ ai khác) + gán reviewer thủ công
+#    theo bảng dưới. GitHub vẫn tự gợi ý đúng người khi bấm Reviewers.
 
 # ─────────────────────────────────────────────────────────────
-# 1. Mặc định: mọi file cần ít nhất 1 trong 4 người review
+# 1. Mặc định: mọi file cần 1 trong 4 người review
 # ─────────────────────────────────────────────────────────────
 *                       @Haianh4705 @bao20062005dh-creator @MeoCamGuitar @trungdunxg
 
 # ─────────────────────────────────────────────────────────────
-# 2. Chia theo vùng — ĐIỀN KHI ĐÃ CHỐT VAI (bỏ comment và thay người)
+# 2. Chia theo vùng — reviewer mặc định
 # ─────────────────────────────────────────────────────────────
-# /api/                 @<A>
-# /shared/              @<A>
-# /db/                  @<B>
-# /api/services/reports.py @<B>
-# /gui/                 @<C>
-# /assets/              @<C>
+/api/                   @bao20062005dh-creator
+/shared/                @bao20062005dh-creator
+/db/                    @trungdunxg
+/api/services/reports.py @trungdunxg
+/scripts/seed_data.py   @trungdunxg
+/gui/                   @MeoCamGuitar
+/assets/                @MeoCamGuitar
 
 # ─────────────────────────────────────────────────────────────
-# 3. Hạ tầng, CI, tài liệu — D (đang áp dụng)
+# 3. Hạ tầng, CI, tài liệu — D
 # ─────────────────────────────────────────────────────────────
 /infra/                 @Haianh4705
 /installer/             @Haianh4705

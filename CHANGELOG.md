@@ -39,6 +39,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Cơ chế "hiểu bài": mục **"Giải thích được" 3 câu** bắt buộc trong template PR (WORKFLOW 6.3)
 
 ### Changed
+- **Chốt phân vai**: A = @bao20062005dh-creator (backend) · B = @trungdunxg (data/reports) ·
+  C = @MeoCamGuitar (GUI) · D = @Haianh4705 (infra/QA/docs) — 16 issue đã gán assignee, chia theo
+  sóng phụ thuộc; `CODEOWNERS` điền tên thật (ADR-009)
 - Repo chuyển sang **public** → bật được branch protection cho `main`/`develop`
   (1 approval, CI bắt buộc, linear history, squash-only, không force-push)
 - Dependabot: không tự bump major, gom minor+patch 1 PR/tuần, giới hạn 2 PR

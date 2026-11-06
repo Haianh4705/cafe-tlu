@@ -2,6 +2,11 @@
 
 > Bổ trợ cho [`docs/workflow.md`](workflow.md) (ai bàn giao cho ai) và `WORKFLOW.md` mục 16.3
 > (điều kiện cổng). File này trả lời: **tuần này làm gì, và giao việc theo thứ tự nào.**
+>
+> **Phân vai đã chốt:** A = [@bao20062005dh-creator](https://github.com/bao20062005dh-creator) ·
+> B = [@trungdunxg](https://github.com/trungdunxg) ·
+> C = [@MeoCamGuitar](https://github.com/MeoCamGuitar) ·
+> D = [@Haianh4705](https://github.com/Haianh4705)
 
 ## 0. Năm quy tắc giao việc
 

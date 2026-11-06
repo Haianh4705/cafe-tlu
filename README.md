@@ -78,12 +78,13 @@ report/         báo cáo BTL (mỗi người 1 chương)
 
 | | Vai trò | Vùng phụ trách | GitHub |
 |---|---|---|---|
-| **A** | Backend/API | `api/` — xác thực, phân quyền, nghiệp vụ | *(chốt tuần 1)* |
-| **B** | Data & Reports | `db/`, query thống kê, Excel/PDF | *(chốt tuần 1)* |
-| **C** | GUI/UX | `gui/`, theme, màn hình | *(chốt tuần 1)* |
+| **A** | Backend/API | `api/`, `shared/` — xác thực, phân quyền, nghiệp vụ | [@bao20062005dh-creator](https://github.com/bao20062005dh-creator) |
+| **B** | Data & Reports | `db/`, query thống kê, Excel/PDF | [@trungdunxg](https://github.com/trungdunxg) |
+| **C** | GUI/UX | `gui/`, `assets/` — theme, màn hình | [@MeoCamGuitar](https://github.com/MeoCamGuitar) |
 | **D** | Infra + QA + Docs | `infra/`, `installer/`, `.github/`, `docs/`, báo cáo | [@Haianh4705](https://github.com/Haianh4705) |
 
-Nhóm: `@Haianh4705` · `@bao20062005dh-creator` · `@MeoCamGuitar` · `@trungdunxg`
+Kế hoạch & thứ tự giao việc: [`docs/plan.md`](docs/plan.md) · Bàn giao giữa các vai:
+[`docs/workflow.md`](docs/workflow.md) · Reviewer mặc định: [`.github/CODEOWNERS`](.github/CODEOWNERS)
 
 ## Xử lý sự cố
 
