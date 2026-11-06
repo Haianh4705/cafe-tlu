@@ -30,8 +30,7 @@ class ApiClient:
 
     def __init__(self, base_url: str | None = None) -> None:
         self.base_url = (
-            base_url
-            or os.getenv("API_BASE_URL", "http://127.0.0.1:8000/api/v1")
+            base_url or os.getenv("API_BASE_URL", "http://127.0.0.1:8000/api/v1")
         ).rstrip("/")
         self.access_token: str | None = None
         self.refresh_token: str | None = None
@@ -97,7 +96,9 @@ class ApiClient:
     # ------------------------------------------------------------------
     def login(self, username: str, password: str) -> dict[str, Any]:
         """POST /auth/login - Đăng nhập lấy access_token."""
-        data = self._request("POST", "/auth/login", json_data={"username": username, "password": password})
+        data = self._request(
+            "POST", "/auth/login", json_data={"username": username, "password": password}
+        )
         if isinstance(data, dict):
             self.set_tokens(
                 access_token=data.get("access_token", ""),
@@ -169,7 +170,9 @@ class ApiClient:
         """GET /orders/{id} - Lấy chi tiết đơn hàng."""
         return self._request("GET", f"/orders/{order_id}")
 
-    def add_order_item(self, order_id: int, product_id: int, quantity: int = 1, note: str = "") -> dict[str, Any]:
+    def add_order_item(
+        self, order_id: int, product_id: int, quantity: int = 1, note: str = ""
+    ) -> dict[str, Any]:
         """POST /orders/{id}/items - Thêm món vào đơn."""
         return self._request(
             "POST",
@@ -177,7 +180,9 @@ class ApiClient:
             json_data={"product_id": product_id, "quantity": quantity, "note": note},
         )
 
-    def update_order_item(self, order_id: int, item_id: int, quantity: int, note: str = "") -> dict[str, Any]:
+    def update_order_item(
+        self, order_id: int, item_id: int, quantity: int, note: str = ""
+    ) -> dict[str, Any]:
         """PATCH /orders/{id}/items/{item_id} - Sửa số lượng hoặc ghi chú món."""
         return self._request(
             "PATCH",
@@ -211,4 +216,3 @@ class ApiClient:
     def get_top_products_report(self, limit: int = 10) -> list[dict[str, Any]]:
         """GET /reports/top-products - Lấy danh sách món bán chạy nhất."""
         return self._request("GET", "/reports/top-products", params={"limit": limit})
-

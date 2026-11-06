@@ -7,8 +7,9 @@ Tuân thủ:
 - Xử lý gọi API trên luồng nền (Worker), tránh làm treo giao diện.
 """
 
-from collections.abc import Callable
+import contextlib
 import logging
+from collections.abc import Callable
 from typing import Any
 
 from PySide6.QtCore import QObject, QThread, Signal
@@ -100,9 +101,7 @@ class BaseView(QWidget):
         # 4. Data widget (nơi màn hình con gắn nội dung chính vào)
         self._data_widget = QWidget(self)
         self._data_layout = QVBoxLayout(self._data_widget)
-        self._data_layout.setContentsMargins(
-            SPACE["md"], SPACE["md"], SPACE["md"], SPACE["md"]
-        )
+        self._data_layout.setContentsMargins(SPACE["md"], SPACE["md"], SPACE["md"], SPACE["md"])
         self._data_layout.setSpacing(SPACE["md"])
         self._state_stack.addWidget(self._data_widget)
 
@@ -176,10 +175,8 @@ class BaseView(QWidget):
             if action_text and on_action:
                 self._empty_action_btn.setText(action_text)
                 self._empty_action_btn.setVisible(True)
-                try:
+                with contextlib.suppress(RuntimeError):
                     self._empty_action_btn.clicked.disconnect()
-                except RuntimeError:
-                    pass
                 self._empty_action_btn.clicked.connect(on_action)
             else:
                 self._empty_action_btn.setVisible(False)
@@ -263,4 +260,3 @@ class BaseView(QWidget):
         layout.addLayout(btn_layout)
         layout.addStretch()
         return widget
-

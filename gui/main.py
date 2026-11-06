@@ -8,7 +8,6 @@ import logging
 import sys
 from typing import Any
 
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -23,7 +22,6 @@ from PySide6.QtWidgets import (
 )
 
 from gui.api_client import ApiClient
-from gui.i18n import t
 from gui.theme import COLOR, FONT, GLOBAL_QSS, RADIUS, SPACE
 from gui.views.base import BaseView
 from gui.views.login_view import LoginView

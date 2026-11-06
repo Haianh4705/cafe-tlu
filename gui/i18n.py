@@ -68,4 +68,3 @@ def t(key: str, **kwargs: object) -> str:
     if kwargs:
         return template.format(**kwargs)
     return template
-

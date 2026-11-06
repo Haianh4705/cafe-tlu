@@ -68,7 +68,9 @@ FONT: Final[dict[str, object]] = {
 # ---------------------------------------------------------------------------
 # 5. Global Stylesheet (QSS) cho toàn ứng dụng
 # ---------------------------------------------------------------------------
-GLOBAL_QSS: Final[str] = f"""
+GLOBAL_QSS: Final[
+    str
+] = f"""
 * {{
     font-family: "{FONT['family']}", {FONT['fallback']};
     font-size: {FONT['body']}px;
@@ -181,4 +183,3 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
     height: 0px;
 }}
 """
-

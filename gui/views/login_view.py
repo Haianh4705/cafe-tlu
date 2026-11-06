@@ -13,7 +13,6 @@ from typing import Any
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
-    QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
@@ -182,7 +181,11 @@ class LoginView(BaseView):
         """Xử lý khi backend trả về token và thông tin người dùng thành công."""
         self._set_loading(False)
         user_info = data.get("user", {}) if isinstance(data, dict) else {}
-        logger.info("Đăng nhập thành công tài khoản: %s (role: %s)", user_info.get("username"), user_info.get("role"))
+        logger.info(
+            "Đăng nhập thành công tài khoản: %s (role: %s)",
+            user_info.get("username"),
+            user_info.get("role"),
+        )
         self.login_success.emit(user_info)
 
     def _on_login_failed(self, exc: Exception) -> None:
