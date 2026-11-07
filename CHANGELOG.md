@@ -64,6 +64,8 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - CI job `Test` lỗi `INTERNALERROR` vì thiếu `libEGL.so.1` — thêm bước cài thư viện Qt +
   `QT_QPA_PLATFORM=offscreen`
 - Đồng bộ phiên bản ruff giữa `requirements-dev.txt` và pre-commit hook (0.17.3)
+- CI job `Test` báo `ModuleNotFoundError: No module named 'gui'` khi chạy `pytest` trực tiếp —
+  thêm `pythonpath = ["."]` vào cấu hình pytest để root repo luôn nằm trên `sys.path` (#42)
 
 ## [0.1.0] — 2026-11-04
 
