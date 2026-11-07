@@ -8,6 +8,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Added — giao diện (GUI)
+- Khung giao diện desktop PySide6: theme nhận diện TLU (palette navy `#000066` + swoosh đỏ `#F32409`), BaseView 4 trạng thái bắt buộc, ApiClient bọc 23 endpoint, màn hình Đăng nhập (`LoginView`) phân quyền vai trò (`admin`/`staff`/`barista`), nhúng font Manrope và tài liệu ảnh chụp (#40, Closes #23, #24, #25)
+
 ### Added — hạ tầng & công cụ
 - `make next` + `scripts/next_task.sh`: in việc tiếp theo của mỗi người từ Issue được gán,
   sắp theo milestone rồi số Issue (thứ tự phụ thuộc), kèm skill phải đọc

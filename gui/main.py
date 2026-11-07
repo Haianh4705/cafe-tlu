@@ -5,10 +5,11 @@ Chạy bằng lệnh: python -m gui.main hoặc make gui
 """
 
 import logging
+import os
 import sys
 from typing import Any
 
-from PySide6.QtGui import QFont, QKeySequence, QShortcut
+from PySide6.QtGui import QFont, QFontDatabase, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -25,6 +26,7 @@ from gui.api_client import ApiClient
 from gui.theme import COLOR, FONT, GLOBAL_QSS, RADIUS, SPACE
 from gui.views.base import BaseView
 from gui.views.login_view import LoginView
+from shared.paths import resource_path
 
 logging.basicConfig(
     level=logging.INFO,
@@ -250,10 +252,21 @@ class MainWindow(QMainWindow):
             current_view.refresh()
 
 
+def setup_application_font(app: QApplication) -> None:
+    """Nạp font Manrope từ assets và cấu hình fallback hệ thống có tiếng Việt."""
+    font_path = resource_path("assets/fonts/Manrope[wght].ttf")
+    if os.path.exists(font_path):
+        QFontDatabase.addApplicationFont(font_path)
+
+    font = QFont()
+    font.setFamilies(["Manrope", "Segoe UI", "Arial", "sans-serif"])
+    font.setPointSize(int(FONT["body"]))
+    app.setFont(font)
+
+
 def main() -> None:
     app = QApplication(sys.argv)
-    font = QFont(str(FONT["family"]), int(FONT["body"]))
-    app.setFont(font)
+    setup_application_font(app)
     app.setStyleSheet(GLOBAL_QSS)
 
     window = MainWindow()
