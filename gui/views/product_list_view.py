@@ -96,21 +96,21 @@ class ProductListView(BaseView):
         self._search_input = QLineEdit(self)
         self._search_input.setPlaceholderText(t("product_search_placeholder"))
         self._search_input.setFixedHeight(36)
-        self._search_input.returnPressed.connect(self.load_products)
+        self._search_input.returnPressed.connect(lambda: self.load_products(reset_page=True))
         filter_bar.addWidget(self._search_input, stretch=3)
 
         # Combobox chọn danh mục
         self._cat_combo = QComboBox(self)
         self._cat_combo.setFixedHeight(36)
         self._cat_combo.addItem(t("product_all_categories"), None)
-        self._cat_combo.currentIndexChanged.connect(lambda _: self.load_products())
+        self._cat_combo.currentIndexChanged.connect(lambda _: self.load_products(reset_page=True))
         filter_bar.addWidget(self._cat_combo, stretch=2)
 
         # Nút tìm kiếm
         search_btn = QPushButton(t("search"), self)
         search_btn.setProperty("variant", "secondary")
         search_btn.setFixedHeight(36)
-        search_btn.clicked.connect(self.load_products)
+        search_btn.clicked.connect(lambda: self.load_products(reset_page=True))
         filter_bar.addWidget(search_btn)
 
         # Nút làm mới
@@ -257,10 +257,11 @@ class ProductListView(BaseView):
 
     def _on_products_loaded(self, products_data: Any) -> None:
         if isinstance(products_data, dict):
-            self._products = products_data.get("data", [])
+            self._products = products_data.get("data") or []
             meta = products_data.get("meta") or {}
             self._total_pages = meta.get("total_pages", 1)
             self._total_count = meta.get("total", len(self._products))
+            self._page = meta.get("page", self._page)
         elif isinstance(products_data, list):
             self._products = products_data
             self._total_count = len(products_data)

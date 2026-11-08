@@ -59,6 +59,7 @@ class ApiClient:
         params: dict[str, Any] | None = None,
         json_data: dict[str, Any] | None = None,
         timeout: float = 10.0,
+        return_envelope: bool = False,
     ) -> Any:
         url = f"{self.base_url}/{path.lstrip('/')}"
         try:
@@ -89,6 +90,8 @@ class ApiClient:
             details = error_data.get("details", {})
             raise ApiClientError(code=code, message=message, details=details)
 
+        if return_envelope:
+            return {"data": body.get("data"), "meta": body.get("meta")}
         return body.get("data")
 
     # ------------------------------------------------------------------
@@ -130,14 +133,14 @@ class ApiClient:
         category_id: int | None = None,
         page: int = 1,
         page_size: int = 20,
-    ) -> list[dict[str, Any]]:
-        """GET /products - Tìm kiếm và lọc danh sách món ăn."""
+    ) -> dict[str, Any]:
+        """GET /products - Tìm kiếm và lọc danh sách món ăn kèm meta phân trang."""
         params: dict[str, Any] = {"page": page, "page_size": page_size}
         if search:
             params["search"] = search
         if category_id is not None:
             params["category_id"] = category_id
-        return self._request("GET", "/products", params=params)
+        return self._request("GET", "/products", params=params, return_envelope=True)
 
     def get_product(self, product_id: int) -> dict[str, Any]:
         """GET /products/{id} - Lấy chi tiết món ăn."""
