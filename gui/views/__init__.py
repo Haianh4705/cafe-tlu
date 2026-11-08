@@ -2,6 +2,7 @@
 
 from gui.views.base import ApiWorker, BaseView
 from gui.views.login_view import LoginView
+from gui.views.order_view import OrderView
 from gui.views.product_list_view import ProductListView
 
-__all__ = ["ApiWorker", "BaseView", "LoginView", "ProductListView"]
+__all__ = ["ApiWorker", "BaseView", "LoginView", "OrderView", "ProductListView"]

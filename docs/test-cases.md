@@ -38,9 +38,9 @@
 
 | ID | Tiền điều kiện | Bước | Kết quả mong đợi | Người | Kết quả | Ghi chú |
 |---|---|---|---|---|---|---|
-| TC-ORD-01 | Bàn trống | Tạo đơn 3 món | Đơn lưu DB, tổng tiền đúng | C | ⬜ | |
-| TC-ORD-02 | | Xoá 1 món khỏi đơn | Tổng tiền tính lại đúng | C | ⬜ | |
-| TC-ORD-03 | | Thanh toán | Toá hoá đơn, bàn chuyển về `free` | C | ⬜ | |
+| TC-ORD-01 | Bàn trống | Tạo đơn 3 món | Đơn lưu DB, tổng tiền đúng | C | PASS | Đã verify trên OrderView & unit test |
+| TC-ORD-02 | | Xoá 1 món khỏi đơn | Tổng tiền tính lại đúng | C | PASS | Đã verify trên OrderCartWidget & unit test |
+| TC-ORD-03 | | Thanh toán | Toá hoá đơn, bàn chuyển về `free` | C | PASS | Đã verify CheckoutDialog & bàn về free |
 | TC-ORD-04 | Đơn đã thanh toán | Thử sửa đơn | Chặn, báo `ORDER_ALREADY_PAID` | D | ⬜ | |
 
 ## 5. Thống kê & báo cáo
