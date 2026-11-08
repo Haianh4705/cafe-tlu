@@ -259,6 +259,7 @@ class MainWindow(QMainWindow):
 
         self._user_label.setText(f"{full_name} ({role_display})")
         self._update_sidebar_permissions(role)
+        self._product_list_view.set_user_role(role)
 
         self._root_stack.setCurrentWidget(self._app_shell)
         self._switch_menu("dashboard")

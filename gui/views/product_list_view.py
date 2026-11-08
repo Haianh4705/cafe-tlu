@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
@@ -45,10 +46,26 @@ class ProductListView(BaseView):
         self.api = api_client
         self._categories: list[dict[str, Any]] = []
         self._products: list[dict[str, Any]] = []
+        self._user_role: str = "staff"
+        self._page: int = 1
+        self._page_size: int = 20
+        self._total_pages: int = 1
+        self._total_count: int = 0
 
         super().__init__(parent)
         self._init_data_ui()
         self._setup_shortcuts()
+
+    def set_user_role(self, role: str) -> None:
+        """Cập nhật vai trò người dùng (admin, staff, barista) để phân quyền."""
+        self._user_role = role
+        if hasattr(self, "_add_btn"):
+            self._add_btn.setVisible(self.is_admin)
+
+    @property
+    def is_admin(self) -> bool:
+        """Kiểm tra người dùng hiện tại có vai trò admin hay không."""
+        return self._user_role == "admin"
 
     def _init_data_ui(self) -> None:
         """Khởi tạo giao diện thanh công cụ và bảng danh sách món."""
@@ -138,10 +155,42 @@ class ProductListView(BaseView):
 
         self._data_layout.addWidget(self._table)
 
-        # 4. Thanh trạng thái số lượng bản ghi
+        # 4. Thanh phân trang và số lượng bản ghi
+        pagination_bar = QHBoxLayout()
+        pagination_bar.setSpacing(SPACE["sm"])
+
         self._count_label = QLabel("", self)
         self._count_label.setStyleSheet(f"color: {COLOR['muted']}; font-size: {FONT['caption']}px;")
-        self._data_layout.addWidget(self._count_label)
+        pagination_bar.addWidget(self._count_label)
+        pagination_bar.addStretch()
+
+        self._prev_page_btn = QPushButton("← Trang trước", self)
+        self._prev_page_btn.setProperty("variant", "secondary")
+        self._prev_page_btn.setFixedHeight(30)
+        self._prev_page_btn.clicked.connect(self._go_prev_page)
+        pagination_bar.addWidget(self._prev_page_btn)
+
+        self._page_label = QLabel("Trang 1 / 1", self)
+        self._page_label.setStyleSheet(f"font-size: {FONT['caption']}px; font-weight: 600;")
+        pagination_bar.addWidget(self._page_label)
+
+        self._next_page_btn = QPushButton("Trang sau →", self)
+        self._next_page_btn.setProperty("variant", "secondary")
+        self._next_page_btn.setFixedHeight(30)
+        self._next_page_btn.clicked.connect(self._go_next_page)
+        pagination_bar.addWidget(self._next_page_btn)
+
+        self._data_layout.addLayout(pagination_bar)
+
+    def _go_prev_page(self) -> None:
+        if self._page > 1:
+            self._page -= 1
+            self.load_products()
+
+    def _go_next_page(self) -> None:
+        if self._page < self._total_pages:
+            self._page += 1
+            self.load_products()
 
     def _setup_shortcuts(self) -> None:
         """Thiết lập phím tắt Ctrl+F để focus ô tìm kiếm, Delete để xoá món."""
@@ -188,8 +237,10 @@ class ProductListView(BaseView):
         # Tiếp tục nạp danh sách sản phẩm
         self.load_products()
 
-    def load_products(self) -> None:
-        """Gọi API lấy danh sách món theo từ khoá tìm kiếm và danh mục đã lọc."""
+    def load_products(self, reset_page: bool = False) -> None:
+        """Gọi API lấy danh sách món theo từ khoá tìm kiếm, danh mục và trang hiện tại."""
+        if reset_page:
+            self._page = 1
         search_text = self._search_input.text().strip() or None
         category_id = self._cat_combo.currentData()
 
@@ -200,10 +251,24 @@ class ProductListView(BaseView):
             on_error=self._on_load_error,
             search=search_text,
             category_id=category_id,
+            page=self._page,
+            page_size=self._page_size,
         )
 
     def _on_products_loaded(self, products_data: Any) -> None:
-        self._products = products_data if isinstance(products_data, list) else []
+        if isinstance(products_data, dict):
+            self._products = products_data.get("data", [])
+            meta = products_data.get("meta") or {}
+            self._total_pages = meta.get("total_pages", 1)
+            self._total_count = meta.get("total", len(self._products))
+        elif isinstance(products_data, list):
+            self._products = products_data
+            self._total_count = len(products_data)
+            self._total_pages = max(1, (self._total_count + self._page_size - 1) // self._page_size)
+        else:
+            self._products = []
+            self._total_count = 0
+            self._total_pages = 1
 
         if not self._products:
             # Chuyển sang trạng thái rỗng (empty)
@@ -216,8 +281,8 @@ class ProductListView(BaseView):
             self._set_state(
                 self.STATE_EMPTY,
                 message=msg,
-                action_text=t("add_new"),
-                on_action=self._open_add_dialog,
+                action_text=t("add_new") if self.is_admin else None,
+                on_action=self._open_add_dialog if self.is_admin else None,
             )
             return
 
@@ -287,7 +352,10 @@ class ProductListView(BaseView):
                 status_item.setForeground(Qt.GlobalColor.gray)
             self._table.setItem(row, 5, status_item)
 
-        self._count_label.setText(f"Hiển thị {len(self._products)} món")
+        self._count_label.setText(f"Hiển thị {len(self._products)} / {self._total_count} món")
+        self._page_label.setText(f"Trang {self._page} / {self._total_pages}")
+        self._prev_page_btn.setEnabled(self._page > 1)
+        self._next_page_btn.setEnabled(self._page < self._total_pages)
 
     def _find_category_name(self, cat_id: int | None) -> str:
         if cat_id is None:
@@ -302,6 +370,14 @@ class ProductListView(BaseView):
     # ------------------------------------------------------------------
     def _open_add_dialog(self) -> None:
         """Mở hộp thoại tạo món mới."""
+        if not self.is_admin:
+            QMessageBox.warning(
+                self,
+                "Không có quyền",
+                "Chỉ quản trị viên (admin) mới có quyền thêm món mới.",
+            )
+            return
+
         dialog = ProductFormDialog(self._categories, parent=self)
         if dialog.exec() == ProductFormDialog.DialogCode.Accepted:
             payload = dialog.get_data()
@@ -315,12 +391,28 @@ class ProductListView(BaseView):
 
     def _on_table_double_click(self, row: int, _col: int) -> None:
         """Mở hộp thoại sửa khi người dùng nhấp đúp vào dòng."""
+        if not self.is_admin:
+            QMessageBox.warning(
+                self,
+                "Không có quyền",
+                "Chỉ quản trị viên (admin) mới có quyền chỉnh sửa món ăn.",
+            )
+            return
+
         if 0 <= row < len(self._products):
             product = self._products[row]
             self._open_edit_dialog(product)
 
     def _open_edit_dialog(self, product: dict[str, Any]) -> None:
         """Mở hộp thoại cập nhật món ăn."""
+        if not self.is_admin:
+            QMessageBox.warning(
+                self,
+                "Không có quyền",
+                "Chỉ quản trị viên (admin) mới có quyền chỉnh sửa món ăn.",
+            )
+            return
+
         dialog = ProductFormDialog(self._categories, product=product, parent=self)
         if dialog.exec() == ProductFormDialog.DialogCode.Accepted:
             payload = dialog.get_data()
@@ -337,6 +429,14 @@ class ProductListView(BaseView):
 
     def _handle_delete_selected(self) -> None:
         """Xử lý xoá món đang chọn trong bảng."""
+        if not self.is_admin:
+            QMessageBox.warning(
+                self,
+                "Không có quyền",
+                "Chỉ quản trị viên (admin) mới có quyền xoá món ăn.",
+            )
+            return
+
         selected_row = self._table.currentRow()
         if 0 <= selected_row < len(self._products):
             product = self._products[selected_row]
