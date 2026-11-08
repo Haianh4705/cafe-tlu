@@ -1,7 +1,7 @@
 """Xử lý đường dẫn tài nguyên tĩnh cho môi trường dev và PyInstaller."""
 
-import os
 import sys
+from pathlib import Path
 
 
 def resource_path(relative_path: str) -> str:
@@ -10,5 +10,8 @@ def resource_path(relative_path: str) -> str:
     Hỗ trợ cả môi trường phát triển (dev) lẫn khi đã được đóng gói thành
     file thực thi bằng PyInstaller (sử dụng thư mục tạm _MEIPASS).
     """
-    base_path = getattr(sys, "_MEIPASS", os.path.abspath("."))
-    return os.path.join(base_path, relative_path)
+    if hasattr(sys, "_MEIPASS"):
+        base_path = Path(sys._MEIPASS)
+    else:
+        base_path = Path(__file__).resolve().parents[1]
+    return str(base_path / relative_path)
