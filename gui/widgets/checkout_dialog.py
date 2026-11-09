@@ -127,12 +127,11 @@ class CheckoutDialog(QDialog):
             btn.clicked.connect(lambda _, a=amt: self._set_quick_cash(a))
             quick_btn_layout.addWidget(btn)
 
-            exact_btn = QPushButton("Vừa đủ", self._cash_calc_widget)
-            exact_btn.setProperty("variant", "secondary")
-            exact_btn.setFixedHeight(28)
-            exact_btn.clicked.connect(lambda: self._set_quick_cash(self.total_amount))
-            quick_btn_layout.addWidget(exact_btn)
-            break  # Chỉ tạo một nút vừa đủ và các nút nhanh
+        exact_btn = QPushButton("Vừa đủ", self._cash_calc_widget)
+        exact_btn.setProperty("variant", "secondary")
+        exact_btn.setFixedHeight(28)
+        exact_btn.clicked.connect(lambda: self._set_quick_cash(self.total_amount))
+        quick_btn_layout.addWidget(exact_btn)
 
         calc_layout.addLayout(quick_btn_layout)
 

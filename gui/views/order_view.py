@@ -32,6 +32,7 @@ from gui.theme import COLOR, FONT, RADIUS, SPACE
 from gui.views.base import BaseView
 from gui.widgets.checkout_dialog import CheckoutDialog
 from gui.widgets.order_cart import OrderCartWidget
+from gui.widgets.receipt_dialog import ReceiptDialog
 from gui.widgets.table_card import TableCardWidget
 
 logger = logging.getLogger(__name__)
@@ -138,6 +139,7 @@ class OrderView(BaseView):
         self._table_cards: dict[int, TableCardWidget] = {}
         # Lưu trữ giỏ hàng từng bàn ở client: table_id -> list[items]
         self._table_orders: dict[int, list[dict[str, Any]]] = {}
+        self.cashier_name: str = "Thu ngân"
 
         super().__init__(parent)
         self._init_pos_ui()
@@ -278,6 +280,12 @@ class OrderView(BaseView):
     def _setup_shortcuts(self) -> None:
         shortcut_search = QShortcut(QKeySequence("Ctrl+F"), self)
         shortcut_search.activated.connect(self._focus_search)
+
+        shortcut_f1 = QShortcut(QKeySequence("F1"), self)
+        shortcut_f1.activated.connect(self._focus_search)
+
+        shortcut_f2 = QShortcut(QKeySequence("F2"), self)
+        shortcut_f2.activated.connect(self._open_checkout_dialog)
 
         shortcut_refresh = QShortcut(QKeySequence("F5"), self)
         shortcut_refresh.activated.connect(self.refresh)
@@ -513,6 +521,12 @@ class OrderView(BaseView):
             parent=self,
         )
         if dialog.exec() == CheckoutDialog.DialogCode.Accepted:
+            # Lưu snapshot đơn hàng trước khi làm sạch giỏ
+            items_snapshot = [dict(item) for item in self._cart_widget.items]
+            payment_method = dialog.payment_method
+            received_amount = dialog.received_amount
+            change_amount = max(0, received_amount - total_amount)
+
             # Thanh toán thành công: Dọn sạch đơn, đổi bàn về free
             t_id = self._selected_table.get("id", 0)
             self._table_orders[t_id] = []
@@ -528,4 +542,20 @@ class OrderView(BaseView):
             self._cart_widget.set_table(self._selected_table)
             self._cart_widget.set_items([])
 
-            QMessageBox.information(self, t("checkout"), t("checkout_success"))
+            # Hiển thị phiếu in hoá đơn thanh toán K80
+            from datetime import datetime
+
+            invoice_code = f"HD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            receipt_data = {
+                "invoice_code": invoice_code,
+                "table_name": table_name,
+                "cashier_name": self.cashier_name,
+                "created_at": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                "items": items_snapshot,
+                "total_amount": total_amount,
+                "payment_method": payment_method,
+                "received_amount": received_amount,
+                "change_amount": change_amount,
+            }
+            receipt_dialog = ReceiptDialog(receipt_data, parent=self)
+            receipt_dialog.exec()

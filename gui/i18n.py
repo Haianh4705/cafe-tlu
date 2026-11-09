@@ -93,6 +93,22 @@ STRINGS: Final[dict[str, str]] = {
     "checkout_customer_pay": "Tiền khách đưa",
     "checkout_change": "Tiền thối lại",
     "checkout_success": "Thanh toán thành công! Bàn đã được chuyển về trạng thái trống.",
+    # In hoá đơn (Receipt / Bill K80)
+    "receipt_title": "Phiếu thanh toán",
+    "receipt_invoice_code": "Số HĐ",
+    "receipt_date": "Thời gian",
+    "receipt_cashier": "Thu ngân",
+    "receipt_table": "Bàn",
+    "receipt_header_title": "QUÁN CÀ PHÊ TLU",
+    "receipt_header_sub": "Trường Đại học Thăng Long",
+    "receipt_header_address": "Nghiêm Xuân Yêm, P. Đại Kim, Q. Hoàng Mai, Hà Nội",
+    "receipt_header_hotline": "Hotline: 024 3858 7346",
+    "receipt_btn_print": "In hoá đơn",
+    "receipt_btn_pdf": "Xuất file PDF",
+    "receipt_thank_you": "Cảm ơn Quý khách & Hẹn gặp lại!",
+    "receipt_wifi": "Wifi: CafeTLU_Guest | Pass: thanglong2026",
+    "receipt_print_success": "Đã gửi lệnh in hoá đơn thành công!",
+    "receipt_export_pdf_success": "Đã lưu hoá đơn PDF thành công tại:\n{path}",
 }
 
 
