@@ -24,8 +24,8 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - `Release` workflow: build bằng script chung, tải được artifact `CafeTLU-Setup` cả khi chạy tay
   (`workflow_dispatch`), không chỉ khi push tag
 - Nhãn "Phiên bản" ở sidebar GUI đọc từ `shared/version.py` (hết hard-code `1.0`)
-- `make doctor` kiểm thêm MySQL container (cổng 3307) + `infra/Dockerfile`; thêm `infra/Dockerfile`
-  (Python 3.12-slim, user không phải root, healthcheck `/health`) (#27)
+- `make doctor` kiểm thêm MySQL **healthy** + cổng 3307 mở + `infra/Dockerfile`; thêm `infra/Dockerfile`
+  (Python 3.12-slim, user không phải root, healthcheck `/health`) và khung `infra/docker-compose.prod.yml` (#27)
 - `make next` + `scripts/next_task.sh`: in việc tiếp theo của mỗi người từ Issue được gán,
   sắp theo milestone rồi số Issue (thứ tự phụ thuộc), kèm skill phải đọc
 - Skill `next-task`: dạy AI agent trả lời "tôi cần làm gì?" theo đúng khuôn, không tự bịa việc

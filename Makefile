@@ -44,7 +44,9 @@ doctor: ## Kiểm tra môi trường máy (python, docker, mysql, git, .env)
 	@printf "  make   : "; (make -v 2>/dev/null | head -1) || echo "CHƯA CÀI"
 	@printf "  .env   : "; (test -f .env && echo "có" || echo "THIẾU -> cp .env.example .env")
 	@printf "  venv   : "; (test -d .venv && echo "có" || echo "THIẾU -> make install")
-	@printf "  mysql  : "; ($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx mysql && echo "đang chạy (:3307)" || echo "TẮT -> make up")
+	@printf "  mysql  : "; st=$$($(DOCKER) inspect --format '{{.State.Health.Status}}' cafetlu-mysql 2>/dev/null || true); \
+	    if [ "$$st" = "healthy" ]; then echo "healthy"; else echo "$${st:-chưa chạy} -> make up"; fi
+	@printf "  db 3307: "; $(PY) -c "import socket; socket.create_connection(('127.0.0.1', 3307), 1)" 2>/dev/null && echo "mở" || echo "ĐÓNG -> make up"
 	@printf "  dockerfile: "; (test -f infra/Dockerfile && echo "có" || echo "THIẾU")
 	@$(PY) -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)' \
 	    && echo "  => Python OK (>=3.12)" \
