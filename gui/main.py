@@ -28,6 +28,7 @@ from gui.views.base import BaseView
 from gui.views.login_view import LoginView
 from gui.views.product_list_view import ProductListView
 from shared.paths import resource_path
+from shared.version import __version__
 
 logging.basicConfig(
     level=logging.INFO,
@@ -206,7 +207,7 @@ class MainWindow(QMainWindow):
 
         self._sidebar_layout.addStretch()
 
-        version_label = QLabel("Phiên bản 1.0", sidebar)
+        version_label = QLabel(f"Phiên bản {__version__}", sidebar)
         version_label.setStyleSheet(
             f"color: {COLOR['muted']}; font-size: {FONT['caption']}px; background: transparent;"
         )

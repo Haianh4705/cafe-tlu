@@ -4,7 +4,9 @@ name: Release
 # Build trên windows-latest để thành viên dùng macOS/Linux vẫn ra được .exe
 # mà không cần máy Windows hay máy ảo.
 #
-# Pipeline tự bỏ qua (không đỏ) khi chưa có installer/*.iss — sẽ bật ở cổng G4.
+# Kích hoạt:
+#   - push tag v*        -> build + đính .exe vào GitHub Release
+#   - workflow_dispatch  -> build + tải .exe ở mục Artifacts (để test G1)
 
 on:
   push:
@@ -35,7 +37,7 @@ jobs:
         if: steps.probe.outputs.ready != 'true'
         shell: bash
         run: |
-          echo "::notice title=Chưa có installer/*.iss::Pipeline đóng gói sẽ bật ở cổng G4 (tuần 6). Bỏ qua."
+          echo "::notice title=Chưa có installer/*.iss::Pipeline đóng gói sẽ bật khi có file .iss. Bỏ qua."
 
       - uses: actions/setup-python@v7
         if: steps.probe.outputs.ready == 'true'
@@ -52,18 +54,28 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller==6.11.1
 
-      - name: Build bằng PyInstaller
+      - name: Build GUI + bộ cài (PyInstaller → Inno Setup)
         if: steps.probe.outputs.ready == 'true'
         shell: bash
-        run: pyinstaller --noconfirm installer/cafetlu.spec
+        run: bash scripts/build_installer.sh
+        env:
+          ISCC: "C:/Program Files (x86)/Inno Setup 6/ISCC.exe"
 
-      - name: Build bộ cài bằng Inno Setup
+      - name: Kiểm tra file cài tồn tại
         if: steps.probe.outputs.ready == 'true'
-        shell: pwsh
+        shell: bash
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer/cafetlu.iss
+          ls -lh dist/CafeTLU/CafeTLU.exe installer/Output/*.exe
 
-      - name: Đính kèm vào GitHub Release
+      - name: Lưu bản cài để tải về (mọi lần chạy)
+        if: steps.probe.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CafeTLU-Setup
+          path: installer/Output/*.exe
+          retention-days: 14
+
+      - name: Đính vào GitHub Release (chỉ khi push tag)
         if: steps.probe.outputs.ready == 'true' && startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v3
         with:
