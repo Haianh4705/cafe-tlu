@@ -8,8 +8,8 @@
 PySide6 (gui/)  ──HTTP/JSON──►  FastAPI (api/)  ──SQLAlchemy──►  MySQL 8.0
 ```
 
-> **Trạng thái:** hạ tầng xong (CI, branch protection, MySQL Docker đều chạy). **Chưa có code
-> ứng dụng** — `api/`, `gui/`, `db/` bắt đầu ở tuần 1. Kế hoạch: [`docs/plan.md`](docs/plan.md).
+> **Trạng thái:** hạ tầng xong, GUI đã có khung + màn Đăng nhập/Thực đơn; `api/` và `db/` còn trống
+> — đang ở **cổng G1**. Lộ trình: [`docs/plan.md`](docs/plan.md).
 
 ## Hôm nay tôi làm gì?
 
@@ -93,7 +93,7 @@ Mỗi thư mục có `README.md` riêng: owner · đặt gì · **không** đặ
 | Tài liệu | Nội dung |
 |---|---|
 | [`WORKFLOW.md`](WORKFLOW.md) | Quy chuẩn làm việc đầy đủ — **nguồn chân lý** |
-| [`docs/plan.md`](docs/plan.md) | **Kế hoạch 8 tuần: tuần này làm gì, giao theo thứ tự nào** |
+| [`docs/plan.md`](docs/plan.md) | **Lộ trình theo cổng: đang ở đâu, việc gì mở khoá cổng, giao theo thứ tự nào** |
 | [`docs/workflow.md`](docs/workflow.md) | Ai làm gì, xong thì bàn giao cho ai |
 | [`docs/defense.md`](docs/defense.md) | Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết |
 | [`AGENTS.md`](AGENTS.md) | Quy tắc cho AI agent |
