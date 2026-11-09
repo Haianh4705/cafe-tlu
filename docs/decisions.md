@@ -23,7 +23,7 @@
 
 ## ADR-003: Stack kỹ thuật
 
-- **Ngày:** 2026-11-04 · **Trạng thái:** 🟡 Đề xuất (chốt ở buổi sync tuần 1)
+- **Ngày:** 2026-11-04 · **Trạng thái:** 🟡 Đề xuất (chốt ở buổi sync đầu tiên)
 - **Quyết định:** Python 3.12 · PySide6 6.8 · FastAPI 0.115 · MySQL 8.0 (Docker) · SQLAlchemy 2.0
 - **Vì sao:** PySide6 cho phép giao diện đẹp + biểu đồ (tiêu chí mốc 8); FastAPI tách backend →
   thỏa "khuyến khích gọi API" và tạo được URL deploy cho mốc 9; MySQL theo đúng đề bài.
@@ -47,7 +47,7 @@
 - **Quyết định:** build installer trên `windows-latest` của GitHub Actions khi push tag `v*`.
 - **Đã cân nhắc:** VM Windows (tốn tài nguyên/bản quyền), mượn máy bạn (không tái lập được),
   bỏ bộ cài (mất điểm bắt buộc).
-- **Hệ quả:** đường ống đóng gói phụ thuộc CI → phải build thử từ tuần 1 (cổng G1) để phát hiện sớm;
+- **Hệ quả:** đường ống đóng gói phụ thuộc CI → phải build thử ngay G1 để phát hiện sớm;
   đồng thời đây là minh chứng "CI/CD" cho mốc 9.
 
 ## ADR-006: Một backend API dùng chung cho GUI và (sau này) QR order
@@ -107,7 +107,7 @@
   chia 2 frontend – 2 backend → không ai lo đóng gói, báo cáo, QA.
 - **Hệ quả:** **không** bật "Require review from Code Owners" — mỗi người là owner duy nhất vùng
   mình, GitHub không cho tự approve nên PR sẽ kẹt. Dùng 1 approval bất kỳ + gán reviewer theo
-  `CODEOWNERS`. Thứ tự giao việc từng tuần: `docs/plan.md`.
+  `CODEOWNERS`. Thứ tự giao việc theo cổng: `docs/plan.md`.
 
 ---
 

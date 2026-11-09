@@ -80,7 +80,7 @@ Quy định của trường/GV (ưu tiên cao hơn nếu khác), quy định v�
 | `README.md` | Cách cài & chạy trong 3 lệnh | Tất cả, GV |
 | `CONTRIBUTING.md` | Bản rút gọn của mục 5–6 cho người mới | Thành viên mới |
 | `docs/decisions.md` | Nhật ký quyết định kỹ thuật (ADR-lite) | Tất cả |
-| `docs/plan.md` | **Kế hoạch 8 tuần + thứ tự giao việc theo sóng** | D, cả nhóm |
+| `docs/plan.md` | **Lộ trình theo cổng + thứ tự giao việc theo sóng** | D, cả nhóm |
 | `docs/workflow.md` | **Ai làm gì, xong thì bàn giao cho ai** | Tất cả |
 | `docs/api-contract.md` | Đặc tả API (nguồn chân lý của hợp đồng) | A, B, C |
 | `docs/erd.md` | **Khung** thiết kế dữ liệu — B tự điền (chưa có bản thiết kế) | A, B |
@@ -238,7 +238,7 @@ Issue (Ready) → Branch → Code + Test → Commit → Push → PR → CI xanh
 - **Mọi việc đều phải có Issue.** Việc < 30 phút vẫn tạo Issue (để có bằng chứng đóng góp) nhưng dùng label `quick`.
 - Tiêu đề Issue: động từ + đối tượng. VD: `Thêm chức năng gộp bàn khi thanh toán`.
 - Issue **PHẢI** đạt [Definition of Ready](#6-definition-of-ready--definition-of-done) trước khi vào cột `Ready`.
-- Gán: **đúng 1 assignee**, 1 `estimate` (S/M/L), 1 `milestone` (tuần), label theo vùng (`api`/`gui`/`db`/`infra`/`docs`/`bug`/`blocked`).
+- Gán: **đúng 1 assignee**, 1 `estimate` (S/M/L), 1 `milestone` (cổng), label theo vùng (`api`/`gui`/`db`/`infra`/`docs`/`bug`/`blocked`).
 
 ### 5.2 Nhánh
 
@@ -364,7 +364,7 @@ Chỉ được kéo sang `Done` khi **tất cả** đúng:
 
 **Luật cứng:** không merge PR mà mình không giải thích được, kể cả khi CI xanh.
 
-> 💡 Ảnh chụp lưu **ngay khi xong việc** là mẹo ăn điểm mốc 8 ("chụp ảnh các bước đầy đủ, cẩn thận") — đến tuần 7 không phải dựng lại app để chụp.
+> 💡 Ảnh chụp lưu **ngay khi xong việc** là mẹo ăn điểm mốc 8 ("chụp ảnh các bước đầy đủ, cẩn thận") — đến G5 không phải dựng lại app để chụp.
 
 ---
 
@@ -778,13 +778,13 @@ AI **PHẢI** chọn một trong ba hành vi sau (không được im lặng):
   ```
 - **CẬP NHẬT BOARD** ngay khi đổi trạng thái, không để cuối ngày.
 
-### 16.2 Hằng tuần
+### 16.2 Nhịp cố định
 
 | Thời điểm | Hoạt động | Kết quả bắt buộc |
 |---|---|---|
-| Thứ 3 | Sync 20–30 phút | Gỡ blocker, chốt việc tuần |
+| Thứ 3 | Sync 20–30 phút | Gỡ blocker, chốt việc đang mở |
 | Thứ 6 | **Demo nội bộ 30 phút** | Mỗi người demo phần mình **chạy thật** trên `develop` |
-| Thứ 6 | **Cổng tích hợp** | `develop` phải chạy được end-to-end; nếu không → cắt bớt scope tuần sau |
+| Thứ 6 | **Cổng tích hợp** | `develop` phải chạy được end-to-end; nếu không → cắt bớt scope chặng sau |
 | Chủ nhật | D tổng hợp tiến độ | 1 báo cáo ngắn 5 dòng gửi nhóm (+ GV nếu cần) |
 
 > **Demo là bắt buộc, không thay bằng slide hay "em sắp xong".** Không demo được = việc đó coi như chưa xong.
@@ -793,11 +793,11 @@ AI **PHẢI** chọn một trong ba hành vi sau (không được im lặng):
 
 | Cổng | Thời điểm | Điều kiện xanh |
 |---|---|---|
-| **G1 — Nền móng** | Cuối tuần 1 | Cả 4 máy chạy `make up && make api && make gui` chỉ bằng README; CI xanh; **build installer thử lần 1** |
-| **G2 — Lát cắt dọc** | Cuối tuần 2 | Login + phân quyền + CRUD món chạy end-to-end từ GUI |
-| **G3 — MVP** | Cuối tuần 4 | Đủ 6 yêu cầu đề bài; installer từ CI cài được trên máy sạch |
-| **G4 — Deploy** | Cuối tuần 6 | Backend có URL công khai; tag → CI tự build installer |
-| **G5 — QA** | Cuối tuần 7 | Test case pass ≥ 95%; báo cáo đủ 80%; video demo có |
+| **G1 — Nền móng** | Khi xong 3 sóng | Cả 4 máy chạy `make up && make api && make gui` chỉ bằng README; CI xanh; **build installer thử lần 1** |
+| **G2 — Lát cắt dọc** | Khi CRUD món chạy end-to-end | Login + phân quyền + CRUD món chạy end-to-end từ GUI |
+| **G3 — MVP** | Khi đủ 6 yêu cầu đề bài | Đủ 6 yêu cầu đề bài; installer từ CI cài được trên máy sạch |
+| **G4 — Deploy** | Khi backend có URL công khai | Backend có URL công khai; tag → CI tự build installer |
+| **G5 — QA** | Khi test case pass ≥ 95% | Test case pass ≥ 95%; báo cáo đủ 80%; video demo có |
 | **G6 — Đóng băng** | Trước hạn 3 ngày | Không merge gì trừ `hotfix`; tập bảo vệ xong |
 
 ### 16.4 WIP limit
@@ -823,11 +823,11 @@ Mỗi người tối đa **2 thẻ `In progress`**. Quá → đang làm dở m�
 
 | Rủi ro | Dấu hiệu sớm | Hành động |
 |---|---|---|
-| Integration hell | Cuối tuần 6 vẫn chưa ghép | Cổng G2/G3; demo thứ 6 |
-| Installer vỡ phút cuối | Chưa build lần nào tới tuần 8 | Build thử từ tuần 1, CI build mỗi tuần |
+| Integration hell | Hết G2 vẫn chưa ghép được | Cổng G2/G3; demo cuối mỗi sóng |
+| Installer vỡ phút cuối | Chưa build lần nào tới G6 | Build thử ngay G1, CI build mỗi lần merge |
 | Một người im lặng | Không commit/không standup 2 ngày | D nhắn riêng, gặp trực tiếp trong 24h |
 | Bus factor = 1 | Chỉ 1 người biết deploy/GUI | Mỗi module có owner + reviewer; tập bảo vệ chéo |
-| Báo cáo dồn cuối kỳ | Tuần 5 chưa có chương nào | Mỗi người viết chương từ tuần 4 |
+| Báo cáo dồn cuối kỳ | Qua G3 chưa có chương nào | Mỗi người viết chương từ G2 |
 | Flaky test làm mất tin cậy CI | Test lúc xanh lúc đỏ | Sửa ngay, không `skip` |
 
 ### 17.4 Quy tắc "không im lặng"

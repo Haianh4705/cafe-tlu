@@ -64,11 +64,11 @@ Sau đó **một dòng** về việc kế tiếp, không liệt kê hết.
    3 câu "Giải thích được" (`docs/defense.md`).
 5. **Không quên ảnh chụp** nếu là việc UI — đó là điểm mốc 8, và dễ bị bỏ nhất.
 
-## Nếu họ hỏi "tuần này tôi làm gì?" (không phải "việc tiếp theo")
+## Nếu họ hỏi "cổng này tôi làm gì?" (không phải "việc tiếp theo")
 
-Trả lời theo `docs/plan.md` mục của tuần hiện tại: liệt kê **các việc của họ trong tuần**, theo
-sóng, kèm điều kiện cổng cuối tuần. Dùng bảng điều khiển tuần (`gh issue list --label tracking`)
-làm nguồn.
+Trả lời theo `docs/plan.md` mục của **cổng đang mở**: liệt kê các việc của họ trong cổng đó, theo
+sóng, kèm điều kiện ra cổng. Dùng bảng điều khiển cổng (`gh issue list --label tracking`) làm nguồn.
+Không quy đổi ra tuần — cổng mở khi đủ điều kiện, không theo lịch.
 
 ## Nếu họ hỏi "tôi đang bị chặn thì làm gì?"
 
