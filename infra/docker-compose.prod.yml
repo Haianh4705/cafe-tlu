@@ -1,0 +1,57 @@
+# KHUNG production — chưa dùng ở G1, chốt dần ở G4.
+#
+#   cp .env.prod.example .env.prod   # rồi điền giá trị thật (KHÔNG commit)
+#   docker compose -f infra/docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# Khác bản dev ở điểm nào:
+#   - MySQL KHÔNG map cổng 3306/3307 ra host (chỉ api nói chuyện trong mạng nội bộ)
+#   - api chạy image tự build, không mount source
+#   - nginx + HTTPS thêm ở G4 (cần infra/nginx.conf và chứng chỉ)
+name: cafetlu-prod
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?thiếu trong .env.prod}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-cafe_tlu}
+      MYSQL_USER: ${MYSQL_USER:-cafetlu}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?thiếu trong .env.prod}
+      TZ: Asia/Ho_Chi_Minh
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+07:00
+    volumes:
+      - cafetlu_prod_mysql:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h 127.0.0.1 -uroot -p"$$MYSQL_ROOT_PASSWORD" --silent
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-cafetlu}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE:-cafe_tlu}
+      JWT_SECRET: ${JWT_SECRET:?thiếu trong .env.prod}
+      APP_ENV: production
+    depends_on:
+      mysql:
+        condition: service_healthy
+    expose:
+      - "8000"
+    # Tạm mở để test trực tiếp; G4 sẽ đặt sau nginx và bỏ dòng này.
+    ports:
+      - "8000:8000"
+
+volumes:
+  cafetlu_prod_mysql:
+    name: cafetlu_prod_mysql
