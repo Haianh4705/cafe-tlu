@@ -154,12 +154,13 @@ gh label create quick   -c EDEDED -d "Việc dưới 30 phút"        || true
 gh label create triage  -c D4C5F9 -d "Mới tạo, chưa phân loại"  || true
 ```
 
-## 6. Tạo milestone theo tuần
+## 6. Tạo milestone theo cổng
 
 ```bash
-for i in 1 2 3 4 5 6 7 8; do
-  gh api "repos/{owner}/{repo}/milestones" -f "title=W$i" -f "description=Tuần $i" >/dev/null \
-    && echo "✅ W$i"
+for g in "G1:Nền móng" "G2:Lát cắt dọc" "G3:MVP" "G4:Deploy" "G5:QA" "G6:Đóng băng"; do
+  code="${g%%:*}"; name="${g#*:}"
+  gh api "repos/{owner}/{repo}/milestones" -f "title=$code" -f "description=$name" >/dev/null \
+    && echo "✅ $code"
 done
 ```
 

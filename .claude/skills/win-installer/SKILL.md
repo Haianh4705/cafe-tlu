@@ -8,7 +8,7 @@ description: Đóng gói CafeTLU thành bộ cài Windows (.exe) và sửa lỗi
 ## Sự thật quan trọng nhất
 
 Đề bài **bắt buộc** có bộ cài. Đây là việc hay vỡ nhất và hay bị để tới tuần cuối.
-**Build thử ngay tuần 1** dù app còn trống — nếu đường ống đóng gói không thông thì phải biết sớm.
+**Build thử ngay G1** dù app còn trống — nếu đường ống đóng gói không thông thì phải biết sớm.
 
 Build chạy trên **GitHub Actions `windows-latest`** (không cần máy Windows, không cần VM).
 Pipeline đã có sẵn: `.github/workflows/release.yml`, kích hoạt khi push tag `v*`.

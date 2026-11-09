@@ -8,6 +8,11 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Changed
+- `docs/plan.md` chuyển từ **kế hoạch 8 tuần** sang **lộ trình theo cổng G1–G6**: bỏ mốc tuần/ngày,
+  mỗi cổng mở khi đủ điều kiện; cập nhật theo `README.md`, `WORKFLOW.md` (16.3), `docs/workflow.md`,
+  `docs/setup-github.md` (milestone `G1`–`G6`), skill `next-task` và bảng điều khiển #33/#34
+
 ### Added — giao diện (GUI)
 - Màn hình Quản lý thực đơn (`ProductListView`): bảng danh sách món, bộ lọc danh mục động, tìm kiếm nhanh `Ctrl+F`, phân trang, cùng bộ hộp thoại CRUD thêm/sửa/xoá món ăn chuẩn nhận diện TLU (#41, Closes #30)
 - Khung giao diện desktop PySide6: theme nhận diện TLU (palette navy `#000066` + swoosh đỏ `#F32409`), BaseView 4 trạng thái bắt buộc, ApiClient bọc 23 endpoint, màn hình Đăng nhập (`LoginView`) phân quyền vai trò (`admin`/`staff`/`barista`), nhúng font Manrope và tài liệu ảnh chụp (#40, Closes #23, #24, #25)
@@ -25,7 +30,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   `installer/`, `assets/`, `report/`) — mỗi thư mục có README nêu owner, đặt gì, **không** đặt gì
 
 ### Added — quy trình & tài liệu
-- `docs/plan.md` — kế hoạch 8 tuần: mục tiêu + cổng từng tuần, thứ tự giao việc theo "sóng",
+- `docs/plan.md` — lộ trình theo cổng: mục tiêu + điều kiện ra cổng, thứ tự giao việc theo "sóng",
   thứ tự cắt scope khi trễ, việc điều phối của D
 - `WORKFLOW.md` — quy chuẩn làm việc cho người và AI (nguồn chân lý)
 - `AGENTS.md` — điểm vào cho AI agent + bảng định tuyến "sắp làm gì → đọc skill nào"

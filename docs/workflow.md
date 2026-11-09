@@ -105,11 +105,11 @@ Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán),
 
 ## 7. Theo giai đoạn: ai làm gì, xong bàn giao gì
 
-> **Chi tiết từng tuần làm gì, giao theo thứ tự nào:** [`docs/plan.md`](plan.md).
+> **Chi tiết theo từng cổng, giao theo thứ tự nào:** [`docs/plan.md`](plan.md).
 > Điều kiện "xanh" của từng cổng nằm ở **`WORKFLOW.md` mục 16.3** — mục này chỉ nói **ai làm gì**
 > trong mỗi giai đoạn, không định nghĩa lại cổng.
 
-### G1 — Nền móng (tuần 1)
+### G1 — Nền móng
 
 | Người | Làm | Bàn giao |
 |---|---|---|
@@ -120,7 +120,7 @@ Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán),
 
 **Cổng:** cả 4 máy chạy được bằng README, CI xanh, có 1 bản cài cài được.
 
-### G2 — Lát cắt dọc (tuần 2)
+### G2 — Lát cắt dọc
 
 | Người | Làm | Bàn giao |
 |---|---|---|
@@ -129,16 +129,16 @@ Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán),
 | C | màn Đăng nhập + Danh sách món | → D (QA + ảnh) |
 | D | QA smoke test, ảnh chụp | → cả nhóm |
 
-**Cổng:** login + phân quyền + CRUD món chạy end-to-end, demo thứ 6.
+**Cổng:** login + phân quyền + CRUD món chạy end-to-end trên máy người khác.
 
 ### G3–G6
 
 | Giai đoạn | Trọng tâm | Bàn giao cuối |
 |---|---|---|
-| **G3** MVP (tuần 4) | Order, hoá đơn, tìm kiếm, thống kê | D đóng gói installer cài được |
-| **G4** Deploy (tuần 6) | Docker + deploy backend, CI build `.exe` | URL công khai → cả nhóm test |
-| **G5** QA (tuần 7) | Test case pass ≥ 95%, báo cáo 80%, video | D biên tập báo cáo |
-| **G6** Đóng băng (tuần 8) | Trước hạn 3 ngày, chỉ hotfix | D nộp bài |
+| **G3** MVP | Order, hoá đơn, tìm kiếm, thống kê | D đóng gói installer cài được |
+| **G4** Deploy | Docker + deploy backend, CI build `.exe` | URL công khai → cả nhóm test |
+| **G5** QA | Test case pass ≥ 95%, báo cáo 80%, video | D biên tập báo cáo |
+| **G6** Đóng băng | Trước hạn 3 ngày, chỉ hotfix | D nộp bài |
 
 ## 8. Bàn giao cuối kỳ (G6) — ai nộp gì
 
