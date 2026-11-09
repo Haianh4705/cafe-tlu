@@ -26,6 +26,7 @@ from gui.api_client import ApiClient
 from gui.theme import COLOR, FONT, GLOBAL_QSS, RADIUS, SPACE
 from gui.views.base import BaseView
 from gui.views.login_view import LoginView
+from gui.views.product_list_view import ProductListView
 from shared.paths import resource_path
 
 logging.basicConfig(
@@ -119,8 +120,12 @@ class MainWindow(QMainWindow):
         self._content_stack = QStackedWidget(body)
         self._content_stack.setStyleSheet(f"background-color: {COLOR['surface']};")
 
+        # Đăng ký các màn hình
         self._dashboard_view = DashboardPlaceholderView(self)
         self._content_stack.addWidget(self._dashboard_view)
+
+        self._product_list_view = ProductListView(self.api, self)
+        self._content_stack.addWidget(self._product_list_view)
 
         body_layout.addWidget(self._content_stack, stretch=1)
         layout.addWidget(body, stretch=1)
@@ -194,12 +199,8 @@ class MainWindow(QMainWindow):
         for key, label, roles in items:
             btn = QPushButton(label, sidebar)
             btn.setProperty("required_roles", roles)
-            btn.setStyleSheet(
-                f"QPushButton {{ background-color: transparent; color: {COLOR['tint_200']}; "
-                f"text-align: left; padding: {SPACE['sm']}px {SPACE['md']}px; "
-                f"border: none; border-radius: {RADIUS['sm']}px; }}"
-                f"QPushButton:hover {{ background-color: {COLOR['navy']}; color: {COLOR['surface']}; }}"
-            )
+            btn.setCheckable(True)
+            btn.clicked.connect(lambda _, k=key: self._switch_menu(k))
             self._sidebar_layout.addWidget(btn)
             self._menu_buttons[key] = btn
 
@@ -211,6 +212,32 @@ class MainWindow(QMainWindow):
         )
         self._sidebar_layout.addWidget(version_label)
         return sidebar
+
+    def _switch_menu(self, key: str) -> None:
+        """Chuyển đổi màn hình khi bấm chọn trên Sidebar."""
+        for k, btn in self._menu_buttons.items():
+            is_active = k == key
+            btn.setChecked(is_active)
+            if is_active:
+                btn.setStyleSheet(
+                    f"QPushButton {{ background-color: {COLOR['navy_600']}; color: {COLOR['surface']}; "
+                    f"text-align: left; padding: {SPACE['sm']}px {SPACE['md']}px; "
+                    f"border-left: 3px solid {COLOR['brand_400']}; border-radius: 0px; }}"
+                )
+            else:
+                btn.setStyleSheet(
+                    f"QPushButton {{ background-color: transparent; color: {COLOR['tint_200']}; "
+                    f"text-align: left; padding: {SPACE['sm']}px {SPACE['md']}px; "
+                    f"border: none; border-radius: {RADIUS['sm']}px; }}"
+                    f"QPushButton:hover {{ background-color: {COLOR['navy']}; color: {COLOR['surface']}; }}"
+                )
+
+        if key == "dashboard":
+            self._content_stack.setCurrentWidget(self._dashboard_view)
+            self._dashboard_view.load()
+        elif key == "products":
+            self._content_stack.setCurrentWidget(self._product_list_view)
+            self._product_list_view.load()
 
     def _update_sidebar_permissions(self, role: str) -> None:
         """Ẩn/Hiện menu theo quyền vai trò người dùng (TC-AUTH-03)."""
@@ -232,9 +259,10 @@ class MainWindow(QMainWindow):
 
         self._user_label.setText(f"{full_name} ({role_display})")
         self._update_sidebar_permissions(role)
+        self._product_list_view.set_user_role(role)
 
         self._root_stack.setCurrentWidget(self._app_shell)
-        self._dashboard_view.load()
+        self._switch_menu("dashboard")
 
     def _handle_logout(self) -> None:
         """Đăng xuất tài khoản và quay về màn hình đăng nhập."""
