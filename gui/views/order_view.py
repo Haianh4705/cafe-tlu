@@ -310,7 +310,13 @@ class OrderView(BaseView):
                 tables = MOCK_TABLES
 
             try:
-                products = self.api.get_products() or []
+                products_res = self.api.get_products()
+                if isinstance(products_res, dict):
+                    products = products_res.get("data") or []
+                elif isinstance(products_res, list):
+                    products = products_res
+                else:
+                    products = []
             except Exception as exc:
                 logger.warning("Không thể lấy /products từ API (%s), dùng dữ liệu giả lập", exc)
                 products = MOCK_PRODUCTS

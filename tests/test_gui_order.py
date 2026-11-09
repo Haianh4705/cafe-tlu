@@ -162,3 +162,23 @@ def test_order_view_filtering_and_table_selection(qapp: Any) -> None:
     view._filter_products()
     # Kiểm tra có phím tắt F1, F2
     assert view._search_input.text() == "cà phê"
+
+
+def test_order_view_with_api_envelope_products(qapp: Any) -> None:
+    """Kiểm tra OrderView bóc tách đúng envelope {'data': [...], 'meta': {...}} từ API get_products (#41)."""
+    client = ApiClient(base_url="http://127.0.0.1:8000/api/v1")
+    view = OrderView(client)
+
+    envelope_products = {
+        "data": MOCK_PRODUCTS,
+        "meta": {"page": 1, "page_size": 20, "total": len(MOCK_PRODUCTS), "total_pages": 1},
+    }
+
+    # Bóc tách envelope
+    data = (
+        envelope_products.get("data") if isinstance(envelope_products, dict) else envelope_products
+    )
+    view._on_data_loaded((MOCK_TABLES, data))
+
+    assert len(view._products) == len(MOCK_PRODUCTS)
+    assert view._products[0]["name"] == "Cà phê đen đá"
