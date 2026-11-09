@@ -3,11 +3,11 @@
 # Cài: pip install -r requirements-dev.txt
 # ============================================================
 
-pytest==8.3.4
-pytest-cov==6.0.0
-pytest-qt==4.4.0
-httpx==0.28.0
+pytest==8.4.2
+pytest-cov==6.3.0
+pytest-qt==4.5.0
+httpx==0.28.1
 
-ruff==0.17.3
+ruff==0.17.4
 black==24.10.0
-pre-commit==4.0.1
+pre-commit==4.7.0
