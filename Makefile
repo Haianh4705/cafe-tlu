@@ -35,7 +35,7 @@ help: ## Hiện danh sách lệnh
 next: ## Việc tiếp theo của bạn (lấy từ Issue được gán)
 	@bash scripts/next_task.sh $(u)
 
-doctor: ## Kiểm tra môi trường máy (python, docker, git, .env)
+doctor: ## Kiểm tra môi trường máy (python, docker, mysql, git, .env)
 	@echo "── Kiểm tra môi trường ────────────────────────"
 	@printf "  python : "; ($(PY) -V 2>/dev/null) || echo "CHƯA CÀI"
 	@printf "  docker : "; ($(DOCKER) -v 2>/dev/null) || echo "CHƯA CÀI  -> cần Docker Desktop"
@@ -44,6 +44,8 @@ doctor: ## Kiểm tra môi trường máy (python, docker, git, .env)
 	@printf "  make   : "; (make -v 2>/dev/null | head -1) || echo "CHƯA CÀI"
 	@printf "  .env   : "; (test -f .env && echo "có" || echo "THIẾU -> cp .env.example .env")
 	@printf "  venv   : "; (test -d .venv && echo "có" || echo "THIẾU -> make install")
+	@printf "  mysql  : "; ($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx mysql && echo "đang chạy (:3307)" || echo "TẮT -> make up")
+	@printf "  dockerfile: "; (test -f infra/Dockerfile && echo "có" || echo "THIẾU")
 	@$(PY) -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)' \
 	    && echo "  => Python OK (>=3.12)" \
 	    || echo "  => CẦN Python 3.12+ (đang dùng: $$($(PY) -V 2>&1))"
@@ -125,8 +127,7 @@ check: lint test ## Chạy lint + test (dùng trước khi mở PR)
 # ------------------------------------------------------------
 # Đóng gói (bật ở cổng G4)
 # ------------------------------------------------------------
-build-installer: ## Build bộ cài Windows (cần installer/*.iss)
-	@ls installer/*.iss >/dev/null 2>&1 || { echo "⏳ Chưa có installer/*.iss — bật ở cổng G4."; exit 1; }
+build-installer: ## Build bộ cài Windows (PyInstaller + Inno Setup, cần Windows)
 	@bash scripts/build_installer.sh
 
 # ------------------------------------------------------------

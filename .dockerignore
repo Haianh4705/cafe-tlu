@@ -1,0 +1,22 @@
+# Giảm context gửi cho Docker daemon — chỉ giữ thứ API cần.
+.git
+.github
+.venv
+__pycache__
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+tests
+docs
+assets
+installer
+dist
+build
+report
+*.md
+.env
+.env.*
+*.db
+*.sqlite*
+*.log

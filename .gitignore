@@ -26,6 +26,7 @@ secrets/
 build/
 dist/
 *.spec
+!installer/cafetlu.spec
 Output/
 installer/tmp/
 *.exe

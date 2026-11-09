@@ -18,6 +18,14 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Khung giao diện desktop PySide6: theme nhận diện TLU (palette navy `#000066` + swoosh đỏ `#F32409`), BaseView 4 trạng thái bắt buộc, ApiClient bọc 23 endpoint, màn hình Đăng nhập (`LoginView`) phân quyền vai trò (`admin`/`staff`/`barista`), nhúng font Manrope và tài liệu ảnh chụp (#40, Closes #23, #24, #25)
 
 ### Added — hạ tầng & công cụ
+- Bộ cài Windows: `installer/cafetlu.spec` (PyInstaller onedir, nhúng `assets/`), `cafetlu.iss`
+  (Inno Setup, cài per-user, shortcut + uninstall), `app.ico` 7 kích thước, `scripts/build_installer.sh`
+  và `scripts/make_icon.py`; version lấy duy nhất từ `shared/version.py` (#26)
+- `Release` workflow: build bằng script chung, tải được artifact `CafeTLU-Setup` cả khi chạy tay
+  (`workflow_dispatch`), không chỉ khi push tag
+- Nhãn "Phiên bản" ở sidebar GUI đọc từ `shared/version.py` (hết hard-code `1.0`)
+- `make doctor` kiểm thêm MySQL container (cổng 3307) + `infra/Dockerfile`; thêm `infra/Dockerfile`
+  (Python 3.12-slim, user không phải root, healthcheck `/health`) (#27)
 - `make next` + `scripts/next_task.sh`: in việc tiếp theo của mỗi người từ Issue được gán,
   sắp theo milestone rồi số Issue (thứ tự phụ thuộc), kèm skill phải đọc
 - Skill `next-task`: dạy AI agent trả lời "tôi cần làm gì?" theo đúng khuôn, không tự bịa việc
