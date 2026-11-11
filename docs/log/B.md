@@ -18,6 +18,7 @@
 |---|---|---|---|---|---|
 | 2026-11-11 | #17, #18 | `feature/db-erd-schema-trungdung` | `docs/erd.md`, `db/schema.sql`, `db/seed.sql` | Thiết kế ERD 9 bảng 3NF, viết DDL chuẩn InnoDB/utf8mb4 và nạp 51 món mẫu | Chuẩn hóa 3NF chống dị thường dữ liệu, DECIMAL(12,0) tránh sai số tiền tệ, snapshot giá trong đơn |
 | 2026-11-11 | #28, #31 | `feature/db-erd-schema-trungdung` | `scripts/seed_data.py`, `api/services/reports.py`, `tests/test_reports.py` | Sinh 120 đơn 30 ngày, viết ReportService và xuất Excel/PDF | Một nguồn chân lý số liệu, tính toán hoàn toàn bằng SQL GROUP BY, font Unicode cho PDF |
+| 2026-11-11 | #17, #32 | `feature/db-erd-schema-trungdung` | `report/03-phan-tich.md` | Hoàn thiện Chương 3 Báo cáo BTL (Phân tích Use Case, ERD, 3NF, Snapshot pricing) | Chuẩn bị đầy đủ báo cáo học phần theo rubric, có chứng minh 3NF và minh chứng kỹ thuật |
 
 ## 3. AI đã làm gì
 

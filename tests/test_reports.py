@@ -120,3 +120,4 @@ def test_export_revenue_to_pdf_generation():
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
+

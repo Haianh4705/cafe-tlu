@@ -365,3 +365,4 @@ def export_revenue_to_pdf(
     doc.build(elements)
     logger.info("Đã xuất file PDF doanh thu tại: %s", output_path)
     return output_path
+

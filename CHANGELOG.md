@@ -17,6 +17,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Bộ unit test kiểm thử hàm thống kê và xuất file báo cáo (`tests/test_reports.py`)
 - Bật tự động nạp `schema.sql` và `seed.sql` trong `docker-compose.yml` khi khởi tạo container MySQL
 - Nhật ký cá nhân và ngân hàng phản biện của B (`docs/log/B.md`)
+- Chương 3 Báo cáo BTL về Phân tích & Thiết kế CSDL đạt chuẩn 3NF (`report/03-phan-tich.md`)
 
 ### Added — quy trình
 - **Nhật ký cá nhân bắt buộc:** `docs/log/A.md` … `D.md` — mỗi người ghi việc đã làm, AI đã hỗ trợ
