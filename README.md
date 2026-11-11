@@ -68,7 +68,7 @@ tests/          pytest
 scripts/        next_task.sh, smoke test, build script
 infra/          Dockerfile, deploy         — D
 installer/      Inno Setup .spec/.iss      — D
-docs/           erd, api-contract, plan, workflow, defense, decisions
+docs/           erd, api-contract, plan, workflow, defense, decisions, log/
 report/         báo cáo BTL (mỗi người 1 chương)
 .claude/skills/ 10 skill hướng dẫn theo loại việc
 ```
@@ -96,6 +96,7 @@ Mỗi thư mục có `README.md` riêng: owner · đặt gì · **không** đặ
 | [`docs/plan.md`](docs/plan.md) | **Lộ trình theo cổng: đang ở đâu, việc gì mở khoá cổng, giao theo thứ tự nào** |
 | [`docs/workflow.md`](docs/workflow.md) | Ai làm gì, xong thì bàn giao cho ai |
 | [`docs/defense.md`](docs/defense.md) | Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết |
+| [`docs/log/`](docs/log/README.md) | **Nhật ký cá nhân A/B/C/D** — mỗi người ghi việc đã làm + AI đã hỗ trợ gì |
 | [`AGENTS.md`](AGENTS.md) | Quy tắc cho AI agent |
 | [`.claude/skills/`](.claude/skills/README.md) | 10 skill: API, DB, GUI, UI, test, đóng gói, báo cáo, bảo mật, tối giản, hỏi việc |
 

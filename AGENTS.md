@@ -16,6 +16,7 @@
 | 3 | `docs/api-contract.md` | Hợp đồng API — nguồn chân lý, không tự đổi |
 | 4 | `docs/erd.md` | Thiết kế dữ liệu **do B viết** — có thể còn là khung nếu B chưa chốt |
 | 5 | Issue được giao | Phạm vi duy nhất bạn được làm |
+| 6 | `docs/log/<vai>.md` | Nhật ký của người bạn đang làm việc cùng — **phải cập nhật cuối phiên** |
 
 Nếu thiếu file nào ở trên → **báo lại**, đừng tự tạo phiên bản riêng.
 
@@ -42,7 +43,7 @@ Nếu một skill sai hoặc thiếu, sửa skill đó bằng PR — đừng lá
 
 ---
 
-## 2. Mười điều không được vi phạm
+## 2. Mười một điều không được vi phạm
 
 1. **Không push** lên `main` / `develop`. Luôn tạo nhánh `feature/*` hoặc `fix/*`.
 2. **Không tự đổi** `db/schema.sql`, migration đã merge, `docs/api-contract.md` → phải hỏi.
@@ -54,6 +55,8 @@ Nếu một skill sai hoặc thiếu, sửa skill đó bằng PR — đừng lá
 8. **Không nói "đã test"** khi chưa thực sự chạy `make lint && make test` và dán kết quả.
 9. **Không làm ngoài phạm vi Issue** (không refactor tiện tay, không đổi format toàn file).
 10. **Không tự merge/approve** PR của mình.
+11. **Không kết thúc phiên mà không ghi** `docs/log/<vai>.md` (việc đã làm + AI đã làm gì + chỗ
+    người dùng còn chưa giải thích được).
 
 ---
 
@@ -65,6 +68,7 @@ git switch -c feature/<scope>-<slug>-<ten>
 make lint && make test          # BASELINE — ghi lại kết quả TRƯỚC khi sửa
 # ... sửa code, thay đổi nhỏ nhất đủ đáp ứng Issue ...
 make lint && make test          # KIỂM CHỨNG — phải xanh
+# ghi 1–3 dòng vào docs/log/<vai>.md (mục 2 + 3) — trước khi commit
 git add <path-cụ-thể>
 git commit -m "feat(order): thêm endpoint gộp bàn"
 git push -u origin HEAD
@@ -129,6 +133,7 @@ make doctor      # kiểm tra môi trường máy
 - [ ] **Trả lời được** 3 câu trong mục "Giải thích được" của PR (`docs/defense.md`) — nếu bạn
       không viết được 3 câu đó thay cho người dùng, thì code chưa đủ rõ để họ bảo vệ
 - [ ] Commit message đúng Conventional Commits, có `Co-authored-by` nếu code do AI sinh
+- [ ] Đã ghi `docs/log/<vai>.md`: 1 dòng việc + 1 dòng AI, và mục 5 nếu còn chỗ chưa hiểu
 
 ---
 

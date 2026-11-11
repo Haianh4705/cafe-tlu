@@ -111,6 +111,24 @@
 
 ---
 
+## ADR-010: Nhật ký cá nhân + AI (`docs/log/<vai>.md`)
+
+- **Ngày:** 2026-11-11 · **Người quyết định:** D · **Trạng thái:** ✅ Chấp nhận
+- **Bối cảnh:** đề bài **copy = 0 điểm**, GV hỏi bất kỳ phần nào và hay hỏi "AI viết bao nhiêu". Nhóm
+  dùng AI cho hầu hết việc, nhưng bằng chứng nằm rải rác trong chat, commit message và trí nhớ — đến
+  lúc bảo vệ thì không dựng lại được.
+- **Quyết định:** mỗi người giữ **một** file `docs/log/<vai>.md` (A/B/C/D) gồm 6 mục: phụ trách gì ·
+  việc đã làm (kèm commit/PR) · AI đã làm gì và mình sửa/kiểm chứng gì · câu hỏi GV hay hỏi · phần
+  chưa hiểu · nhật ký theo cổng. Cập nhật **trong PR**, 3–5 phút; file trống ở thời điểm cổng = cổng
+  chưa xanh.
+- **Đã cân nhắc:** chỉ dựa vào `git log` + PR (không ghi được "AI làm gì", "vì sao chọn cách khác");
+  một file chung cho cả nhóm (conflict liên tục, dễ ghi hộ); bắt viết báo cáo ngay từ G1 (nặng, viết
+  trước khi có dữ liệu).
+- **Hệ quả:** thêm 5 phút/PR và 15 phút trước mỗi cổng. Đổi lại: mỗi người có sẵn đề cương ôn + bằng
+  chứng khi bị hỏi; GV thấy rõ phần nào do AI hỗ trợ. **Không** dùng nhật ký để thay báo cáo.
+
+---
+
 ## Mẫu thêm ADR mới
 
 ```markdown
