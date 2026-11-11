@@ -6,13 +6,14 @@ Tuân thủ:
 - Kiểm thử trực tiếp các widget PySide6: OrderView, OrderCartWidget, TableCardWidget, CheckoutDialog, ReceiptDialog.
 """
 
+from decimal import Decimal
 from typing import Any
 
 from gui.api_client import ApiClient
-from gui.i18n import format_currency
+from gui.i18n import format_currency, t
 from gui.views.order_view import MOCK_PRODUCTS, MOCK_TABLES, OrderView
 from gui.widgets.checkout_dialog import CheckoutDialog
-from gui.widgets.order_cart import OrderCartWidget
+from gui.widgets.order_cart import ConfirmCancelOrderDialog, OrderCartWidget
 from gui.widgets.receipt_dialog import ReceiptDialog
 from gui.widgets.table_card import TableCardWidget
 
@@ -41,14 +42,22 @@ def test_order_cart_widget_operations(qapp: Any) -> None:
     cart.set_table({"id": 1, "name": "Bàn 01", "status": "occupied"})
 
     items = [
-        {"id": 1, "name": "Cà phê đen đá", "price": 25000, "quantity": 2, "subtotal": 50000},
-        {"id": 4, "name": "Trà đào cam sả", "price": 35000, "quantity": 1, "subtotal": 35000},
+        {
+            "id": 1,
+            "name": "Cà phê đen đá",
+            "price": Decimal("25000.00"),
+            "quantity": 2,
+            "subtotal": 50000,
+        },
+        {"id": 4, "name": "Trà đào cam sả", "price": 35000.0, "quantity": 1, "subtotal": 35000},
     ]
     cart.set_items(items)
 
+    total = cart.calculate_total()
+    assert isinstance(total, int)
     assert len(cart.items) == 2
-    assert cart.calculate_total() == 85000
-    assert format_currency(cart.calculate_total()) == "85.000 đ"
+    assert total == 85000
+    assert format_currency(total) == "85.000 đ"
     assert "85.000 đ" in cart._total_val_lbl.text()
     assert cart._checkout_btn.isEnabled() is True
 
@@ -160,8 +169,20 @@ def test_order_view_filtering_and_table_selection(qapp: Any) -> None:
     # Thử lọc món ăn theo từ khoá "cà phê"
     view._search_input.setText("cà phê")
     view._filter_products()
-    # Kiểm tra có phím tắt F1, F2
-    assert view._search_input.text() == "cà phê"
+    assert 0 < len(view._filtered_products) < len(MOCK_PRODUCTS)
+    assert view._menu_grid.count() == len(view._filtered_products)
+    assert all("cà phê" in p["name"].lower() for p in view._filtered_products)
+    assert view._menu_empty_label.isHidden() is True
+    assert view._menu_scroll.isHidden() is False
+
+    # Thử tìm từ khoá không tồn tại -> danh sách rỗng + hiện thông báo không tìm thấy
+    view._search_input.setText("món không tồn tại xyz")
+    view._filter_products()
+    assert len(view._filtered_products) == 0
+    assert view._menu_grid.count() == 0
+    assert view._menu_empty_label.isHidden() is False
+    assert view._menu_scroll.isHidden() is True
+    assert view._menu_empty_label.text() == t("order_no_matching_product")
 
 
 def test_order_view_with_api_envelope_products(qapp: Any) -> None:
@@ -174,11 +195,35 @@ def test_order_view_with_api_envelope_products(qapp: Any) -> None:
         "meta": {"page": 1, "page_size": 20, "total": len(MOCK_PRODUCTS), "total_pages": 1},
     }
 
-    # Bóc tách envelope
-    data = (
-        envelope_products.get("data") if isinstance(envelope_products, dict) else envelope_products
-    )
+    data = view._extract_products(envelope_products)
     view._on_data_loaded((MOCK_TABLES, data))
 
     assert len(view._products) == len(MOCK_PRODUCTS)
     assert view._products[0]["name"] == "Cà phê đen đá"
+
+
+def test_order_view_error_and_demo_flag(qapp: Any, monkeypatch: Any) -> None:
+    """Kiểm tra OrderView mặc định không nuốt lỗi API (hiện STATE_ERROR) và chỉ mock khi bật cờ demo."""
+    client = ApiClient(base_url="http://127.0.0.1:8000/api/v1")
+
+    monkeypatch.setenv("APP_ENV", "dev")
+    view = OrderView(client)
+    assert view._use_mock is False
+
+    view._on_load_error(RuntimeError("Mất kết nối API"))
+    assert view._state_stack.currentWidget() is view._error_widget
+    assert "Mất kết nối API" in view._error_label.text()
+
+    monkeypatch.setenv("APP_ENV", "demo")
+    demo_view = OrderView(client)
+    assert demo_view._use_mock is True
+
+
+def test_confirm_cancel_order_dialog_buttons(qapp: Any) -> None:
+    """Kiểm tra ConfirmCancelOrderDialog có đủ 2 nút Bỏ qua và Huỷ toàn bộ đơn hiển thị rõ ràng."""
+    dialog = ConfirmCancelOrderDialog(table_name="Bàn 01")
+    assert dialog.skip_btn.text() == t("skip")
+    assert dialog.confirm_btn.text() == t("order_confirm_cancel_btn")
+    assert dialog.skip_btn.isHidden() is False
+    assert dialog.confirm_btn.isHidden() is False
+    assert dialog.confirm_btn.isEnabled() is True

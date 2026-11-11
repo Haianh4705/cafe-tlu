@@ -86,12 +86,21 @@ STRINGS: Final[dict[str, str]] = {
     "order_btn_checkout": "Thanh toán ngay",
     "order_btn_cancel": "Huỷ đơn",
     "order_confirm_cancel": "Bạn có chắc chắn muốn huỷ toàn bộ đơn hàng của {table_name} không?",
+    "order_confirm_cancel_title": "Xác nhận huỷ đơn",
+    "order_confirm_cancel_warning": (
+        "Toàn bộ món ăn đã chọn trong đơn của bàn này sẽ bị huỷ bỏ. Bàn sẽ trở về trạng thái trống."
+    ),
+    "order_confirm_cancel_btn": "Huỷ toàn bộ đơn",
+    "order_no_matching_product": "Không tìm thấy món nào phù hợp.",
+    "skip": "Bỏ qua",
     "checkout_title": "Thanh toán đơn hàng",
     "checkout_payment_method": "Phương thức thanh toán",
     "checkout_method_cash": "Tiền mặt",
     "checkout_method_qr": "Chuyển khoản (VietQR)",
     "checkout_customer_pay": "Tiền khách đưa",
     "checkout_change": "Tiền thối lại",
+    "checkout_confirm": "Xác nhận thanh toán",
+    "checkout_insufficient": "Chưa đủ tiền",
     "checkout_success": "Thanh toán thành công! Bàn đã được chuyển về trạng thái trống.",
     # In hoá đơn (Receipt / Bill K80)
     "receipt_title": "Phiếu thanh toán",

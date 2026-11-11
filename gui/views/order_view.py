@@ -8,6 +8,7 @@ Tuân thủ:
 """
 
 import logging
+import os
 from typing import Any
 
 from PySide6.QtCore import Qt
@@ -26,7 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.api_client import ApiClient
+from gui.api_client import ApiClient, ApiClientError
 from gui.i18n import format_currency, t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
 from gui.views.base import BaseView
@@ -131,10 +132,21 @@ MOCK_PRODUCTS: list[dict[str, Any]] = [
 class OrderView(BaseView):
     """Màn hình Bán hàng & Gọi món tại bàn dạng POS."""
 
-    def __init__(self, api_client: ApiClient, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        api_client: ApiClient,
+        parent: QWidget | None = None,
+        *,
+        use_mock: bool | None = None,
+    ) -> None:
         self.api = api_client
+        # shortcut: mock bàn/món chỉ bật khi APP_ENV=demo hoặc use_mock=True, bỏ khi #19/#29 xong
+        self._use_mock = (
+            use_mock if use_mock is not None else os.getenv("APP_ENV", "").strip().lower() == "demo"
+        )
         self._tables: list[dict[str, Any]] = []
         self._products: list[dict[str, Any]] = []
+        self._filtered_products: list[dict[str, Any]] = []
         self._selected_table: dict[str, Any] | None = None
         self._table_cards: dict[int, TableCardWidget] = {}
         # Lưu trữ giỏ hàng từng bàn ở client: table_id -> list[items]
@@ -254,9 +266,9 @@ class OrderView(BaseView):
         layout.addLayout(filter_bar)
 
         # Danh sách thẻ món ăn
-        scroll = QScrollArea(panel)
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("border: none; background: transparent;")
+        self._menu_scroll = QScrollArea(panel)
+        self._menu_scroll.setWidgetResizable(True)
+        self._menu_scroll.setStyleSheet("border: none; background: transparent;")
 
         self._menu_container = QWidget()
         self._menu_container.setStyleSheet("background: transparent;")
@@ -264,8 +276,16 @@ class OrderView(BaseView):
         self._menu_grid.setContentsMargins(0, 0, 0, 0)
         self._menu_grid.setSpacing(SPACE["sm"])
 
-        scroll.setWidget(self._menu_container)
-        layout.addWidget(scroll, stretch=1)
+        self._menu_scroll.setWidget(self._menu_container)
+        layout.addWidget(self._menu_scroll, stretch=1)
+
+        self._menu_empty_label = QLabel(t("order_no_matching_product"), panel)
+        self._menu_empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._menu_empty_label.setStyleSheet(
+            f"color: {COLOR['muted']}; font-size: {FONT['body']}px; border: none;"
+        )
+        self._menu_empty_label.setVisible(False)
+        layout.addWidget(self._menu_empty_label, stretch=1)
         return panel
 
     def _build_cart_panel(self) -> QWidget:
@@ -297,31 +317,40 @@ class OrderView(BaseView):
     # ------------------------------------------------------------------
     # Nạp dữ liệu (Lifecycle)
     # ------------------------------------------------------------------
+    @staticmethod
+    def _extract_products(products_res: Any) -> list[dict[str, Any]]:
+        """Bóc tách danh sách món từ envelope {'data': [...], 'meta': ...} hoặc list trực tiếp."""
+        if isinstance(products_res, dict):
+            return list(products_res.get("data") or [])
+        if isinstance(products_res, list):
+            return list(products_res)
+        return []
+
     def load(self) -> None:
         """Nạp danh sách bàn và thực đơn món."""
         self._set_state(self.STATE_LOADING)
 
         def fetch_data() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-            # Gọi API lấy bàn và thực đơn
-            try:
-                tables = self.api.get_tables() or []
-            except Exception as exc:
-                logger.warning("Không thể lấy /tables từ API (%s), dùng dữ liệu giả lập", exc)
-                tables = MOCK_TABLES
+            if self._use_mock:
+                # shortcut: mock bàn/món khi chưa có API, bỏ khi #19/#29 xong
+                try:
+                    tables = self.api.get_tables() or MOCK_TABLES
+                except Exception as exc:
+                    logger.warning("Chế độ demo dùng bàn mẫu (%s)", exc)
+                    tables = MOCK_TABLES
 
-            try:
-                products_res = self.api.get_products()
-                if isinstance(products_res, dict):
-                    products = products_res.get("data") or []
-                elif isinstance(products_res, list):
-                    products = products_res
-                else:
-                    products = []
-            except Exception as exc:
-                logger.warning("Không thể lấy /products từ API (%s), dùng dữ liệu giả lập", exc)
-                products = MOCK_PRODUCTS
+                try:
+                    products = self._extract_products(self.api.get_products()) or MOCK_PRODUCTS
+                except Exception as exc:
+                    logger.warning("Chế độ demo dùng thực đơn mẫu (%s)", exc)
+                    products = MOCK_PRODUCTS
 
-            return tables or MOCK_TABLES, products or MOCK_PRODUCTS
+                return tables, products
+
+            # Chế độ dev/prod mặc định: không nuốt lỗi API để BaseView hiện STATE_ERROR + Thử lại
+            tables = self.api.get_tables() or []
+            products = self._extract_products(self.api.get_products())
+            return tables, products
 
         self.start_worker(
             fetch_data,
@@ -333,6 +362,15 @@ class OrderView(BaseView):
         tables, products = result
         self._tables = tables
         self._products = products
+
+        if not self._tables and not self._products:
+            self._set_state(
+                self.STATE_EMPTY,
+                message=t("no_data"),
+                action_text=t("retry"),
+                on_action=self.refresh,
+            )
+            return
 
         # Cập nhật danh mục vào ComboBox
         categories = sorted({p.get("category", "") for p in products if p.get("category")})
@@ -354,7 +392,10 @@ class OrderView(BaseView):
 
     def _on_load_error(self, exc: Exception) -> None:
         logger.error("Lỗi khi tải dữ liệu OrderView: %s", exc)
-        self.set_error_state(f"Không thể kết nối máy chủ: {exc}", on_retry=self.load)
+        msg = (
+            exc.message if isinstance(exc, ApiClientError) else f"Không thể kết nối máy chủ: {exc}"
+        )
+        self._set_state(self.STATE_ERROR, message=msg)
 
     # ------------------------------------------------------------------
     # Xử lý Bàn (Tables)
@@ -418,6 +459,11 @@ class OrderView(BaseView):
             if cat_filter != "all" and cat != cat_filter:
                 continue
             filtered.append(p)
+
+        self._filtered_products = filtered
+        has_results = len(filtered) > 0
+        self._menu_scroll.setVisible(has_results)
+        self._menu_empty_label.setVisible(not has_results)
 
         # Vẽ các card món ăn dạng lưới (2 cột)
         cols = 2
@@ -551,6 +597,7 @@ class OrderView(BaseView):
             # Hiển thị phiếu in hoá đơn thanh toán K80
             from datetime import datetime
 
+            # shortcut: tạm sinh invoice_code ở client khi chưa có API POST /orders, bỏ khi xong G3
             invoice_code = f"HD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
             receipt_data = {
                 "invoice_code": invoice_code,

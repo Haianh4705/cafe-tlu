@@ -156,15 +156,29 @@ class CheckoutDialog(QDialog):
 
         cancel_btn = QPushButton(t("cancel"), self)
         cancel_btn.setProperty("variant", "secondary")
-        cancel_btn.setFixedHeight(38)
+        cancel_btn.setStyleSheet(
+            f"QPushButton {{ background-color: {COLOR['surface']}; color: {COLOR['navy']}; "
+            f"border: 1.5px solid {COLOR['navy']}; border-radius: {RADIUS['sm']}px; "
+            f"font-weight: bold; font-size: {FONT['body']}px; "
+            f"padding: {SPACE['sm']}px {SPACE['md']}px; min-height: 22px; }} "
+            f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }}"
+        )
         cancel_btn.clicked.connect(self.reject)
 
-        self._confirm_btn = QPushButton(t("checkout"), self)
-        self._confirm_btn.setFixedHeight(38)
+        self._confirm_btn = QPushButton(t("checkout_confirm"), self)
+        self._confirm_btn.setStyleSheet(
+            f"QPushButton {{ background-color: {COLOR['navy']}; color: {COLOR['surface']}; "
+            f"border: 1.5px solid {COLOR['navy']}; border-radius: {RADIUS['sm']}px; "
+            f"font-weight: bold; font-size: {FONT['body']}px; "
+            f"padding: {SPACE['sm']}px {SPACE['md']}px; min-height: 22px; }} "
+            f"QPushButton:hover {{ background-color: {COLOR['navy_600']}; }} "
+            f"QPushButton:disabled {{ background-color: {COLOR['border']}; color: {COLOR['muted']}; "
+            f"border: 1.5px solid {COLOR['border']}; }}"
+        )
         self._confirm_btn.clicked.connect(self.accept)
 
-        btn_layout.addWidget(cancel_btn)
-        btn_layout.addWidget(self._confirm_btn)
+        btn_layout.addWidget(cancel_btn, stretch=1)
+        btn_layout.addWidget(self._confirm_btn, stretch=2)
         layout.addLayout(btn_layout)
 
         self._calculate_change()
@@ -196,9 +210,11 @@ class CheckoutDialog(QDialog):
                 f"font-size: {FONT['title']}px; font-weight: bold; color: {COLOR['success']};"
             )
             self._confirm_btn.setEnabled(True)
+            self._confirm_btn.setText(t("checkout_confirm"))
         else:
             self._change_val_lbl.setText(f"Thiếu {format_currency(abs(change))}")
             self._change_val_lbl.setStyleSheet(
                 f"font-size: {FONT['body']}px; font-weight: bold; color: {COLOR['red_text']};"
             )
             self._confirm_btn.setEnabled(False)
+            self._confirm_btn.setText(t("checkout_insufficient"))

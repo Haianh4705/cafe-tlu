@@ -6,15 +6,16 @@ Tuân thủ:
 - .claude/skills/ui-design/SKILL.md: Phân cấp thông tin, bảng gọn gàng, nút bấm rõ ràng.
 """
 
+from decimal import Decimal
 from typing import Any
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QDialog,
     QFrame,
     QHBoxLayout,
     QHeaderView,
     QLabel,
-    QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
@@ -24,6 +25,66 @@ from PySide6.QtWidgets import (
 
 from gui.i18n import format_currency, t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
+
+
+class ConfirmCancelOrderDialog(QDialog):
+    """Hộp thoại xác nhận huỷ toàn bộ đơn hàng của bàn với nút thao tác rõ ràng."""
+
+    def __init__(self, table_name: str, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle(t("order_confirm_cancel_title"))
+        self.setFixedWidth(440)
+        self.setModal(True)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        layout.setSpacing(SPACE["md"])
+
+        title = QLabel(t("order_confirm_cancel", table_name=table_name), self)
+        title.setWordWrap(True)
+        title.setStyleSheet(
+            f"color: {COLOR['ink']}; font-size: {FONT['title']}px; font-weight: bold;"
+        )
+
+        warning = QLabel(t("order_confirm_cancel_warning"), self)
+        warning.setWordWrap(True)
+        warning.setStyleSheet(
+            f"color: {COLOR['muted']}; font-size: {FONT['body']}px; line-height: 1.4;"
+        )
+
+        layout.addWidget(title)
+        layout.addWidget(warning)
+        layout.addSpacing(SPACE["sm"])
+
+        btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(SPACE["md"])
+
+        self.skip_btn = QPushButton(t("skip"), self)
+        self.skip_btn.setProperty("variant", "secondary")
+        self.skip_btn.setStyleSheet(
+            f"QPushButton {{ background-color: {COLOR['surface']}; color: {COLOR['navy']}; "
+            f"border: 1.5px solid {COLOR['navy']}; border-radius: {RADIUS['sm']}px; "
+            f"font-weight: bold; font-size: {FONT['body']}px; "
+            f"padding: {SPACE['sm']}px {SPACE['md']}px; min-height: 22px; }} "
+            f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }}"
+        )
+        self.skip_btn.clicked.connect(self.reject)
+
+        self.confirm_btn = QPushButton(t("order_confirm_cancel_btn"), self)
+        self.confirm_btn.setProperty("variant", "danger")
+        self.confirm_btn.setStyleSheet(
+            f"QPushButton {{ background-color: {COLOR['red']}; color: {COLOR['surface']}; "
+            f"border: none; border-radius: {RADIUS['sm']}px; "
+            f"font-weight: bold; font-size: {FONT['body']}px; "
+            f"padding: {SPACE['sm']}px {SPACE['md']}px; min-height: 22px; }} "
+            f"QPushButton:hover {{ background-color: {COLOR['red_text']}; }}"
+        )
+        self.confirm_btn.clicked.connect(self.accept)
+
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.skip_btn)
+        btn_layout.addWidget(self.confirm_btn)
+        layout.addLayout(btn_layout)
 
 
 class OrderCartWidget(QFrame):
@@ -223,9 +284,20 @@ class OrderCartWidget(QFrame):
         self._render_items()
         self.item_quantity_changed.emit(p_id, 1)
 
+    @staticmethod
+    def _to_vnd(value: Any) -> int:
+        """Chuyển đổi giá tiền (int/float/Decimal/str) sang số nguyên VNĐ."""
+        if isinstance(value, int) and not isinstance(value, bool):
+            return value
+        if value in (None, ""):
+            return 0
+        return int(Decimal(str(value)))
+
     def calculate_total(self) -> int:
-        """Tính tổng tiền toàn bộ các món trong đơn."""
-        return sum(it.get("price", 0) * it.get("quantity", 1) for it in self.items)
+        """Tính tổng tiền toàn bộ các món trong đơn (số nguyên VNĐ)."""
+        return sum(
+            self._to_vnd(it.get("price", 0)) * int(it.get("quantity", 1)) for it in self.items
+        )
 
     def _render_items(self) -> None:
         total = self.calculate_total()
@@ -237,8 +309,8 @@ class OrderCartWidget(QFrame):
         for row, it in enumerate(self.items):
             p_id = it.get("product_id") or it.get("id", 0)
             name = it.get("product_name") or it.get("name", "Món")
-            qty = it.get("quantity", 1)
-            price = it.get("price", 0)
+            qty = int(it.get("quantity", 1))
+            price = self._to_vnd(it.get("price", 0))
             line_total = price * qty
 
             # Cột 1: Tên món
@@ -337,13 +409,7 @@ class OrderCartWidget(QFrame):
 
     def _handle_cancel_clicked(self) -> None:
         table_name = self.table_data.get("name", "bàn") if self.table_data else "bàn"
-        reply = QMessageBox.question(
-            self,
-            t("order_btn_cancel"),
-            t("order_confirm_cancel", table_name=table_name),
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
-        if reply == QMessageBox.StandardButton.Yes:
+        dialog = ConfirmCancelOrderDialog(table_name=table_name, parent=self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             self.set_items([])
             self.cancel_order_requested.emit()
