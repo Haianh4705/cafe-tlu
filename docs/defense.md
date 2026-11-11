@@ -4,11 +4,13 @@
 > Đề bài ghi rõ: *"Sinh viên phải tự làm… Nếu bị phát hiện copy → 0 điểm."* Giảng viên có thể
 > hỏi **bất kỳ phần nào**, kể cả phần của người khác.
 
-## Ba luật
+## Bốn luật
 
 1. **Không merge PR mà mình không giải thích được.** Kể cả khi CI xanh.
 2. **Mỗi PR phải có mục "Giải thích được"** — 3 câu, viết trong template PR.
-3. **Thứ 6, 15 phút hỏi chéo:** mỗi người bị hỏi 2 câu về vùng **của người khác**
+3. **Mỗi người giữ `docs/log/<vai>.md`** (A/B/C/D): việc đã làm · AI đã làm gì · câu hỏi GV hay hỏi.
+   Cập nhật trong PR (3–5 phút), rà trước mỗi cổng. Xem [`log/README.md`](log/README.md).
+4. **Thứ 6, 15 phút hỏi chéo:** mỗi người bị hỏi 2 câu về vùng **của người khác**
    (A bị hỏi về GUI, C bị hỏi về DB…). Không trả lời được → ghi vào sổ "chưa trả lời được".
 
 ## Cách dùng hằng ngày (3 phút/PR)
@@ -40,7 +42,7 @@ Nếu không viết được 3 câu này → **chưa hiểu bài**, đừng mở
 | 5 | Hai thu ngân cùng thanh toán một bàn thì sao? | Kiểm trạng thái trong transaction |
 | 6 | Mật khẩu lưu thế nào? Sao không lưu thẳng? | `api/core/security.py`, bcrypt cost |
 | 7 | Điểm yếu của bài là gì? Làm lại thì làm gì khác? | `report/08-kho-khan.md`, `grep shortcut:` |
-| 8 | **Phần nào em tự làm?** | Lịch sử commit + PR của chính mình |
+| 8 | **Phần nào em tự làm?** | `docs/log/<vai>.md` + lịch sử commit + PR của chính mình |
 
 ### A — Backend / API
 
@@ -88,6 +90,8 @@ Nếu không viết được 3 câu này → **chưa hiểu bài**, đừng mở
 | 10 | Resize 1280 vs full HD em xử lý sao? | layout/`QSizePolicy` |
 
 ### D — Hạ tầng, QA, đóng gói
+
+> Bản ôn chi tiết (đáp án mẫu + chỗ yếu phải thừa nhận): [`defense-D.md`](defense-D.md).
 
 | # | Câu hỏi | Chỉ vào |
 |---|---|---|

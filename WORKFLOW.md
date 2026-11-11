@@ -50,6 +50,8 @@ Nếu bạn chỉ đọc 12 dòng này, hãy nhớ:
 9. **Code xong là phải có test**; không sửa test cho pass thay vì sửa code.
 10. **Xong việc = cập nhật docs + chụp ảnh màn hình** ngay lúc đó, không để tuần cuối.
 11. **AI agent cũng là thành viên**: đọc file này trước, tuân thủ mục 15, báo cáo theo mẫu 15.4.
+12. **Mỗi người giữ `docs/log/<vai>.md`** (A/B/C/D): việc đã làm · AI đã làm gì · câu hỏi thầy
+    hay hỏi. Cập nhật **trong PR**, không để cuối kỳ (mục 12.5).
 12. Khi không chắc → **dừng lại và hỏi trong Issue**, đừng đoán.
 
 ---
@@ -350,6 +352,7 @@ Chỉ được kéo sang `Done` khi **tất cả** đúng:
 - [ ] Đã ghi vào `docs/decisions.md` nếu có quyết định kỹ thuật mới
 - [ ] **Giải thích được**: PR có mục "Giải thích được" 3 câu (`docs/defense.md`) và người viết
       trả lời được câu hỏi bất kỳ về đoạn code mình vừa viết
+- [ ] Đã thêm **1–3 dòng** vào `docs/log/<vai>.md` (mục 2: việc đã làm · mục 3: AI đã làm gì)
 
 ## 6.3 Hiểu bài — điều kiện không thể thương lượng
 
@@ -594,6 +597,7 @@ Lỗi:
 | `CHANGELOG.md` | D biên tập | Mọi người thêm mục `Unreleased` khi merge |
 | `docs/decisions.md` | Người ra quyết định | ADR-lite, xem 18.4 |
 | `docs/test-cases.md` | D + C | Bảng test case |
+| `docs/log/<vai>.md` | **Mỗi người giữ file của mình** (A/B/C/D) | Nhật ký việc + AI, xem 12.5 |
 | Báo cáo BTL | Mỗi người 1 chương | D biên tập, thống nhất format |
 | Video demo | D | 3–5 phút, có tiếng Việt |
 
@@ -610,6 +614,38 @@ Lỗi:
 - Mỗi chương: mở đầu bằng 2–3 câu dẫn, kết bằng 1 đoạn tổng kết ngắn.
 - Code trong báo cáo dùng font monospace, **≤ 30 dòng** mỗi đoạn, có caption "Hình X.Y: ...".
 - **CẤM** dán ảnh chụp code dài; **CẤM** copy nguyên văn tài liệu nước ngoài không trích nguồn.
+
+### 12.5 Nhật ký cá nhân — `docs/log/<vai>.md` (BẮT BUỘC)
+
+Mỗi thành viên giữ **một** file: [`docs/log/A.md`](docs/log/A.md) · `B.md` · `C.md` · `D.md`
+(quy tắc + mẫu ở [`docs/log/README.md`](docs/log/README.md)).
+
+**Để làm gì:** khi GV hỏi *"phần này em làm gì? AI làm gì? sao không dùng cách khác?"* — mở đúng 1
+file, trả lời trong 30 giây, kèm commit/PR/lệnh đã chạy. Đây là **sổ bằng chứng**, không phải báo
+cáo nộp bài (báo cáo ở `report/`).
+
+**Sáu mục bắt buộc:**
+
+| Mục | Nội dung |
+|---|---|
+| 1. Tôi phụ trách gì | 3–5 gạch đầu dòng, kèm Issue |
+| 2. Việc đã làm | 1 dòng/PR: ngày · Issue · PR/commit · file chính · làm gì · **vì sao cách đó** |
+| 3. AI đã làm gì | 1 dòng/phiên: công cụ · AI làm gì · **tôi sửa/kiểm chứng gì** |
+| 4. Câu hỏi thầy hay hỏi | 5–8 câu vùng mình + trả lời 2–4 câu + chỉ vào `file:dòng` |
+| 5. Chưa làm / chưa hiểu | danh sách thật — đây là đề cương ôn của bạn |
+| 6. Nhật ký theo cổng | 1 dòng/cổng: đã xong gì, còn thiếu gì |
+
+**Năm quy tắc:**
+
+1. **Cập nhật trong cùng PR** đã làm việc — 3–5 phút, không dồn (DoD mục 6.2).
+2. **Kiểm chứng được:** commit hash / số PR / lệnh đã chạy / ảnh. **CẤM** viết "đã hoàn thành".
+3. **Ghi cả AI, không giấu.** Giấu rồi bị phát hiện = rủi ro 0 điểm; ghi rõ (AI nháp gì, mình sửa gì,
+   kiểm chứng bằng gì) = minh bạch và được điểm quy trình.
+4. **Chỉ người đó sửa file của mình.** Người khác nhắc qua comment, không sửa hộ.
+5. **Không bịa số.** Chưa có thì ghi `chưa có`.
+
+**Nhịp:** mỗi PR 3–5 phút · trước mỗi cổng 15 phút (rà mục 2, 4, 6) · trước bảo vệ 20 phút (đọc to
+mục 4, xoá câu không chỉ được vào code). File trống ở thời điểm cổng = **cổng chưa xanh**.
 
 ---
 
@@ -706,7 +742,7 @@ Theo [Keep a Changelog](https://keepachangelog.com/): mục `Unreleased` (Added/
 4. BASELINE : make lint && make test        # ghi lại trạng thái TRƯỚC khi sửa
 5. LÀM      : thay đổi nhỏ nhất đủ đáp ứng Issue, từng bước có thể chạy được
 6. KIỂM CHỨNG: make lint && make test  (+ chạy tay luồng chính nếu là GUI/API)
-7. TÀI LIỆU : cập nhật docs liên quan + CHANGELOG + ảnh chụp nếu là UI
+7. TÀI LIỆU : cập nhật docs liên quan + CHANGELOG + ảnh chụp nếu là UI + docs/log/<vai>.md
 8. COMMIT   : conventional commit, nhỏ, đúng scope
 9. PR       : theo template, gắn Closes #<issue>, gán reviewer là owner vùng
 10. BÁO CÁO : theo mẫu 15.4 (dán vào PR hoặc chat cho người giao việc)
@@ -764,6 +800,18 @@ AI **PHẢI** chọn một trong ba hành vi sau (không được im lặng):
 - AI **PHẢI** giải thích ngắn gọn (2–4 dòng trong PR) đoạn code quan trọng làm gì và **vì sao chọn cách đó** — để người học hiểu và bảo vệ được trước GV.
 - **CẤM** dùng AI để viết nguyên chương báo cáo mà không có dữ liệu/số liệu thật của nhóm.
 
+### 15.7 AI phải ghi nhật ký thay người dùng
+
+Kết thúc mỗi phiên, AI **PHẢI**:
+
+1. Thêm **1 dòng** vào mục 2 của `docs/log/<vai>.md` (việc đã làm + vì sao cách đó) và **1 dòng** vào
+   mục 3 (AI nháp gì · người dùng đã sửa/kiểm chứng gì).
+2. Nếu phát hiện điều người dùng **chưa giải thích được** → thêm vào mục 5 thay vì bỏ qua.
+3. Nếu chưa biết đó là vai nào → hỏi, **không tự chọn** file của người khác.
+4. **CẤM** ghi vào `docs/log/` của người khác; **CẤM** ghi "đã test" khi chưa chạy.
+
+Lý do: nhật ký viết sau (vài tuần) sẽ mất chi tiết và dễ thành văn mẫu — đúng thứ bị hỏi khi bảo vệ.
+
 ---
 
 ## 16. Nhịp làm việc & giao tiếp
@@ -785,6 +833,7 @@ AI **PHẢI** chọn một trong ba hành vi sau (không được im lặng):
 | Thứ 3 | Sync 20–30 phút | Gỡ blocker, chốt việc đang mở |
 | Thứ 6 | **Demo nội bộ 30 phút** | Mỗi người demo phần mình **chạy thật** trên `develop` |
 | Thứ 6 | **Cổng tích hợp** | `develop` phải chạy được end-to-end; nếu không → cắt bớt scope chặng sau |
+| Mỗi PR merge | Mỗi người cập nhật `docs/log/<vai>.md` | 1–3 dòng kiểm chứng được |
 | Chủ nhật | D tổng hợp tiến độ | 1 báo cáo ngắn 5 dòng gửi nhóm (+ GV nếu cần) |
 
 > **Demo là bắt buộc, không thay bằng slide hay "em sắp xong".** Không demo được = việc đó coi như chưa xong.
@@ -799,6 +848,9 @@ AI **PHẢI** chọn một trong ba hành vi sau (không được im lặng):
 | **G4 — Deploy** | Khi backend có URL công khai | Backend có URL công khai; tag → CI tự build installer |
 | **G5 — QA** | Khi test case pass ≥ 95% | Test case pass ≥ 95%; báo cáo đủ 80%; video demo có |
 | **G6 — Đóng băng** | Trước hạn 3 ngày | Không merge gì trừ `hotfix`; tập bảo vệ xong |
+
+**Điều kiện chung cho mọi cổng:** mỗi người đã cập nhật `docs/log/<vai>.md` (mục 2 + mục 6).
+File còn trống = cổng chưa xanh, dù code đã chạy.
 
 ### 16.4 WIP limit
 

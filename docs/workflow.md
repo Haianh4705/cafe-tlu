@@ -51,9 +51,14 @@ flowchart TD
 | 9 | **D** | Installer + CI xanh | **Cả nhóm** | Cài được trên máy Windows sạch |
 | 10 | **Bất kỳ** | Pull request | **Owner vùng** | CI xanh, `make check` xanh, đúng template |
 | 11 | **Owner** | Review + merge | **Người viết** | Ghi rõ `[must]` / `[should]` / `[nit]` |
+| 12 | **Mỗi người** | `docs/log/<vai>.md` cập nhật (1–3 dòng/PR) | **Cả nhóm** | Trong PR đã merge, mục 2 + 3 có dòng mới |
 
 > **Owner vùng** (ai review cái gì): `api/` → A · `db/`, report → B · `gui/`, `assets/` → C ·
 > `infra/`, `installer/`, `.github/`, `docs/` → D. Chi tiết: `WORKFLOW.md` mục 3.
+>
+> **Nhật ký cá nhân:** A → [`log/A.md`](log/A.md) · B → [`log/B.md`](log/B.md) · C → [`log/C.md`](log/C.md)
+> · D → [`log/D.md`](log/D.md). Quy tắc: [`log/README.md`](log/README.md), `WORKFLOW.md` mục 12.5.
+> File trống ở thời điểm cổng = cổng chưa xanh.
 
 ## 3. Vòng đời một việc — ai giữ bóng ở từng bước
 
@@ -148,6 +153,7 @@ Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán),
 | B | Chương CSDL + ERD + thống kê + ảnh biểu đồ | trước hạn 5 ngày |
 | C | Chương GUI + ảnh từng màn hình + mô tả luồng | trước hạn 5 ngày |
 | D | Biên tập báo cáo, video demo, đóng gói nộp | hạn nộp |
+| **Cả 4** | `docs/log/<vai>.md` đã rà xong: mục 2 đủ PR, mục 4 trả lời được, mục 5 ghi rõ phần chưa làm | hạn nộp |
 
 **Điều kiện nộp:** mỗi người thuyết trình được **toàn bộ** hệ thống trong 5 phút,
 không chỉ phần mình (GV có thể hỏi bất kỳ phần nào).

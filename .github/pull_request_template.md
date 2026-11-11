@@ -51,6 +51,7 @@ Closes #
 - [ ] Không có secret / `print()` debug / code comment-out
 - [ ] Đã cập nhật `docs/api-contract.md` / `docs/erd.md` nếu có đổi
 - [ ] Đã thêm 1 dòng vào `CHANGELOG.md` mục `Unreleased`
+- [ ] Đã thêm 1–3 dòng vào `docs/log/<vai>.md` (mục 2: việc · mục 3: AI đã hỗ trợ gì)
 - [ ] PR < 400 dòng diff
 
 ## Checklist reviewer (người review tick)

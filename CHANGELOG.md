@@ -8,6 +8,13 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Added — quy trình
+- **Nhật ký cá nhân bắt buộc:** `docs/log/A.md` … `D.md` — mỗi người ghi việc đã làm, AI đã hỗ trợ
+  gì, câu hỏi thầy hay hỏi, phần còn chưa hiểu; cập nhật trong mỗi PR, rà trước mỗi cổng
+  (`docs/log/README.md`, `WORKFLOW.md` 6.2 + 12.5 + 15.7, `AGENTS.md` điều 11)
+- `docs/defense-D.md`: bản ôn bảo vệ phần D (Docker, CI, đóng gói, QA) kèm đáp án mẫu và giới hạn
+  phải thừa nhận
+
 ### Changed
 - `docs/plan.md` chuyển từ **kế hoạch 8 tuần** sang **lộ trình theo cổng G1–G6**: bỏ mốc tuần/ngày,
   mỗi cổng mở khi đủ điều kiện; cập nhật theo `README.md`, `WORKFLOW.md` (16.3), `docs/workflow.md`,
