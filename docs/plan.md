@@ -22,7 +22,7 @@ Hoặc mở AI agent trong repo và hỏi: *"Đọc AGENTS.md và skill next-tas
 theo của tôi."* — agent chạy `make next`, đọc Issue và trả lời: làm gì · xong khi nào · skill
 nào phải đọc · đang chờ ai.
 
-## 0.1 Năm quy tắc giao việc
+## 0.1 Sáu quy tắc giao việc
 
 1. **Đường găng trước.** `db/schema.sql` chặn A và C → giao cho B **ngay khi nhận việc**, không chờ họp.
 2. **Giao theo "sóng", không giao phẳng.** Sóng 1 = việc không phụ thuộc ai (4 người chạy song song).
@@ -30,6 +30,8 @@ nào phải đọc · đang chờ ai.
 3. **Mỗi người tối đa 2 việc đang làm** (WIP limit). Hết việc mới nhận thêm.
 4. **Giao kèm 3 thứ**: link Issue, skill cần đọc (`.claude/skills/…`), và người review.
 5. **D giữ 20% thời gian** cho việc gỡ chặn, không nhận việc code kín lịch.
+6. **Ai làm việc đó thì ghi vào `docs/log/<vai>.md`** — 1–3 dòng/PR, ghi cả phần AI hỗ trợ.
+   File trống ở thời điểm cổng = cổng chưa xanh (`WORKFLOW.md` mục 12.5).
 
 ## 1. Toàn cảnh
 
@@ -252,6 +254,7 @@ Không ngồi chờ. Mỗi chỗ chờ đều có việc thay thế:
 | Review PR của A/B/C trong 24h | khi có PR |
 | Gỡ chặn môi trường (`make doctor`, Docker, Python) | khi được gọi |
 | Chụp ảnh + điền test case + cập nhật `CHANGELOG.md` | khi đóng cổng |
+| Kiểm `docs/log/<vai>.md` của 3 người, nhắc ai còn trống (file trống = cổng chưa xanh) | trước mỗi cổng |
 | Tổng hợp tiến độ 5 dòng gửi nhóm (+ GV khi cần) | khi có cổng mới hoặc khi trễ |
 
 > D **không code hộ**. Chỉ tay, giải thích, để họ gõ — vì đề bài tính điểm cá nhân và hỏi bất kỳ phần nào.

@@ -95,5 +95,6 @@ TRƯỚC KHI CODE
 KHI XONG
   make check → PR vào develop → cần 1 approval + CI xanh
   Điền mục "Giải thích được" 3 câu trong PR (docs/defense.md)
+  Ghi 1–3 dòng vào docs/log/<vai>.md  (việc đã làm + AI đã hỗ trợ gì)
 ──────────────────────────────────────────────────────────────
 EOF
