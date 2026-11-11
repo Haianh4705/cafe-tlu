@@ -101,7 +101,12 @@ gh api "repos/{owner}/{repo}/branches/main/protection" --jq '.required_pull_requ
 
 - `contexts` **phải khớp chính xác** với `name:` của job trong `.github/workflows/ci.yml`
   (`Lint & format`, `Test`). Đổi tên job → phải cập nhật lại protection.
-- `required_linear_history: true` buộc dùng **Squash merge** (đúng WORKFLOW mục 5.6).
+- `required_linear_history: true` buộc dùng **Squash merge** hoặc **Rebase merge**
+  (đúng WORKFLOW mục 5.6); **Merge commit bị tắt**. Cấu hình hiện tại: `allow_squash_merge=true`,
+  `allow_rebase_merge=true`, `allow_merge_commit=false`.
+  - PR thường (`feature/*` → `develop`): **squash**, 1 commit sạch.
+  - PR promote (`develop` → `main`): dùng **squash** (rebase của GitHub luôn viết lại hash,
+    làm `main` và `develop` lệch SHA dù nội dung giống nhau — đã gặp ở PR #53).
 
 Bật thêm trong giao diện (2 bước, không có CLI ổn định):
 

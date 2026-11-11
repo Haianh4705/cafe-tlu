@@ -8,6 +8,10 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Fixed — CI
+- `Test` job không còn treo vô hạn khi `apt-get` gặp mirror chậm: `timeout-minutes` cho job
+  (lint 10', test 15', release 45') + `Acquire::Retries/Timeout/ForceIPv4` và `timeout` cho apt (#52)
+
 ### Added — quy trình
 - **Nhật ký cá nhân bắt buộc:** `docs/log/A.md` … `D.md` — mỗi người ghi việc đã làm, AI đã hỗ trợ
   gì, câu hỏi thầy hay hỏi, phần còn chưa hiểu; cập nhật trong mỗi PR, rà trước mỗi cổng
