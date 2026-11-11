@@ -21,6 +21,8 @@ jobs:
   lint:
     name: Lint & format
     runs-on: ubuntu-latest
+    # Chặn run treo vô hạn (bình thường ~20s). Xem Issue #52.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
@@ -45,6 +47,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    # Bình thường ~60s; treo quá 15 phút là bất thường -> fail để rerun,
+    # thay vì treo 10–30 phút và chặn merge (Issue #52).
+    timeout-minutes: 15
 
     services:
       mysql:
@@ -84,9 +89,14 @@ jobs:
       # PySide6 (qua pytest-qt) cần các thư viện hệ thống của Qt, runner
       # ubuntu không có sẵn -> thiếu libEGL.so.1 sẽ làm pytest lỗi INTERNALERROR.
       - name: Cài thư viện hệ thống cho Qt
+        # `timeout` + Acquire::* để apt không treo vô hạn khi mirror chậm
+        # (đã gặp 3 lần: run 43039907562, 43058551759). Xem Issue #52.
+        timeout-minutes: 6
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
+          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 -o Acquire::ForceIPv4=true"
+          timeout 120 sudo apt-get $APT_OPTS update -qq \
+            || timeout 120 sudo apt-get $APT_OPTS update -qq
+          timeout 180 sudo apt-get install -y -qq --no-install-recommends $APT_OPTS \
             libegl1 libgl1 libxkbcommon0 libxkbcommon-x11-0 libdbus-1-3 \
             libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-keysyms1 \
             libxcb-shape0 libxcb-render-util0 libfontconfig1
