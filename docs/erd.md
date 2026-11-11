@@ -319,17 +319,17 @@ Những quy tắc toàn vẹn nghiệp vụ **luôn luôn phải đúng**, đư�
 
 ### 3.4 Kế hoạch dữ liệu mẫu (`db/seed.sql`)
 
-| Bảng | Số dòng dự kiến | Ghi chú cụ thể |
+| Bảng | Số dòng thực tế | Ghi chú cụ thể |
 |---|---|---|
 | `roles` | 3 dòng | `admin`, `staff`, `barista` |
-| `users` | 5 dòng | 1 admin, 2 thu ngân/phục vụ (`thungan01`, `nhanvien01`), 2 pha chế (`phache01`, `phache02`). Mật khẩu băm chuẩn bcrypt (`Admin@123` / `123456`) |
+| `users` | 5 dòng | 1 admin, 2 thu ngân/phục vụ (`thungan01`, `nhanvien01`), 2 pha chế (`phache01`, `phache02`). Mật khẩu băm chuẩn bcrypt (`123456`) |
 | `categories` | 6 dòng | Cà phê truyền thống, Cà phê pha máy, Trà trái cây, Trà sữa & Macchiato, Đá xay & Sinh tố, Bánh ngọt & Ăn vặt |
-| `products` | **50 món** | Menu phong phú của quán café sinh viên TLU (Bạc xỉu, Trà đào cam sả, Matcha Latte, Croissant,...), giá 20.000đ – 55.000đ |
+| `products` | 51 món | Menu phong phú của quán café sinh viên TLU (Bạc xỉu, Trà đào cam sả, Matcha Latte, Croissant,...), giá 20.000đ – 55.000đ |
 | `tables` | 12 bàn | Chia theo 3 khu vực: Tầng 1 (Bàn 01 - 05), Tầng 2 (Bàn 06 - 09), Ban công view sông Sét (Bàn 10 - 12) |
-| `orders` | ~120 đơn (W2) | Dữ liệu mẫu trải dài trong 30 ngày gần nhất để biểu đồ doanh thu có hình sin thực tế |
-| `order_items` | ~350 dòng | Mỗi đơn có 1–4 món, đa dạng số lượng và ghi chú |
-| `invoices` | ~115 hóa đơn | Tương ứng với các đơn đã hoàn thành (`status = 'completed'`) |
-| `audit_logs` | ~20 dòng | Các thao tác mẫu để kiểm tra màn hình Audit Log trên GUI |
+| `orders` | 120 đơn | 2 đơn khởi tạo + 118 đơn trải dài chính xác 30 ngày liên tục (100% khớp tổng tiền `order_items`) |
+| `order_items` | 250 dòng | Mỗi đơn có 1–4 món, đa dạng số lượng và ghi chú, snapshot đơn giá tại lúc bán |
+| `invoices` | 119 hóa đơn | Tương ứng với 119 đơn đã hoàn thành (`status = 'completed'`), 1 đơn đang phục vụ (`pending`) |
+| `audit_logs` | 20 dòng | Các thao tác mẫu để kiểm tra màn hình Audit Log trên GUI |
 
 ---
 

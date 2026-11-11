@@ -8,19 +8,28 @@ Tuân thủ: WORKFLOW.md mục 8 & skill report-export.
 from __future__ import annotations
 
 import datetime
-from decimal import Decimal
 import logging
 import os
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from shared.paths import resource_path
+
 logger = logging.getLogger(__name__)
 
 
 class ReportService:
-    """Nghiệp vụ tổng hợp số liệu báo cáo, thống kê và xuất file cho CafeTLU."""
+    """Nghiệp vụ tổng hợp số liệu báo cáo, thống kê và xuất file cho CafeTLU.
+
+    Quy ước thống nhất về thuật ngữ:
+    - 'Doanh thu' (Revenue): Số tiền thực thu từ khách sau khi trừ giảm giá,
+      tính từ hoá đơn đã thanh toán (`invoices.final_amount`) theo mốc `paid_at`.
+    - 'Doanh số món' (Sales / Product Turnover): Tổng giá trị niêm yết của các món
+      được bán thành công (`order_items.subtotal`), chỉ tính món có status != 'cancelled'.
+    """
 
     @staticmethod
     def revenue_by_day(
@@ -28,13 +37,13 @@ class ReportService:
         from_date: datetime.date | str,
         to_date: datetime.date | str,
     ) -> list[dict[str, Any]]:
-        """Thống kê doanh thu và số lượng đơn hoàn thành theo từng ngày.
+        """Thống kê doanh thu thực thu và số đơn hoàn thành theo từng ngày.
 
         Truy vấn trực tiếp bằng SQL GROUP BY, bảo đảm không kéo toàn bộ bản ghi về Python.
         """
         query = text(
             """
-            SELECT 
+            SELECT
                 DATE(i.paid_at) AS report_date,
                 COUNT(DISTINCT o.id) AS order_count,
                 COALESCE(SUM(i.final_amount), 0) AS revenue
@@ -66,8 +75,15 @@ class ReportService:
         from_date: datetime.date | str | None = None,
         to_date: datetime.date | str | None = None,
     ) -> list[dict[str, Any]]:
-        """Thống kê top món bán chạy nhất theo số lượng và doanh thu."""
-        conditions = ["o.status = 'completed'", "o.is_deleted = 0"]
+        """Thống kê top món bán chạy nhất theo số lượng và doanh số.
+
+        Chỉ tính các món trong đơn hoàn thành và loại trừ món bị huỷ (status != 'cancelled').
+        """
+        conditions = [
+            "o.status = 'completed'",
+            "o.is_deleted = 0",
+            "oi.status != 'cancelled'",
+        ]
         params: dict[str, Any] = {"limit": limit}
 
         if from_date:
@@ -80,7 +96,7 @@ class ReportService:
         where_clause = " AND ".join(conditions)
         query = text(
             f"""
-            SELECT 
+            SELECT
                 p.id AS product_id,
                 p.name AS product_name,
                 c.name AS category_name,
@@ -116,8 +132,12 @@ class ReportService:
         from_date: datetime.date | str | None = None,
         to_date: datetime.date | str | None = None,
     ) -> list[dict[str, Any]]:
-        """Thống kê cơ cấu doanh thu theo từng danh mục món."""
-        conditions = ["o.status = 'completed'", "o.is_deleted = 0"]
+        """Thống kê cơ cấu doanh số theo từng danh mục món."""
+        conditions = [
+            "o.status = 'completed'",
+            "o.is_deleted = 0",
+            "oi.status != 'cancelled'",
+        ]
         params: dict[str, Any] = {}
 
         if from_date:
@@ -130,7 +150,7 @@ class ReportService:
         where_clause = " AND ".join(conditions)
         query = text(
             f"""
-            SELECT 
+            SELECT
                 c.id AS category_id,
                 c.name AS category_name,
                 COALESCE(SUM(oi.quantity), 0) AS total_quantity,
@@ -177,7 +197,6 @@ def export_revenue_to_excel(
     try:
         from openpyxl import Workbook
         from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-        from openpyxl.utils import get_column_letter
     except ImportError as e:
         logger.error("Chưa cài đặt thư viện openpyxl: %s", e)
         raise
@@ -215,7 +234,10 @@ def export_revenue_to_excel(
 
     for idx, r in enumerate(rows):
         current_row = start_row + idx
-        date_val = r["date"].strftime("%d/%m/%Y") if isinstance(r["date"], (datetime.date, datetime.datetime)) else str(r["date"])
+        if isinstance(r["date"], (datetime.date, datetime.datetime)):
+            date_val = r["date"].strftime("%d/%m/%Y")
+        else:
+            date_val = str(r["date"])
         orders_count = r["order_count"]
         revenue = r["revenue"]
 
@@ -258,12 +280,13 @@ def export_revenue_to_excel(
     if rows:
         ws.auto_filter.ref = f"A3:C{end_row - 1}"
 
-    # Auto-adjust column width
     ws.column_dimensions["A"].width = 18
     ws.column_dimensions["B"].width = 22
     ws.column_dimensions["C"].width = 25
 
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
+    os.makedirs(
+        os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True
+    )
     wb.save(output_path)
     logger.info("Đã xuất file Excel doanh thu tại: %s", output_path)
     return output_path
@@ -287,11 +310,11 @@ def export_revenue_to_pdf(
         logger.error("Chưa cài đặt thư viện reportlab: %s", e)
         raise
 
-    # Đăng ký font hỗ trợ tiếng Việt
+    # Đăng ký font hỗ trợ tiếng Việt qua shared/paths.py để tương thích đóng gói
     font_name = "Helvetica"
     font_bold = "Helvetica-Bold"
 
-    manrope_path = os.path.join("assets", "fonts", "Manrope[wght].ttf")
+    manrope_path = resource_path("assets/fonts/Manrope[wght].ttf")
     if os.path.exists(manrope_path):
         try:
             pdfmetrics.registerFont(TTFont("Manrope", manrope_path))
@@ -328,7 +351,10 @@ def export_revenue_to_pdf(
     total_orders = 0
 
     for r in rows:
-        date_str = r["date"].strftime("%d/%m/%Y") if isinstance(r["date"], (datetime.date, datetime.datetime)) else str(r["date"])
+        if isinstance(r["date"], (datetime.date, datetime.datetime)):
+            date_str = r["date"].strftime("%d/%m/%Y")
+        else:
+            date_str = str(r["date"])
         orders_cnt = r["order_count"]
         rev = Decimal(str(r["revenue"]))
         total_orders += orders_cnt
@@ -361,8 +387,9 @@ def export_revenue_to_pdf(
     )
     elements.append(t)
 
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
+    os.makedirs(
+        os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True
+    )
     doc.build(elements)
     logger.info("Đã xuất file PDF doanh thu tại: %s", output_path)
     return output_path
-

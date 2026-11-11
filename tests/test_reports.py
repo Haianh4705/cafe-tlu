@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import datetime
-from decimal import Decimal
 import os
 import tempfile
+from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
@@ -34,6 +34,12 @@ def test_revenue_by_day_query_execution():
     assert rows[0]["revenue"] == Decimal("350000")
     assert mock_db.execute.called
 
+    # Kiểm tra tham số truyền vào execute
+    _, kwargs = mock_db.execute.call_args
+    call_args = mock_db.execute.call_args[0]
+    passed_params = call_args[1] if len(call_args) > 1 else kwargs.get("parameters")
+    assert passed_params == {"from_date": "2026-11-01", "to_date": "2026-11-10"}
+
 
 def test_top_selling_products_query_execution():
     """Kiểm tra ReportService.top_selling_products tổng hợp đúng top món."""
@@ -46,13 +52,20 @@ def test_top_selling_products_query_execution():
     mock_row.total_revenue = Decimal("1176000")
     mock_db.execute.return_value = [mock_row]
 
-    rows = ReportService.top_selling_products(mock_db, limit=5)
+    rows = ReportService.top_selling_products(
+        mock_db, limit=5, from_date="2026-11-01", to_date="2026-11-10"
+    )
 
     assert len(rows) == 1
     assert rows[0]["product_id"] == 5
     assert rows[0]["product_name"] == "Bạc xỉu 3 tầng TLU"
     assert rows[0]["total_quantity"] == 42
     assert rows[0]["total_revenue"] == Decimal("1176000")
+    assert mock_db.execute.called
+
+    call_args = mock_db.execute.call_args[0]
+    passed_params = call_args[1]
+    assert passed_params == {"limit": 5, "from_date": "2026-11-01", "to_date": "2026-11-10"}
 
 
 def test_export_revenue_to_excel_formatting():
@@ -102,7 +115,7 @@ def test_export_revenue_to_excel_formatting():
 def test_export_revenue_to_pdf_generation():
     """Kiểm tra hàm xuất PDF tạo file hợp lệ không bị exception."""
     try:
-        import reportlab
+        import reportlab  # noqa: F401
     except ImportError:
         pytest.skip("reportlab chưa được cài đặt")
 
@@ -120,4 +133,3 @@ def test_export_revenue_to_pdf_generation():
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
-
