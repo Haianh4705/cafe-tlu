@@ -25,6 +25,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   `docs/setup-github.md` (milestone `G1`–`G6`), skill `next-task` và bảng điều khiển #33/#34
 
 ### Added — giao diện (GUI)
+- Màn hình Bán hàng & Gọi món tại bàn (`OrderView`): giao diện POS 3 cột khoa học (sơ đồ bàn `TableCardWidget`, thực đơn món phân loại danh mục và tìm kiếm nhanh `Ctrl+F`/`F1`, giỏ hàng `OrderCartWidget` tính toán thành tiền tức thời, hộp thoại thanh toán `CheckoutDialog` tính tiền thối lại và hộp thoại in/xuất phiếu thanh toán K80 `ReceiptDialog` chuẩn nhận diện TLU)
 - Màn hình Quản lý thực đơn (`ProductListView`): bảng danh sách món, bộ lọc danh mục động, tìm kiếm nhanh `Ctrl+F`, phân trang, cùng bộ hộp thoại CRUD thêm/sửa/xoá món ăn chuẩn nhận diện TLU (#41, Closes #30)
 - Khung giao diện desktop PySide6: theme nhận diện TLU (palette navy `#000066` + swoosh đỏ `#F32409`), BaseView 4 trạng thái bắt buộc, ApiClient bọc 23 endpoint, màn hình Đăng nhập (`LoginView`) phân quyền vai trò (`admin`/`staff`/`barista`), nhúng font Manrope và tài liệu ảnh chụp (#40, Closes #23, #24, #25)
 

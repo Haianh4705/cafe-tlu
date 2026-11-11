@@ -26,6 +26,7 @@ from gui.api_client import ApiClient
 from gui.theme import COLOR, FONT, GLOBAL_QSS, RADIUS, SPACE
 from gui.views.base import BaseView
 from gui.views.login_view import LoginView
+from gui.views.order_view import OrderView
 from gui.views.product_list_view import ProductListView
 from shared.paths import resource_path
 from shared.version import __version__
@@ -124,6 +125,9 @@ class MainWindow(QMainWindow):
         # Đăng ký các màn hình
         self._dashboard_view = DashboardPlaceholderView(self)
         self._content_stack.addWidget(self._dashboard_view)
+
+        self._order_view = OrderView(self.api, self)
+        self._content_stack.addWidget(self._order_view)
 
         self._product_list_view = ProductListView(self.api, self)
         self._content_stack.addWidget(self._product_list_view)
@@ -236,6 +240,9 @@ class MainWindow(QMainWindow):
         if key == "dashboard":
             self._content_stack.setCurrentWidget(self._dashboard_view)
             self._dashboard_view.load()
+        elif key == "orders":
+            self._content_stack.setCurrentWidget(self._order_view)
+            self._order_view.load()
         elif key == "products":
             self._content_stack.setCurrentWidget(self._product_list_view)
             self._product_list_view.load()
@@ -261,6 +268,8 @@ class MainWindow(QMainWindow):
         self._user_label.setText(f"{full_name} ({role_display})")
         self._update_sidebar_permissions(role)
         self._product_list_view.set_user_role(role)
+        if hasattr(self, "_order_view"):
+            self._order_view.cashier_name = full_name
 
         self._root_stack.setCurrentWidget(self._app_shell)
         self._switch_menu("dashboard")
