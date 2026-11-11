@@ -20,6 +20,8 @@ jobs:
   build-installer:
     name: Build bộ cài (.exe)
     runs-on: windows-latest
+    # PyInstaller + Inno Setup bình thường ~6–10 phút; treo quá 45 phút là bất thường.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 

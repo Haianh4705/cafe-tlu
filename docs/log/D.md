@@ -34,6 +34,7 @@
 | 11-09 | #26 | #47 | `infra/Dockerfile`, `installer/*`, `scripts/build_installer.sh`, `release.yml` | build bộ cài `.exe` đầu tiên trên CI + đóng gói backend | đề bài bắt buộc có bộ cài, cả nhóm dùng macOS (ADR-005) |
 | 11-09 | #27 | #48 | `Makefile`, `infra/docker-compose.prod.yml` | `doctor` đọc health MySQL + thử socket 3307; khung compose prod | container `running` vẫn chưa nhận truy vấn |
 | 11-11 | — | — | `docs/defense-D.md`, `docs/log/` | tài liệu ôn bảo vệ + nhật ký cá nhân | kiến thức rải trong chat sẽ mất, phải nằm trong repo để cả nhóm dùng |
+| 11-11 | #52 | #54 | `.github/workflows/ci.yml`, `release.yml` | thêm `timeout-minutes` + `timeout`/`Acquire::*` cho apt, chặn job treo 10–30 phút | apt treo 3 lần liên tiếp (9–13 phút) phải cancel tay; giới hạn thời gian thì fail nhanh để rerun |
 | 11-11 | — | — | `WORKFLOW.md`, `AGENTS.md`, `docs/log/` | thêm **nhật ký cá nhân bắt buộc** cho 4 người, nối vào DoD + PR template + cổng | kiến thức nằm trong chat sẽ mất; file trong repo thì lúc bảo vệ mở ra là có |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
@@ -48,6 +49,7 @@
 | 11-04 → 11-06 | AI agent trong repo (Claude/DSH) | soạn nháp `WORKFLOW.md`, `AGENTS.md`, 8 skill, README, `docs/defense.md` | đọc lại từng mục, bỏ phần không khớp đề bài; chốt phân vai A/B/C/D |
 | 11-09 | AI agent | soạn nháp `infra/Dockerfile`, `.dockerignore`, `docker-compose.prod.yml`, `cafetlu.spec`, `cafetlu.iss`, `build_installer.sh`, `release.yml` | **sửa 3 lỗi thật:** (1) spec trỏ `SPECPATH.parent.parent` ra `~/Desktop` → `FileNotFoundError`; (2) Git Bash đổi `/DMyAppVersion` thành đường dẫn Windows → ISCC báo "more than one script filename", sửa bằng `MSYS_NO_PATHCONV=1`; (3) `doctor` chỉ kiểm container chạy → đổi sang health + socket. Kiểm chứng: build local ra `dist/CafeTLU/`, CI release xanh, chạy `make doctor` từng dòng |
 | 11-09 | AI agent | soạn nháp `docs/plan.md` theo cổng, `docs/workflow.md` | tự viết lại phần điều kiện ra cổng cho đo được; bỏ toàn bộ mốc tuần |
+| 11-11 | AI agent | đề xuất `timeout-minutes` + apt `Acquire::*`, viết bản sửa workflow | tự chọn ngưỡng (lint 10', test 15', release 45') dựa trên thời gian chạy thật 15–60s và 6–10 phút; tự kiểm YAML bằng `yaml.safe_load` |
 | 11-11 | AI agent | soạn `docs/defense-D.md` + khung `docs/log/README.md` + 4 file A–D, nối quy tắc vào `WORKFLOW.md`/`AGENTS.md`/PR template | đối chiếu từng câu trả lời với code thật, sửa 4 số liệu sai (số ca kiểm thử, số dòng file, cổng compose); tự chốt 6 mục nhật ký, **không** thêm check CI tự động vì dễ chặn nhầm |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)

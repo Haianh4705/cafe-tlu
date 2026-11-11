@@ -21,6 +21,8 @@ jobs:
   lint:
     name: Lint & format
     runs-on: ubuntu-latest
+    # Chặn run treo vô hạn (bình thường ~20s). Xem Issue #52.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
@@ -45,6 +47,8 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    # Bình thường ~60s; trần 20' đủ cho 2 lần thử apt (Issue #52).
+    timeout-minutes: 20
 
     services:
       mysql:
@@ -84,12 +88,44 @@ jobs:
       # PySide6 (qua pytest-qt) cần các thư viện hệ thống của Qt, runner
       # ubuntu không có sẵn -> thiếu libEGL.so.1 sẽ làm pytest lỗi INTERNALERROR.
       - name: Cài thư viện hệ thống cho Qt
+        # Nguyên nhân treo/đỏ thật (run 43058551759, 43061122185): runner không phân giải được
+        # `security.ubuntu.com` / mirror chậm -> apt đứng. Cách chống: bỏ qua nếu đủ lib,
+        # cài bằng apt list có sẵn, thử tối đa 2 lần với timeout ngắn, và báo lỗi rõ để rerun.
+        # Xem Issue #52.
+        timeout-minutes: 10
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
-            libegl1 libgl1 libxkbcommon0 libxkbcommon-x11-0 libdbus-1-3 \
-            libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-keysyms1 \
-            libxcb-shape0 libxcb-render-util0 libfontconfig1
+          set -uo pipefail
+          PKGS="libegl1 libgl1 libxkbcommon0 libxkbcommon-x11-0 libdbus-1-3 libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 libfontconfig1"
+          APT_OPTS="-o Acquire::Retries=0 -o Acquire::http::Timeout=8 -o Acquire::https::Timeout=8 -o Acquire::ForceIPv4=true"
+
+          MISSING=""
+          for p in $PKGS; do
+            dpkg -s "$p" >/dev/null 2>&1 || MISSING="$MISSING $p"
+          done
+          if [ -z "$MISSING" ]; then
+            echo "✅ Runner đã có đủ thư viện Qt — bỏ qua apt."
+            exit 0
+          fi
+          echo "Thiếu:$MISSING"
+
+          ok=""
+          for attempt in 1 2; do
+            echo "── lần $attempt: cài bằng apt list có sẵn ──"
+            if timeout 90 sudo apt-get install -y -qq --no-install-recommends $APT_OPTS $MISSING; then
+              ok=1
+              break
+            fi
+            echo "── lần $attempt: apt-get update (timeout 45s) ──"
+            timeout 45 sudo apt-get $APT_OPTS update -qq || true
+            sleep 5
+          done
+
+          if [ -z "$ok" ]; then
+            echo "::error title=apt::Không cài được thư viện Qt sau 2 lần — thường do DNS của runner (không phân giải được security.ubuntu.com). Việc cần làm: rerun job."
+            getent hosts security.ubuntu.com || echo "DNS: không phân giải được security.ubuntu.com"
+            exit 1
+          fi
+          echo "✅ Đã cài thư viện Qt."
 
       - name: Cài thư viện
         run: |
