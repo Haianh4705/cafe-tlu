@@ -8,10 +8,13 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
-### Added — cơ sở dữ liệu (Database)
+### Added — cơ sở dữ liệu & báo cáo (Data & Reports)
 - Thiết kế ERD 9 bảng chuẩn hóa 3NF, từ điển dữ liệu, bất biến nghiệp vụ và snapshot đơn giá (`docs/erd.md`, #17)
 - DDL Schema MySQL 8.0/InnoDB/utf8mb4 đầy đủ ràng buộc khóa ngoại, chỉ mục và xóa mềm (`db/schema.sql`, #17)
-- Dữ liệu mẫu idempotent (`db/seed.sql`) với 3 vai trò, 5 tài khoản bcrypt, 6 danh mục, 51 món ăn uống và 12 bàn phục vụ (#18)
+- Dữ liệu mẫu idempotent (`db/seed.sql`) với 3 vai trò, 5 tài khoản bcrypt, 6 danh mục, 51 món ăn uống, 12 bàn phục vụ (#18) và 120 đơn hàng mẫu trải dài 30 ngày
+- Script sinh tự động 120 đơn hàng & hoá đơn mẫu có kiểm soát tính nhất quán (`scripts/seed_data.py`, #28)
+- Module dịch vụ thống kê doanh thu theo ngày, top món bán chạy, theo danh mục và xuất file Excel/PDF chuẩn nhận diện TLU (`api/services/reports.py`, #31)
+- Bộ unit test kiểm thử hàm thống kê và xuất file báo cáo (`tests/test_reports.py`)
 - Bật tự động nạp `schema.sql` và `seed.sql` trong `docker-compose.yml` khi khởi tạo container MySQL
 - Nhật ký cá nhân và ngân hàng phản biện của B (`docs/log/B.md`)
 
