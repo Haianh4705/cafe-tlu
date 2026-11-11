@@ -8,6 +8,13 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Added — cơ sở dữ liệu (Database)
+- Thiết kế ERD 9 bảng chuẩn hóa 3NF, từ điển dữ liệu, bất biến nghiệp vụ và snapshot đơn giá (`docs/erd.md`, #17)
+- DDL Schema MySQL 8.0/InnoDB/utf8mb4 đầy đủ ràng buộc khóa ngoại, chỉ mục và xóa mềm (`db/schema.sql`, #17)
+- Dữ liệu mẫu idempotent (`db/seed.sql`) với 3 vai trò, 5 tài khoản bcrypt, 6 danh mục, 51 món ăn uống và 12 bàn phục vụ (#18)
+- Bật tự động nạp `schema.sql` và `seed.sql` trong `docker-compose.yml` khi khởi tạo container MySQL
+- Nhật ký cá nhân và ngân hàng phản biện của B (`docs/log/B.md`)
+
 ### Added — quy trình
 - **Nhật ký cá nhân bắt buộc:** `docs/log/A.md` … `D.md` — mỗi người ghi việc đã làm, AI đã hỗ trợ
   gì, câu hỏi thầy hay hỏi, phần còn chưa hiểu; cập nhật trong mỗi PR, rà trước mỗi cổng
