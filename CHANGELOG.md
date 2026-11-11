@@ -8,9 +8,11 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
-### Fixed — CI
-- `Test` job không còn treo vô hạn khi `apt-get` gặp mirror chậm: `timeout-minutes` cho job
-  (lint 10', test 15', release 45') + `Acquire::Retries/Timeout/ForceIPv4` và `timeout` cho apt (#52)
+### Added — backend (API)
+- Khung FastAPI Backend (`api/main.py`): Khởi tạo FastAPI app, cấu hình CORS, xử lý ngoại lệ chung bọc envelope `error` (`AppError` và `RequestValidationError`), tự sinh Swagger tại `/docs` (#19)
+- Cấu hình & kết nối MySQL (`api/core/config.py`, `api/core/db.py`): Đọc cấu hình từ `.env` bằng `pydantic-settings`, dependency `get_db` cấp Session SQLAlchemy, endpoint `/health` kiểm tra sống và trạng thái kết nối MySQL (#20)
+- Định nghĩa mã lỗi và exception dùng chung: `shared/error_codes.py` (hằng số `ErrorCode`) và `shared/errors.py` (`AppError`) (#19)
+
 
 ### Added — quy trình
 - **Nhật ký cá nhân bắt buộc:** `docs/log/A.md` … `D.md` — mỗi người ghi việc đã làm, AI đã hỗ trợ
