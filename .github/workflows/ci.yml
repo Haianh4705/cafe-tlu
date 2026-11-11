@@ -89,17 +89,34 @@ jobs:
       # PySide6 (qua pytest-qt) cần các thư viện hệ thống của Qt, runner
       # ubuntu không có sẵn -> thiếu libEGL.so.1 sẽ làm pytest lỗi INTERNALERROR.
       - name: Cài thư viện hệ thống cho Qt
-        # `timeout` + Acquire::* để apt không treo vô hạn khi mirror chậm
-        # (đã gặp 3 lần: run 43039907562, 43058551759). Xem Issue #52.
-        timeout-minutes: 6
+        # apt-get update treo khi mirror chậm (3 lần: run 43039907562, 43058551759, 43058551759).
+        # Thứ tự ưu tiên: (1) đã có đủ thì bỏ qua, (2) cài bằng apt list có sẵn trong image,
+        # (3) chỉ update khi (2) thất bại. Mỗi bước đều có `timeout`. Xem Issue #52.
+        timeout-minutes: 8
         run: |
-          APT_OPTS="-o Acquire::Retries=3 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 -o Acquire::ForceIPv4=true"
-          timeout 120 sudo apt-get $APT_OPTS update -qq \
-            || timeout 120 sudo apt-get $APT_OPTS update -qq
-          timeout 180 sudo apt-get install -y -qq --no-install-recommends $APT_OPTS \
-            libegl1 libgl1 libxkbcommon0 libxkbcommon-x11-0 libdbus-1-3 \
-            libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-keysyms1 \
-            libxcb-shape0 libxcb-render-util0 libfontconfig1
+          set -uo pipefail
+          PKGS="libegl1 libgl1 libxkbcommon0 libxkbcommon-x11-0 libdbus-1-3 libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-render-util0 libfontconfig1"
+          APT_OPTS="-o Acquire::Retries=0 -o Acquire::http::Timeout=10 -o Acquire::https::Timeout=10 -o Acquire::ForceIPv4=true"
+
+          MISSING=""
+          for p in $PKGS; do
+            dpkg -s "$p" >/dev/null 2>&1 || MISSING="$MISSING $p"
+          done
+          if [ -z "$MISSING" ]; then
+            echo "✅ Runner đã có đủ thư viện Qt — bỏ qua apt."
+            exit 0
+          fi
+          echo "Thiếu:$MISSING"
+
+          # Bản image runner thường đã có apt list; thử cài trước để tránh `update`.
+          if timeout 180 sudo apt-get install -y -qq --no-install-recommends $APT_OPTS $MISSING; then
+            echo "✅ Cài xong bằng apt list có sẵn."
+            exit 0
+          fi
+
+          echo "::warning title=apt::Không cài được bằng list có sẵn — thử update (có giới hạn thời gian)."
+          timeout 90 sudo apt-get $APT_OPTS update -qq || true
+          timeout 180 sudo apt-get install -y -qq --no-install-recommends $APT_OPTS $MISSING
 
       - name: Cài thư viện
         run: |
