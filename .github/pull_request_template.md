@@ -31,7 +31,8 @@ Closes #
 
 ## Ảnh chụp màn hình
 
-<!-- Bắt buộc nếu có thay đổi giao diện. Lưu vào docs/screenshots/<module>/ -->
+<!-- Chỉ cần khi PR hoàn thiện/đổi một màn hình. Lưu vào docs/screenshots/<module>/.
+     PR backend/DB/CI/docs: bỏ trống, dán log + link CI ở mục "Cách kiểm chứng". -->
 
 | Trước | Sau |
 |---|---|

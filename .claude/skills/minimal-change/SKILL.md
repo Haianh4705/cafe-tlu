@@ -13,7 +13,7 @@ Skill này quyết định **CÁCH làm**, **không** quyết định **LÀM GÌ
 |---|---|
 | Làm tính năng nào, mở rộng tới đâu | **Issue** (Definition of Ready) — không phải skill này |
 | Dùng bao nhiêu dòng code, mấy lớp, lib nào | **Skill này** |
-| Bỏ qua validate / test / ảnh chụp / tài liệu | **Không ai được quyết** — xem mục 5 |
+| Bỏ qua validate / test / tài liệu | **Không ai được quyết** — xem mục 5 |
 
 Đồ án cần **mở rộng** để đạt mốc 8–9. Skill này không cản việc đó: nó chỉ cản việc
 xây một tính năng đã được duyệt bằng 5 lớp abstraction không ai cần.
