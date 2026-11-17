@@ -21,7 +21,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from api.core.db import Base
+from api.models.base import Base
 
 if TYPE_CHECKING:
     from api.models.order import Order

@@ -9,7 +9,7 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, UniqueConst
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from api.core.db import Base
+from api.models.base import Base
 
 if TYPE_CHECKING:
     from api.models.audit_log import AuditLog
