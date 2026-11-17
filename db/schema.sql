@@ -69,16 +69,20 @@ CREATE TABLE products (
     unit VARCHAR(20) NOT NULL DEFAULT 'ly',
     image_url VARCHAR(255) NULL,
     is_available TINYINT(1) NOT NULL DEFAULT 1,
-    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    deleted_at DATETIME NULL DEFAULT NULL,
+    -- Tên món chỉ cần unique trong các món CHƯA xoá. Cột ảo này = name khi còn sống, NULL khi đã xoá:
+    -- UNIQUE bỏ qua NULL nên nhiều món đã xoá được trùng tên, nhưng hai món đang bán cùng tên thì bị chặn.
+    active_name VARCHAR(150) GENERATED ALWAYS AS (IF(deleted_at IS NULL, name, NULL)) STORED,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_products_name (name),
+    UNIQUE KEY uq_products_active_name (active_name),
     KEY idx_products_category_id (category_id),
     KEY idx_products_is_available (is_available),
-    KEY idx_products_is_deleted (is_deleted),
+    KEY idx_products_deleted_at (deleted_at),
     CONSTRAINT fk_products_categories FOREIGN KEY (category_id)
-        REFERENCES categories (id) ON DELETE RESTRICT
+        REFERENCES categories (id) ON DELETE RESTRICT,
+    CONSTRAINT chk_products_price CHECK (price >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -96,7 +100,9 @@ CREATE TABLE `tables` (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_tables_table_number (table_number),
-    KEY idx_tables_status (status)
+    KEY idx_tables_status (status),
+    CONSTRAINT chk_tables_status CHECK (status IN ('available','occupied','reserved')),
+    CONSTRAINT chk_tables_capacity CHECK (seating_capacity > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -112,18 +118,26 @@ CREATE TABLE orders (
     total_amount DECIMAL(12,0) NOT NULL DEFAULT 0,
     notes TEXT NULL,
     is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    -- Chỉ một đơn ĐANG MỞ cho mỗi bàn: pending/serving giữ table_id, đơn đóng thì NULL.
+    open_table_id BIGINT UNSIGNED GENERATED ALWAYS AS (
+        IF(status IN ('pending','serving'), table_id, NULL)
+    ) STORED,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_orders_order_code (order_code),
+    UNIQUE KEY uq_orders_open_table (open_table_id),
     KEY idx_orders_table_id (table_id),
     KEY idx_orders_created_by (created_by),
     KEY idx_orders_status (status),
     KEY idx_orders_created_at (created_at),
+    KEY idx_orders_status_created_at (status, created_at),
     CONSTRAINT fk_orders_tables FOREIGN KEY (table_id)
         REFERENCES `tables` (id) ON DELETE RESTRICT,
     CONSTRAINT fk_orders_users FOREIGN KEY (created_by)
-        REFERENCES users (id) ON DELETE RESTRICT
+        REFERENCES users (id) ON DELETE RESTRICT,
+    CONSTRAINT chk_orders_status CHECK (status IN ('pending','serving','completed','cancelled')),
+    CONSTRAINT chk_orders_total CHECK (total_amount >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -144,10 +158,15 @@ CREATE TABLE order_items (
     PRIMARY KEY (id),
     KEY idx_order_items_order_id (order_id),
     KEY idx_order_items_product_id (product_id),
+    KEY idx_order_items_order_status (order_id, status),
     CONSTRAINT fk_order_items_orders FOREIGN KEY (order_id)
         REFERENCES orders (id) ON DELETE CASCADE,
     CONSTRAINT fk_order_items_products FOREIGN KEY (product_id)
-        REFERENCES products (id) ON DELETE RESTRICT
+        REFERENCES products (id) ON DELETE RESTRICT,
+    CONSTRAINT chk_order_items_quantity CHECK (quantity > 0),
+    CONSTRAINT chk_order_items_price CHECK (unit_price >= 0),
+    CONSTRAINT chk_order_items_subtotal CHECK (subtotal = quantity * unit_price),
+    CONSTRAINT chk_order_items_status CHECK (status IN ('pending','preparing','served','cancelled'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -174,10 +193,16 @@ CREATE TABLE invoices (
     UNIQUE KEY uq_invoices_order_id (order_id),
     KEY idx_invoices_cashier_id (cashier_id),
     KEY idx_invoices_paid_at (paid_at),
+    KEY idx_invoices_paid_at_order (paid_at, order_id),
     CONSTRAINT fk_invoices_orders FOREIGN KEY (order_id)
         REFERENCES orders (id) ON DELETE RESTRICT,
     CONSTRAINT fk_invoices_users FOREIGN KEY (cashier_id)
-        REFERENCES users (id) ON DELETE RESTRICT
+        REFERENCES users (id) ON DELETE RESTRICT,
+    CONSTRAINT chk_invoices_discount CHECK (discount_amount >= 0),
+    CONSTRAINT chk_invoices_final CHECK (final_amount = subtotal_amount - discount_amount),
+    CONSTRAINT chk_invoices_paid CHECK (paid_amount >= final_amount),
+    CONSTRAINT chk_invoices_change CHECK (change_amount = paid_amount - final_amount),
+    CONSTRAINT chk_invoices_payment CHECK (payment_method IN ('cash','transfer','card'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
@@ -190,16 +215,16 @@ CREATE TABLE audit_logs (
     action VARCHAR(50) NOT NULL,
     entity_type VARCHAR(50) NOT NULL,
     entity_id BIGINT UNSIGNED NULL,
-    details TEXT NULL,
+    details JSON NULL,
     ip_address VARCHAR(45) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY idx_audit_logs_user_id (user_id),
     KEY idx_audit_logs_action (action),
     KEY idx_audit_logs_created_at (created_at),
+    KEY idx_audit_logs_entity (entity_type, entity_id),
     CONSTRAINT fk_audit_logs_users FOREIGN KEY (user_id)
         REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
-

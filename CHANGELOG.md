@@ -23,6 +23,19 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Nhật ký cá nhân và ngân hàng phản biện của B (`docs/log/B.md`)
 - Chương 3 Báo cáo BTL về Phân tích & Thiết kế CSDL đạt chuẩn 3NF (`report/03-phan-tich.md`)
 
+### Changed — cơ sở dữ liệu (ràng buộc ở tầng DB)
+
+- `products` xoá mềm bằng `deleted_at` + cột ảo `active_name` UNIQUE: xoá "Trà đào" rồi tạo lại món
+  cùng tên được, nhưng không thể có hai món đang bán cùng tên (`db/schema.sql`)
+- `orders.open_table_id` (cột ảo) + UNIQUE: mỗi bàn chỉ được **một đơn đang mở**
+- 9 `CHECK` thay cho quy ước bằng lời: `subtotal = quantity × unit_price`, `final = subtotal − discount`,
+  `change = paid − final`, `paid ≥ final`, trạng thái đơn/dòng món/bàn, phương thức thanh toán
+- Index ghép cho báo cáo: `orders(status, created_at)`, `order_items(order_id, status)`,
+  `invoices(paid_at, order_id)`, `audit_logs(entity_type, entity_id)`; `audit_logs.details` đổi sang `JSON`
+- Sửa **3 mã trùng** (`ORD-20261110-001` ×2, `ORD-20261111-002` ×2, `INV-20261110-001` ×2) từng làm
+  `ON DUPLICATE KEY UPDATE` ghi đè 2 đơn và 1 hoá đơn → seed giờ đủ **120 đơn / 119 hoá đơn, 0 trùng**
+- Thêm `db/verify_seed.sql`: 21 phép kiểm PASS/FAIL (đếm dòng, mã trùng, lệch tổng tiền, mồ côi, 30 ngày)
+
 ### Added — quy trình
 - **Nhật ký cá nhân bắt buộc:** `docs/log/A.md` … `D.md` — mỗi người ghi việc đã làm, AI đã hỗ trợ
   gì, câu hỏi thầy hay hỏi, phần còn chưa hiểu; cập nhật trong mỗi PR, rà trước mỗi cổng

@@ -41,7 +41,7 @@ Hệ thống quản lý quán café TLU phục vụ 3 nhóm người dùng chín
 | **Cờ Boolean** | `TINYINT(1)` (`is_*`, `has_*`) | Chuẩn MySQL cho giá trị 0/1 |
 | **Dấu thời gian** | `created_at`, `updated_at DATETIME` | Tự động ghi nhận thời điểm tạo và cập nhật qua `CURRENT_TIMESTAMP` |
 | **Chỉ mục (Indexes)** | `idx_<bảng>_<cột>`, `uq_<bảng>_<cột>` | Tối ưu hóa truy vấn tìm kiếm món, lọc theo ngày và kết nối bảng thống kê |
-| **Chiến lược xóa** | Xóa mềm (`is_deleted TINYINT(1) DEFAULT 0`) | Bảo tồn tính toàn vẹn lịch sử giao dịch bán hàng và báo cáo tài chính |
+| **Chiến lược xóa** | Xóa mềm: `products.deleted_at DATETIME NULL` (NULL = còn bán), `orders.is_deleted TINYINT(1)` | Bảo tồn lịch sử giao dịch; dùng mốc thời gian ở `products` để tên món đã xoá không chặn việc tạo lại món cùng tên |
 
 ---
 
@@ -55,14 +55,14 @@ erDiagram
     users ||--o{ orders : "tạo đơn"
     users ||--o{ invoices : "thu ngân lập"
     users ||--o{ audit_logs : "thực hiện"
-    
+
     categories ||--o{ products : "chứa"
-    
+
     tables ||--o{ orders : "phục vụ tại"
-    
+
     orders ||--o{ order_items : "gồm các món"
     products ||--o{ order_items : "được gọi trong"
-    
+
     orders ||--|| invoices : "thanh toán thành"
 
     roles {
@@ -101,7 +101,8 @@ erDiagram
         varchar unit "ly, đĩa, phần"
         varchar image_url
         tinyint is_available "còn hàng"
-        tinyint is_deleted "xoá mềm"
+        datetime deleted_at "NULL = còn bán"
+        varchar active_name UK "name khi chưa xoá"
         datetime created_at
         datetime updated_at
     }
@@ -126,6 +127,7 @@ erDiagram
         decimal total_amount "DECIMAL(12,0)"
         text notes
         tinyint is_deleted
+        bigint open_table_id UK "bàn đang mở, 1 đơn/bàn"
         datetime created_at
         datetime updated_at
     }
@@ -166,7 +168,7 @@ erDiagram
         varchar action "LOGIN, CHECKOUT, DELETE_PRD..."
         varchar entity_type "products, orders, invoices..."
         bigint entity_id
-        text details
+        json details
         varchar ip_address
         datetime created_at
     }
@@ -211,13 +213,14 @@ erDiagram
 | Cột | Kiểu dữ liệu | Ràng buộc | Giá trị mặc định | Mô tả |
 |---|---|---|---|---|
 | `id` | BIGINT UNSIGNED | PK, AUTO_INCREMENT | | Định danh món |
-| `name` | VARCHAR(150) | NOT NULL, UNIQUE | | Tên món ăn / đồ uống |
+| `name` | VARCHAR(150) | NOT NULL | | Tên món ăn / đồ uống. Unique **trong các món chưa xoá** qua cột ảo `active_name` |
 | `category_id` | BIGINT UNSIGNED | NOT NULL, FK(`categories.id`) ON DELETE RESTRICT | | Thuộc danh mục nào |
 | `price` | DECIMAL(12,0) | NOT NULL | | Giá bán niêm yết (VNĐ) |
 | `unit` | VARCHAR(20) | NOT NULL | 'ly' | Đơn vị tính (`ly`, `cốc`, `đĩa`, `phần`) |
 | `image_url` | VARCHAR(255) | NULL | NULL | Đường dẫn ảnh đại diện món |
 | `is_available` | TINYINT(1) | NOT NULL | 1 | 1: Còn món bán, 0: Tạm hết nguyên liệu |
-| `is_deleted` | TINYINT(1) | NOT NULL | 0 | Cờ xóa mềm (1: đã xóa khỏi menu) |
+| `deleted_at` | DATETIME | NULL | NULL | Thời điểm xoá mềm; `NULL` = còn bán |
+| `active_name` | VARCHAR(150) | GENERATED (STORED), UNIQUE | | Ảo: `name` khi `deleted_at IS NULL`, ngược lại `NULL` — cho phép nhiều món đã xoá trùng tên nhưng chỉ một món đang bán mỗi tên |
 | `created_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP | Ngày tạo món |
 | `updated_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP (ON UPDATE) | Ngày cập nhật món |
 
@@ -237,13 +240,14 @@ erDiagram
 | Cột | Kiểu dữ liệu | Ràng buộc | Giá trị mặc định | Mô tả |
 |---|---|---|---|---|
 | `id` | BIGINT UNSIGNED | PK, AUTO_INCREMENT | | Định danh đơn hàng |
-| `order_code` | VARCHAR(50) | NOT NULL, UNIQUE | | Mã đơn hiển thị (`ORD-20261111-001`) |
+| `order_code` | VARCHAR(50) | NOT NULL, UNIQUE | | Mã đơn hiển thị (`ORD-20261111-001`). Sinh theo ngày + số thứ tự trong ngày, phải kiểm trùng trước khi insert |
 | `table_id` | BIGINT UNSIGNED | NOT NULL, FK(`tables.id`) ON DELETE RESTRICT | | Bàn đang phục vụ đơn |
 | `created_by` | BIGINT UNSIGNED | NOT NULL, FK(`users.id`) ON DELETE RESTRICT | | Nhân viên phục vụ tạo đơn |
 | `status` | VARCHAR(20) | NOT NULL | 'pending' | Trạng thái (`pending`: đang mở, `completed`: đã thanh toán, `cancelled`: đã hủy) |
 | `total_amount` | DECIMAL(12,0) | NOT NULL | 0 | Tổng tiền các món trong đơn (VNĐ) |
 | `notes` | TEXT | NULL | NULL | Ghi chú chung cho đơn |
 | `is_deleted` | TINYINT(1) | NOT NULL | 0 | Cờ xóa mềm đơn hàng |
+| `open_table_id` | BIGINT UNSIGNED | GENERATED (STORED), UNIQUE | | Ảo: `table_id` khi đơn `pending`/`serving`, ngược lại `NULL` — bảo đảm **mỗi bàn chỉ 1 đơn đang mở** |
 | `created_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP | Thời điểm mở bàn gọi món |
 | `updated_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP (ON UPDATE) | Thời điểm cập nhật cuối |
 
@@ -255,7 +259,7 @@ erDiagram
 | `product_id` | BIGINT UNSIGNED | NOT NULL, FK(`products.id`) ON DELETE RESTRICT | | Món được gọi |
 | `quantity` | INT | NOT NULL | 1 | Số lượng món (phải $\ge 1$) |
 | `unit_price` | DECIMAL(12,0) | NOT NULL | | **Snapshot đơn giá** tại thời điểm gọi |
-| `subtotal` | DECIMAL(12,0) | NOT NULL | | Thành tiền = `quantity * unit_price` |
+| `subtotal` | DECIMAL(12,0) | NOT NULL, CHECK = `quantity * unit_price` | | Thành tiền một dòng món |
 | `status` | VARCHAR(20) | NOT NULL | 'pending' | Trạng thái pha chế (`pending`, `preparing`, `served`, `cancelled`) |
 | `notes` | VARCHAR(255) | NULL | NULL | Yêu cầu riêng (ít đá, 50% đường,...) |
 | `created_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP | Thời điểm thêm món vào đơn |
@@ -270,9 +274,9 @@ erDiagram
 | `cashier_id` | BIGINT UNSIGNED | NOT NULL, FK(`users.id`) ON DELETE RESTRICT | | Thu ngân thực hiện thanh toán |
 | `subtotal_amount` | DECIMAL(12,0) | NOT NULL | | Tiền hàng trước giảm giá |
 | `discount_amount` | DECIMAL(12,0) | NOT NULL | 0 | Số tiền giảm giá / khuyến mãi |
-| `final_amount` | DECIMAL(12,0) | NOT NULL | | Số tiền thực thu = `subtotal - discount` |
-| `paid_amount` | DECIMAL(12,0) | NOT NULL | | Tiền khách đưa |
-| `change_amount` | DECIMAL(12,0) | NOT NULL | 0 | Tiền thừa trả lại khách |
+| `final_amount` | DECIMAL(12,0) | NOT NULL, CHECK = `subtotal_amount - discount_amount` | | Số tiền thực thu |
+| `paid_amount` | DECIMAL(12,0) | NOT NULL, CHECK ≥ `final_amount` | | Tiền khách đưa |
+| `change_amount` | DECIMAL(12,0) | NOT NULL, CHECK = `paid_amount - final_amount` | 0 | Tiền thừa trả lại khách |
 | `payment_method` | VARCHAR(20) | NOT NULL | 'cash' | Phương thức (`cash`, `transfer`, `card`) |
 | `paid_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP | Thời điểm thanh toán thành công |
 | `notes` | TEXT | NULL | NULL | Ghi chú thanh toán |
@@ -287,7 +291,7 @@ erDiagram
 | `action` | VARCHAR(50) | NOT NULL | | Hành động (`LOGIN`, `LOGOUT`, `CREATE_ORDER`, `CHECKOUT`, `UPDATE_PRICE`,...) |
 | `entity_type` | VARCHAR(50) | NOT NULL | | Thực thể bị tác động (`products`, `orders`, `invoices`, `users`) |
 | `entity_id` | BIGINT UNSIGNED | NULL | NULL | ID của bản ghi bị tác động |
-| `details` | TEXT | NULL | NULL | Chi tiết thay đổi (JSON mô tả dữ liệu trước/sau) |
+| `details` | JSON | NULL | NULL | Chi tiết thay đổi (truy vấn được bằng `->>`/`JSON_EXTRACT`) |
 | `ip_address` | VARCHAR(45) | NULL | NULL | Địa chỉ IP client gọi API |
 | `created_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP | Thời điểm thực hiện hành động |
 
@@ -303,17 +307,21 @@ Những quy tắc toàn vẹn nghiệp vụ **luôn luôn phải đúng**, đư�
 2. **Tính toán tổng tiền đơn (`orders.total_amount`):**
    * $`\text{total\_amount} = \sum (\text{subtotal của các item có status} \neq \text{'cancelled'})`$.
    * Mỗi khi thêm món, sửa số lượng hoặc hủy một món trong đơn, tầng Service phải tính toán lại và cập nhật `orders.total_amount` trong cùng một database transaction.
-3. **Bất biến của Hóa đơn (`invoices`):**
-   * $`\text{final\_amount} = \text{subtotal\_amount} - \text{discount\_amount}`$.
-   * $`\text{change\_amount} = \text{paid\_amount} - \text{final\_amount}`$ (yêu cầu $\text{paid\_amount} \ge \text{final\_amount}$).
+   * DB chặn được từng dòng (`chk_order_items_subtotal`: `subtotal = quantity * unit_price`) nhưng **không** cộng chéo nhiều dòng được → bất biến này kiểm bằng `db/verify_seed.sql` và trong test của A.
+3. **Bất biến của Hóa đơn (`invoices`)** — cả ba nay do DB chặn bằng `CHECK`:
+   * $`\text{final\_amount} = \text{subtotal\_amount} - \text{discount\_amount}`$ → `chk_invoices_final`.
+   * $`\text{change\_amount} = \text{paid\_amount} - \text{final\_amount}`$ → `chk_invoices_change`.
+   * $`\text{paid\_amount} \ge \text{final\_amount}`$ → `chk_invoices_paid`; giảm giá không âm → `chk_invoices_discount`; phương thức chỉ `cash`/`transfer`/`card` → `chk_invoices_payment`.
    * Hóa đơn sau khi đã phát hành (`invoices` đã tạo) là **bất biến (immutable)**: không cho phép sửa đổi các dòng tiền, không cho phép xóa hay đổi đơn hàng liên kết.
 4. **Vòng đời trạng thái Bàn (`tables.status`):**
    * Khi mở một đơn mới cho bàn: `tables.status` chuyển từ `'available'` $\to$ `'occupied'`.
    * Khi thanh toán thành công (`checkout` hoàn tất) hoặc hủy đơn: `tables.status` chuyển lại về `'available'`.
-   * Một bàn không thể mở đồng thời 2 đơn ở trạng thái `'pending'`.
+   * Một bàn không thể mở đồng thời 2 đơn: DB chặn bằng cột ảo `orders.open_table_id` + `UNIQUE uq_orders_open_table` (chỉ đơn `pending`/`serving` mới giữ `table_id`).
 5. **Quy tắc Xóa mềm (Soft Delete):**
-   * Xóa món ăn (`products`): Cập nhật `is_deleted = 1`. Các truy vấn menu bán hàng chỉ lấy món có `is_deleted = 0`. Tuy nhiên các đơn hàng cũ trong quá khứ liên kết tới món đó vẫn hiển thị được tên và lịch sử bình thường.
+   * Xóa món ăn (`products`): cập nhật `deleted_at = NOW()`. Menu bán hàng chỉ lấy món có `deleted_at IS NULL`; đơn cũ vẫn hiển thị tên và lịch sử bình thường.
+   * Tên món unique **trong các món chưa xoá** (cột ảo `active_name` + `UNIQUE`): xoá "Trà đào" rồi tạo lại món cùng tên được, nhưng không thể có hai món đang bán cùng tên.
    * Cấm `DELETE FROM products` vật lý trên DB.
+   * Giới hạn đã biết: `CHECK` so sánh theo collation `utf8mb4_unicode_ci` nên **không phân biệt hoa/thường** (`'Completed'` vẫn lọt `chk_orders_status`); giá trị lạ như `'done'` thì bị chặn.
 
 ---
 
@@ -326,10 +334,12 @@ Những quy tắc toàn vẹn nghiệp vụ **luôn luôn phải đúng**, đư�
 | `categories` | 6 dòng | Cà phê truyền thống, Cà phê pha máy, Trà trái cây, Trà sữa & Macchiato, Đá xay & Sinh tố, Bánh ngọt & Ăn vặt |
 | `products` | 51 món | Menu phong phú của quán café sinh viên TLU (Bạc xỉu, Trà đào cam sả, Matcha Latte, Croissant,...), giá 20.000đ – 55.000đ |
 | `tables` | 12 bàn | Chia theo 3 khu vực: Tầng 1 (Bàn 01 - 05), Tầng 2 (Bàn 06 - 09), Ban công view sông Sét (Bàn 10 - 12) |
-| `orders` | 120 đơn | 2 đơn khởi tạo + 118 đơn trải dài chính xác 30 ngày liên tục (100% khớp tổng tiền `order_items`) |
+| `orders` | 120 đơn | 2 đơn khởi tạo + 118 đơn trải dài 30 ngày liên tục; **120 mã đơn khác nhau** (2 đơn viết tay dùng hậu tố `-901` để không đụng mã sinh tự động); 100% khớp `Σ order_items` |
 | `order_items` | 250 dòng | Mỗi đơn có 1–4 món, đa dạng số lượng và ghi chú, snapshot đơn giá tại lúc bán |
-| `invoices` | 119 hóa đơn | Tương ứng với 119 đơn đã hoàn thành (`status = 'completed'`), 1 đơn đang phục vụ (`pending`) |
-| `audit_logs` | 20 dòng | Các thao tác mẫu để kiểm tra màn hình Audit Log trên GUI |
+| `invoices` | 119 hóa đơn | Tương ứng 119 đơn đã hoàn thành (`status = 'completed'`), 1 đơn đang phục vụ (`pending`); 119 mã hoá đơn khác nhau (hoá đơn viết tay dùng `INV-20261110-901`) |
+| `audit_logs` | 20 dòng | Các thao tác mẫu để kiểm tra màn hình Audit Log trên GUI (`details` là JSON) |
+
+Kiểm lại toàn bộ sau khi nạp: `db/verify_seed.sql` (đếm dòng, mã trùng, lệch tổng tiền, hoá đơn mồ côi).
 
 ---
 

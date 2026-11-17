@@ -111,6 +111,8 @@ def generate_seed_data(
     items_sql: list[str] = []
     invoices_sql: list[str] = []
 
+    # Mã đơn do 2 đơn khởi tạo (viết tay trong seed) đã chiếm
+    RESERVED_ORDER_CODES = {"ORD-20261110-001", "ORD-20261111-002"}
     curr_order_id = start_order_id
     curr_item_id = start_item_id
     curr_invoice_id = start_invoice_id
@@ -125,7 +127,13 @@ def generate_seed_data(
 
             table_id = random.randint(1, 12)
             staff_id = random.choice([2, 3])  # thungan01 hoặc nhanvien01
-            order_code = f"ORD-{day_date.strftime('%Y%m%d')}-{seq_in_day + 1:03d}"
+            # 2 đơn khởi tạo đã dùng sẵn mã của ngày 11-10 và 11-11 -> nhảy qua, không để trùng
+            seq = seq_in_day + 1
+            order_code = f"ORD-{day_date.strftime('%Y%m%d')}-{seq:03d}"
+            while order_code in RESERVED_ORDER_CODES:
+                seq += 1
+                order_code = f"ORD-{day_date.strftime('%Y%m%d')}-{seq:03d}"
+            RESERVED_ORDER_CODES.add(order_code)
 
             num_items = random.choices([1, 2, 3, 4], weights=[25, 45, 20, 10], k=1)[0]
             chosen_products = random.sample(MENU_ITEMS, k=num_items)
@@ -177,26 +185,26 @@ def build_full_seed_sql() -> str:
 
     # 20 audit logs mẫu
     audit_logs_rows = [
-        "(1, 1, 'LOGIN', 'users', 1, 'Admin đăng nhập hệ thống thành công', '127.0.0.1', '2026-10-13 08:00:00')",
-        "(2, 2, 'LOGIN', 'users', 2, 'Thu ngân Trần Thị Thu Ngân bắt đầu ca', '127.0.0.1', '2026-10-13 08:05:00')",
-        "(3, 1, 'CREATE_PRODUCT', 'products', 5, 'Thêm món mới Bạc xỉu 3 tầng TLU', '127.0.0.1', '2026-10-15 09:00:00')",
-        "(4, 1, 'UPDATE_PRICE', 'products', 17, 'Điều chỉnh giá Trà đào cam sả 32.000 -> 35.000', '127.0.0.1', '2026-10-18 10:15:00')",
-        "(5, 2, 'CREATE_ORDER', 'orders', 1, 'Tạo đơn mới ORD-20261110-001 tại Bàn 01', '127.0.0.1', '2026-11-10 08:30:00')",
-        "(6, 2, 'CHECKOUT', 'invoices', 1, 'Thanh toán hoá đơn INV-20261110-001 (73.000 đ - Tiền mặt)', '127.0.0.1', '2026-11-10 09:15:00')",
-        "(7, 3, 'LOGIN', 'users', 3, 'Nhân viên Nguyễn Văn Phục Vụ vào ca', '127.0.0.1', '2026-11-11 13:45:00')",
-        "(8, 3, 'CREATE_ORDER', 'orders', 2, 'Tạo đơn mới ORD-20261111-002 tại Bàn 02', '127.0.0.1', '2026-11-11 14:00:00')",
-        "(9, 4, 'LOGIN', 'users', 4, 'Pha chế Lê Văn Pha Chế đăng nhập màn hình Barista', '127.0.0.1', '2026-11-11 14:05:00')",
-        "(10, 4, 'UPDATE_STATUS', 'order_items', 4, 'Chuyển trạng thái Cappuccino sang served', '127.0.0.1', '2026-11-11 14:12:00')",
-        "(11, 2, 'CHECKOUT', 'invoices', 10, 'Thanh toán hoá đơn INV-20261015-001', '127.0.0.1', '2026-10-15 15:30:00')",
-        "(12, 1, 'EXPORT_REPORT', 'reports', NULL, 'Admin xuất báo cáo doanh thu tháng 10 ra Excel', '127.0.0.1', '2026-11-01 17:00:00')",
-        "(13, 1, 'EXPORT_REPORT', 'reports', NULL, 'Admin xuất báo cáo top món bán chạy ra PDF', '127.0.0.1', '2026-11-02 09:30:00')",
-        "(14, 2, 'MERGE_TABLE', 'tables', 3, 'Gộp Bàn 03 vào Bàn 04 theo yêu cầu khách', '127.0.0.1', '2026-11-05 19:20:00')",
-        "(15, 3, 'CANCEL_ITEM', 'order_items', 50, 'Khách đổi món, huỷ dòng Trà sen vàng', '127.0.0.1', '2026-11-06 20:10:00')",
-        "(16, 1, 'UPDATE_USER', 'users', 5, 'Cập nhật phân quyền cho Barista Hoàng Thị', '127.0.0.1', '2026-11-08 11:00:00')",
-        "(17, 2, 'APPLY_DISCOUNT', 'invoices', 80, 'Áp dụng mã giảm giá 10k sinh viên TLU', '127.0.0.1', '2026-11-09 16:45:00')",
-        "(18, 3, 'CHANGE_TABLE_STATUS', 'tables', 5, 'Chuyển Bàn 05 sang trạng thái reserved', '127.0.0.1', '2026-11-10 18:00:00')",
-        "(19, 1, 'BACKUP_DB', 'system', NULL, 'Hệ thống tự động sao lưu CSDL định kỳ', '127.0.0.1', '2026-11-11 00:00:00')",
-        "(20, 1, 'LOGOUT', 'users', 1, 'Admin đăng xuất an toàn khỏi hệ thống', '127.0.0.1', '2026-11-11 22:30:00')",
+        "(1, 1, 'LOGIN', 'users', 1, JSON_OBJECT('message', 'Admin đăng nhập hệ thống thành công'), '127.0.0.1', '2026-10-13 08:00:00')",
+        "(2, 2, 'LOGIN', 'users', 2, JSON_OBJECT('message', 'Thu ngân Trần Thị Thu Ngân bắt đầu ca'), '127.0.0.1', '2026-10-13 08:05:00')",
+        "(3, 1, 'CREATE_PRODUCT', 'products', 5, JSON_OBJECT('message', 'Thêm món mới Bạc xỉu 3 tầng TLU'), '127.0.0.1', '2026-10-15 09:00:00')",
+        "(4, 1, 'UPDATE_PRICE', 'products', 17, JSON_OBJECT('message', 'Điều chỉnh giá Trà đào cam sả 32.000 -> 35.000'), '127.0.0.1', '2026-10-18 10:15:00')",
+        "(5, 2, 'CREATE_ORDER', 'orders', 1, JSON_OBJECT('message', 'Tạo đơn mới ORD-20261110-001 tại Bàn 01'), '127.0.0.1', '2026-11-10 08:30:00')",
+        "(6, 2, 'CHECKOUT', 'invoices', 1, JSON_OBJECT('message', 'Thanh toán hoá đơn INV-20261110-901 (73.000 đ - Tiền mặt)'), '127.0.0.1', '2026-11-10 09:15:00')",
+        "(7, 3, 'LOGIN', 'users', 3, JSON_OBJECT('message', 'Nhân viên Nguyễn Văn Phục Vụ vào ca'), '127.0.0.1', '2026-11-11 13:45:00')",
+        "(8, 3, 'CREATE_ORDER', 'orders', 2, JSON_OBJECT('message', 'Tạo đơn mới ORD-20261111-002 tại Bàn 02'), '127.0.0.1', '2026-11-11 14:00:00')",
+        "(9, 4, 'LOGIN', 'users', 4, JSON_OBJECT('message', 'Pha chế Lê Văn Pha Chế đăng nhập màn hình Barista'), '127.0.0.1', '2026-11-11 14:05:00')",
+        "(10, 4, 'UPDATE_STATUS', 'order_items', 4, JSON_OBJECT('message', 'Chuyển trạng thái Cappuccino sang served'), '127.0.0.1', '2026-11-11 14:12:00')",
+        "(11, 2, 'CHECKOUT', 'invoices', 10, JSON_OBJECT('message', 'Thanh toán hoá đơn INV-20261015-001'), '127.0.0.1', '2026-10-15 15:30:00')",
+        "(12, 1, 'EXPORT_REPORT', 'reports', NULL, JSON_OBJECT('message', 'Admin xuất báo cáo doanh thu tháng 10 ra Excel'), '127.0.0.1', '2026-11-01 17:00:00')",
+        "(13, 1, 'EXPORT_REPORT', 'reports', NULL, JSON_OBJECT('message', 'Admin xuất báo cáo top món bán chạy ra PDF'), '127.0.0.1', '2026-11-02 09:30:00')",
+        "(14, 2, 'MERGE_TABLE', 'tables', 3, JSON_OBJECT('message', 'Gộp Bàn 03 vào Bàn 04 theo yêu cầu khách'), '127.0.0.1', '2026-11-05 19:20:00')",
+        "(15, 3, 'CANCEL_ITEM', 'order_items', 50, JSON_OBJECT('message', 'Khách đổi món, huỷ dòng Trà sen vàng'), '127.0.0.1', '2026-11-06 20:10:00')",
+        "(16, 1, 'UPDATE_USER', 'users', 5, JSON_OBJECT('message', 'Cập nhật phân quyền cho Barista Hoàng Thị'), '127.0.0.1', '2026-11-08 11:00:00')",
+        "(17, 2, 'APPLY_DISCOUNT', 'invoices', 80, JSON_OBJECT('message', 'Áp dụng mã giảm giá 10k sinh viên TLU'), '127.0.0.1', '2026-11-09 16:45:00')",
+        "(18, 3, 'CHANGE_TABLE_STATUS', 'tables', 5, JSON_OBJECT('message', 'Chuyển Bàn 05 sang trạng thái reserved'), '127.0.0.1', '2026-11-10 18:00:00')",
+        "(19, 1, 'BACKUP_DB', 'system', NULL, JSON_OBJECT('message', 'Hệ thống tự động sao lưu CSDL định kỳ'), '127.0.0.1', '2026-11-11 00:00:00')",
+        "(20, 1, 'LOGOUT', 'users', 1, JSON_OBJECT('message', 'Admin đăng xuất an toàn khỏi hệ thống'), '127.0.0.1', '2026-11-11 22:30:00')",
     ]
 
     header_section = """-- =============================================================================
@@ -254,7 +262,7 @@ ON DUPLICATE KEY UPDATE
 -- 4. Seed Products (51 món ăn uống - Đạt chỉ tiêu >= 50 món)
 -- Đơn vị tiền tệ: DECIMAL(12,0) VNĐ
 -- -----------------------------------------------------------------------------
-INSERT INTO products (id, name, category_id, price, unit, image_url, is_available, is_deleted) VALUES
+INSERT INTO products (id, name, category_id, price, unit, image_url, is_available, deleted_at) VALUES
 (1, 'Cà phê đen đá', 1, 20000, 'ly', '/assets/products/cf-den-da.png', 1, 0),
 (2, 'Cà phê đen nóng', 1, 20000, 'ly', '/assets/products/cf-den-nong.png', 1, 0),
 (3, 'Cà phê sữa đá', 1, 25000, 'ly', '/assets/products/cf-sua-da.png', 1, 0),
@@ -305,14 +313,14 @@ INSERT INTO products (id, name, category_id, price, unit, image_url, is_availabl
 (48, 'Khoai tây chiên lắc phô mai', 6, 30000, 'đĩa', '/assets/products/khoai-tay-chien.png', 1, 0),
 (49, 'Khô bò sợi lá chanh', 6, 45000, 'đĩa', '/assets/products/kho-bo.png', 1, 0),
 (50, 'Khô gà bơ tỏi giòn cay', 6, 35000, 'đĩa', '/assets/products/kho-ga.png', 1, 0),
-(51, 'Hướng dương vị dừa học nhóm', 6, 20000, 'đĩa', '/assets/products/huong-duong.png', 1, 0)
+(51, 'Hướng dương vị dừa học nhóm', 6, 20000, 'đĩa', '/assets/products/huong-duong.png', 1, NULL)
 ON DUPLICATE KEY UPDATE
     name = VALUES(name),
     category_id = VALUES(category_id),
     price = VALUES(price),
     unit = VALUES(unit),
-    is_available = VALUES(is_available),
-    is_deleted = VALUES(is_deleted);
+    is_available = VALUES(is_available);
+-- KHÔNG cập nhật deleted_at: nạp lại seed không được "hồi sinh" món đã xoá mềm
 
 -- -----------------------------------------------------------------------------
 -- 5. Seed Tables (12 bàn phục vụ tại 3 khu vực)
@@ -356,7 +364,7 @@ ON DUPLICATE KEY UPDATE
     subtotal = VALUES(subtotal);
 
 INSERT INTO invoices (id, invoice_code, order_id, cashier_id, subtotal_amount, discount_amount, final_amount, paid_amount, change_amount, payment_method, paid_at) VALUES
-(1, 'INV-20261110-001', 1, 2, 78000, 5000, 73000, 100000, 27000, 'cash', '2026-11-10 09:15:00')
+(1, 'INV-20261110-901', 1, 2, 78000, 5000, 73000, 100000, 27000, 'cash', '2026-11-10 09:15:00')
 ON DUPLICATE KEY UPDATE
     subtotal_amount = VALUES(subtotal_amount),
     final_amount = VALUES(final_amount),
