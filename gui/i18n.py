@@ -64,9 +64,60 @@ STRINGS: Final[dict[str, str]] = {
     "table_free": "Bàn trống",
     "table_occupied": "Đang có khách",
     "table_reserved": "Đã đặt trước",
+    "table_all": "Tất cả bàn",
+    "table_filter_free": "Bàn trống",
+    "table_filter_occupied": "Đang có khách",
     "checkout": "Thanh toán",
     "total_amount": "Tổng tiền",
     "invoice": "Hoá đơn",
+    "order_title": "Bán hàng & Gọi món tại bàn",
+    "order_select_table_hint": "Vui lòng chọn một bàn để bắt đầu gọi món",
+    "order_empty_cart": "Chưa có món nào trong đơn hàng",
+    "order_add_item_hint": "Bấm vào món ăn trong thực đơn để thêm vào đơn",
+    "order_cart_title": "Chi tiết hoá đơn",
+    "order_cart_table": "Bàn",
+    "order_item_name": "Tên món",
+    "order_item_qty": "SL",
+    "order_item_price": "Thành tiền",
+    "order_subtotal": "Tạm tính",
+    "order_discount": "Giảm giá",
+    "order_total": "Tổng thanh toán",
+    "order_btn_save": "Lưu / Báo bếp",
+    "order_btn_checkout": "Thanh toán ngay",
+    "order_btn_cancel": "Huỷ đơn",
+    "order_confirm_cancel": "Bạn có chắc chắn muốn huỷ toàn bộ đơn hàng của {table_name} không?",
+    "order_confirm_cancel_title": "Xác nhận huỷ đơn",
+    "order_confirm_cancel_warning": (
+        "Toàn bộ món ăn đã chọn trong đơn của bàn này sẽ bị huỷ bỏ. Bàn sẽ trở về trạng thái trống."
+    ),
+    "order_confirm_cancel_btn": "Huỷ toàn bộ đơn",
+    "order_no_matching_product": "Không tìm thấy món nào phù hợp.",
+    "skip": "Bỏ qua",
+    "checkout_title": "Thanh toán đơn hàng",
+    "checkout_payment_method": "Phương thức thanh toán",
+    "checkout_method_cash": "Tiền mặt",
+    "checkout_method_qr": "Chuyển khoản (VietQR)",
+    "checkout_customer_pay": "Tiền khách đưa",
+    "checkout_change": "Tiền thối lại",
+    "checkout_confirm": "Xác nhận thanh toán",
+    "checkout_insufficient": "Chưa đủ tiền",
+    "checkout_success": "Thanh toán thành công! Bàn đã được chuyển về trạng thái trống.",
+    # In hoá đơn (Receipt / Bill K80)
+    "receipt_title": "Phiếu thanh toán",
+    "receipt_invoice_code": "Số HĐ",
+    "receipt_date": "Thời gian",
+    "receipt_cashier": "Thu ngân",
+    "receipt_table": "Bàn",
+    "receipt_header_title": "QUÁN CÀ PHÊ TLU",
+    "receipt_header_sub": "Trường Đại học Thăng Long",
+    "receipt_header_address": "Nghiêm Xuân Yêm, P. Đại Kim, Q. Hoàng Mai, Hà Nội",
+    "receipt_header_hotline": "Hotline: 024 3858 7346",
+    "receipt_btn_print": "In hoá đơn",
+    "receipt_btn_pdf": "Xuất file PDF",
+    "receipt_thank_you": "Cảm ơn Quý khách & Hẹn gặp lại!",
+    "receipt_wifi": "Wifi: CafeTLU_Guest | Pass: thanglong2026",
+    "receipt_print_success": "Đã gửi lệnh in hoá đơn thành công!",
+    "receipt_export_pdf_success": "Đã lưu hoá đơn PDF thành công tại:\n{path}",
 }
 
 
@@ -76,3 +127,8 @@ def t(key: str, **kwargs: object) -> str:
     if kwargs:
         return template.format(**kwargs)
     return template
+
+
+def format_currency(amount: int | float) -> str:
+    """Định dạng số tiền theo chuẩn VNĐ: 35.000 đ."""
+    return f"{int(amount):,} đ".replace(",", ".")

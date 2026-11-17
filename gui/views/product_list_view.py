@@ -26,17 +26,12 @@ from PySide6.QtWidgets import (
 )
 
 from gui.api_client import ApiClient, ApiClientError
-from gui.i18n import t
+from gui.i18n import format_currency, t
 from gui.theme import COLOR, FONT, SPACE
 from gui.views.base import BaseView
 from gui.widgets.product_dialog import ConfirmDeleteDialog, ProductFormDialog
 
 logger = logging.getLogger(__name__)
-
-
-def format_currency(amount: int | float) -> str:
-    """Định dạng số tiền theo chuẩn VNĐ: 35.000 đ."""
-    return f"{int(amount):,} đ".replace(",", ".")
 
 
 class ProductListView(BaseView):
