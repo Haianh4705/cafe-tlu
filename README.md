@@ -107,7 +107,7 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 | | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 ✅ · ≥12 endpoint có test ✅ (12/12 contract #1–#12) | **A + C + D** | 🔴 còn demo login → CRUD trên 3 máy |
 | **G3** MVP | API `orders` + `checkout` (transaction) · API báo cáo | **A** | ⬜ |
 | | Seed bàn · xuất Excel + PDF font tiếng Việt | **B** | ⬜ |
-| | Màn Order · Thanh toán + in bill · Dashboard 4 KPI | **C** | ⬜ |
+| | Màn Order · Thanh toán + in bill · Dashboard 4 KPI | **C** | 🟡 #70 |
 | | Test case `TC-ORD` · installer bản đầy đủ | **D** | ⬜ |
 | | **Ra cổng:** đủ 6 yêu cầu đề bài, demo full luồng | **cả nhóm** | 🔴 |
 | **G4** Deploy | Dockerfile prod + deploy URL công khai | **D** | ⬜ |

@@ -118,6 +118,22 @@ STRINGS: Final[dict[str, str]] = {
     "receipt_wifi": "Wifi: CafeTLU_Guest | Pass: thanglong2026",
     "receipt_print_success": "Đã gửi lệnh in hoá đơn thành công!",
     "receipt_export_pdf_success": "Đã lưu hoá đơn PDF thành công tại:\n{path}",
+    # Tổng quan / Dashboard
+    "dashboard_title": "Tổng quan hoạt động quán",
+    "dashboard_subtitle": "Số liệu 30 ngày gần nhất, tính đến hôm nay.",
+    "dashboard_kpi_revenue_today": "Doanh thu hôm nay",
+    "dashboard_kpi_orders_today": "Số đơn hôm nay",
+    "dashboard_kpi_revenue_period": "Doanh thu 30 ngày",
+    "dashboard_kpi_top_product": "Món bán chạy nhất",
+    "dashboard_top_product_hint": "{quantity} món đã bán",
+    "dashboard_order_unit": "{count} đơn",
+    "dashboard_today_hint": "Ngày {date}",
+    "dashboard_chart_revenue": "Doanh thu theo ngày",
+    "dashboard_chart_top_products": "Top 5 món bán chạy",
+    "dashboard_chart_quantity": "Số lượng",
+    "dashboard_chart_revenue_axis": "Triệu đồng",
+    "dashboard_empty": "Chưa có dữ liệu bán hàng trong 30 ngày gần nhất.",
+    "dashboard_no_sales": "Chưa có",
 }
 
 
