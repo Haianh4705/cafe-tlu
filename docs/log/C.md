@@ -20,7 +20,7 @@
 | 11-08 | #23, #24, #25 | #40 / `97756b1` | `gui/main.py`, `gui/theme.py`, `gui/views/base.py`, `gui/api_client.py`, `gui/views/login_view.py` | dựng khung app, bảng màu TLU, `BaseView` 4 trạng thái, `ApiClient` bọc 23 endpoint và màn Đăng nhập | gom toàn bộ HTTP về `ApiClient` và token về `theme.py` để các màn hình sau dùng chung, không lặp |
 | 11-09 | #30 | #41 / `e462185` | `gui/views/product_list_view.py`, `gui/widgets/product_dialog.py`, `tests/test_gui_products.py` | xây dựng màn Quản lý thực đơn: tìm kiếm `Ctrl+F`, lọc danh mục, phân trang và dialog CRUD + xác nhận xoá | tải qua `ApiWorker` trên `QThread` và đọc envelope `data`/`meta` để không treo UI khi gọi backend |
 | 11-11 | #49 | #44 | `gui/views/order_view.py`, `gui/widgets/order_cart.py`, `gui/widgets/checkout_dialog.py`, `gui/widgets/receipt_dialog.py`, `tests/test_gui_order.py` | xây dựng màn Order 3 cột, hộp thoại thanh toán, xem trước/in hoá đơn K80 và bọc cờ `APP_ENV=demo` khi chưa có API | chỉ kích hoạt `MOCK_*` khi bật `APP_ENV=demo` để môi trường thật không nuốt lỗi API mà vẫn hiện `STATE_ERROR` + Thử lại |
-| 11-17 | G3 mục 9 (chưa gán số) | chưa commit | `gui/views/dashboard_view.py`, `gui/main.py`, `gui/i18n.py`, `tests/test_gui_dashboard.py` | dựng Dashboard 4 thẻ KPI + biểu đồ doanh thu 30 ngày và top 5 món bằng QtCharts, thay placeholder trong `main.py` | dùng QtCharts có sẵn trong PySide6 (không thêm dependency) và gom mock sau `APP_ENV=demo` như OrderView để chờ API #20/#21 |
+| 11-17 | G3 mục 9 (chưa gán số) | #70 | `gui/views/dashboard_view.py`, `gui/main.py`, `gui/i18n.py`, `tests/test_gui_dashboard.py` | dựng Dashboard 4 thẻ KPI + 2 biểu đồ doanh thu 30 ngày và top 5 món bằng QtCharts (dùng mock `APP_ENV=demo`, chờ API `/reports/revenue` + `/reports/top-products`), thay placeholder trong `main.py` | dùng QtCharts có sẵn trong PySide6 (không thêm dependency ngoài) và gom mock sau `APP_ENV=demo` như OrderView để chờ API báo cáo từ A |
 
 ## 3. AI đã làm gì
 
@@ -28,7 +28,7 @@
 |---|---|---|---|
 | 11-08 → 11-09 | AI agent trong repo | soạn nháp khung `theme.py`, `BaseView`, `ApiClient`, `LoginView`, `ProductListView`, `OrderView`, `CheckoutDialog`, `ReceiptDialog` và bộ unit test PySide6 | chạy thử trên máy Windows, tự đối chiếu 4 trạng thái + phân trang `meta` của #41, chụp ảnh gửi reviewer |
 | 11-11 | Antigravity AI agent | hỗ trợ rebase lên `develop` (`ceb0f56`), bọc cờ `APP_ENV=demo`, sửa test lọc món & trả `TC-ORD-01..03` về `⬜` theo review #44 | chạy thử app thực tế trên Windows phát hiện **2 lỗi nút tàng hình** (nút "Xác nhận thanh toán" trong `CheckoutDialog` và mất nút ở `QMessageBox` huỷ đơn) → yêu cầu sửa thành nút Navy/Đỏ rõ nét + `ConfirmCancelOrderDialog`, và chạy `ruff`/`black`/`pytest` kiểm chứng |
-| 11-17 | Command Code | viết nháp `DashboardView`, hàm chuẩn hoá response báo cáo, 6 unit test PySide6 và ảnh chụp offscreen | chạy `ruff`/`black`/`pytest` (21 passed), tự xem ảnh 1280×720 và 1600×900, phát hiện viền lọt vào QLabel và nhãn top món bị cắt nên đã yêu cầu sửa selector `QFrame#...` và chuyển sang thanh ngang |
+| 11-17 | Command Code / Antigravity | viết nháp `DashboardView`, hàm chuẩn hoá response báo cáo (dùng mock khi `APP_ENV=demo`, chờ API `/reports/revenue` + `/reports/top-products`), 6 unit test PySide6 và 2 ảnh chụp giao diện | chạy `ruff`/`black`/`pytest` thật, tự xem ảnh 1280×720 và 1600×900, sửa selector `QFrame#...` và chuyển biểu đồ top món sang thanh ngang |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng C)
 
