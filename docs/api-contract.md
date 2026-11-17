@@ -30,13 +30,13 @@
 | 3 | POST | `/auth/refresh` | public | Làm mới access token | ✅ |
 | 4 | POST | `/auth/logout` | đã đăng nhập | Thu hồi token | ✅ |
 | 5 | GET | `/auth/me` | đã đăng nhập | Thông tin người dùng hiện tại | ✅ |
-| 6 | GET | `/categories` | staff+ | Danh sách danh mục | ⬜ |
-| 7 | POST | `/categories` | admin | Tạo danh mục | ⬜ |
-| 8 | GET | `/products` | staff+ | Danh sách + tìm kiếm + lọc | ⬜ |
-| 9 | GET | `/products/{id}` | staff+ | Chi tiết món | ⬜ |
-| 10 | POST | `/products` | admin | Tạo món | ⬜ |
-| 11 | PATCH | `/products/{id}` | admin | Sửa món | ⬜ |
-| 12 | DELETE | `/products/{id}` | admin | Xoá mềm món | ⬜ |
+| 6 | GET | `/categories` | staff+ | Danh sách danh mục | ✅ |
+| 7 | POST | `/categories` | admin | Tạo danh mục | ✅ |
+| 8 | GET | `/products` | staff+ | Danh sách + tìm kiếm + lọc | ✅ |
+| 9 | GET | `/products/{id}` | staff+ | Chi tiết món | ✅ |
+| 10 | POST | `/products` | admin | Tạo món | ✅ |
+| 11 | PATCH | `/products/{id}` | admin | Sửa món | ✅ |
+| 12 | DELETE | `/products/{id}` | admin | Xoá mềm món | ✅ |
 | 13 | GET | `/tables` | staff+ | Danh sách bàn + trạng thái | ⬜ |
 | 14 | POST | `/orders` | staff+ | Tạo đơn (order tại bàn) | ⬜ |
 | 15 | GET | `/orders/{id}` | staff+ | Chi tiết đơn | ⬜ |
