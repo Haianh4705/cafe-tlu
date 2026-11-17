@@ -15,7 +15,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 def _client_info(request: Request) -> tuple[str | None, str | None]:
     ip_address = request.client.host if request.client else None
-    return ip_address, request.headers.get("user-agent")
+    # Cột user_agent là VARCHAR(255): cắt bớt để UA dài không làm insert 500.
+    user_agent = (request.headers.get("user-agent") or "")[:255] or None
+    return ip_address, user_agent
 
 
 def _user_out(user: User) -> UserOut:

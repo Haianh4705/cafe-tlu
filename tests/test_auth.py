@@ -207,3 +207,30 @@ def test_staff_forbidden_on_admin_route(client, staff_user) -> None:
     response = client.get("/test/admin-only", headers=_auth_header(access_token))
     assert response.status_code == 403
     assert response.json()["error"]["code"] == ErrorCode.FORBIDDEN
+
+
+def test_login_and_refresh_truncate_long_user_agent_to_255(client, staff_user, db_session) -> None:
+    headers = {"User-Agent": "A" * 300}
+
+    login_response = client.post(
+        LOGIN_URL,
+        json={"username": "thungan01", "password": "123456"},
+        headers=headers,
+    )
+    assert login_response.status_code == 200
+
+    tokens = db_session.scalars(select(RefreshToken).order_by(RefreshToken.id)).all()
+    assert len(tokens) == 1
+    assert tokens[0].user_agent is not None
+    assert len(tokens[0].user_agent) == 255
+
+    refresh_response = client.post(
+        REFRESH_URL,
+        json={"refresh_token": login_response.json()["data"]["refresh_token"]},
+        headers=headers,
+    )
+    assert refresh_response.status_code == 200
+
+    rotated = db_session.scalars(select(RefreshToken).order_by(RefreshToken.id)).all()
+    assert len(rotated) == 2
+    assert all(token.user_agent is not None and len(token.user_agent) == 255 for token in rotated)
