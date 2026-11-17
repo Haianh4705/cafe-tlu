@@ -53,6 +53,8 @@ Closes #
 - [ ] Đã cập nhật `docs/api-contract.md` / `docs/erd.md` nếu có đổi
 - [ ] Đã thêm 1 dòng vào `CHANGELOG.md` mục `Unreleased`
 - [ ] Đã thêm 1–3 dòng vào `docs/log/<vai>.md` (mục 2: việc · mục 3: AI đã hỗ trợ gì)
+- [ ] Đã cập nhật bảng tiến độ 6 cổng trong `README.md` nếu Issue này chuyển trạng thái
+      (⬜ → 🟡 khi mở PR, 🟡 → ✅ khi merge) — `WORKFLOW.md` mục 12.6
 - [ ] PR < 400 dòng diff
 
 ## Checklist reviewer (người review tick)

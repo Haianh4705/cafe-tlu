@@ -609,7 +609,7 @@ Lỗi:
 |---|---|---|
 | `docs/api-contract.md` | A | Cập nhật mỗi khi đổi endpoint |
 | `docs/erd.md` | **B** — B tự thiết kế (ERD + từ điển + bất biến) | Kèm hình ERD (mermaid/dbdiagram) |
-| `README.md` | D biên tập | Cài & chạy trong 3 lệnh |
+| `README.md` | D biên tập | Cài & chạy trong 3 lệnh + **bảng tiến độ 6 cổng** (cập nhật theo 12.6) |
 | `CHANGELOG.md` | D biên tập | Mọi người thêm mục `Unreleased` khi merge |
 | `docs/decisions.md` | Người ra quyết định | ADR-lite, xem 18.4 |
 | `docs/test-cases.md` | D + C | Bảng test case |
@@ -664,6 +664,22 @@ cáo nộp bài (báo cáo ở `report/`).
 mục 4, xoá câu không chỉ được vào code). File trống ở thời điểm cổng = **cổng chưa xanh**.
 
 ---
+
+### 12.6 Bảng tiến độ 6 cổng trong `README.md` (BẮT BUỘC cập nhật)
+
+`README.md` mục **"Lộ trình 6 cổng — ai làm gì"** là bảng trạng thái duy nhất cả nhóm đọc hằng ngày.
+Nó **PHẢI** khớp Issue/PR thật, không phải kế hoạch.
+
+- **Ba trạng thái, chỉ ba:** `⬜` chưa có PR · `🟡` có PR đang mở (ghi số PR) · `✅` PR **đã merge** (ghi số PR).
+  Không dùng "sắp xong", "đang làm 80%". Ra cổng (`🔴`/`xanh`) là dòng riêng của từng cổng.
+- **Ai cập nhật:** người mở/merge PR của Issue đó cập nhật **trong chính PR ấy** — cùng lúc với
+  `CHANGELOG.md` và `docs/log/<vai>.md`. Một dòng bảng, 10 giây.
+- **D rà lại mỗi tối** cùng lúc với bảng điều khiển cổng (Issue `G<n>`): nếu bảng khác Issue thì
+  sửa bảng ngay trong ngày, không để lệch quá 1 ngày.
+- **Đổi phạm vi cổng** (thêm/bớt việc, đổi người) → sửa **cả** `docs/plan.md` **và** bảng này trong
+  cùng một PR; `docs/plan.md` giữ chi tiết/phụ thuộc, bảng trong README giữ trạng thái.
+- **CẤM** để bảng lỗi thời quá 1 ngày: cổng ra muộn vì "không ai biết mình còn phải làm gì" là lỗi
+  quy trình, không phải lỗi kỹ thuật.
 
 ## 13. Quy chuẩn đóng gói & phát hành
 

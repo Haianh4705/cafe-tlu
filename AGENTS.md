@@ -135,6 +135,8 @@ make doctor      # kiểm tra môi trường máy
       không viết được 3 câu đó thay cho người dùng, thì code chưa đủ rõ để họ bảo vệ
 - [ ] Commit message đúng Conventional Commits, có `Co-authored-by` nếu code do AI sinh
 - [ ] Đã ghi `docs/log/<vai>.md`: 1 dòng việc + 1 dòng AI, và mục 5 nếu còn chỗ chưa hiểu
+- [ ] Đã cập nhật bảng tiến độ 6 cổng trong `README.md` nếu Issue vừa đổi trạng thái
+      (⬜ → 🟡 khi mở PR · 🟡 → ✅ khi merge) — `WORKFLOW.md` mục 12.6
 
 ---
 
