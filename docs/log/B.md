@@ -21,6 +21,7 @@
 | 2026-11-11 | #28, #31 | `feature/db-erd-schema-trungdung` | `scripts/seed_data.py`, `api/services/reports.py`, `tests/test_reports.py` | Sinh 120 đơn 30 ngày, viết ReportService và xuất Excel/PDF | Một nguồn chân lý số liệu, tính toán hoàn toàn bằng SQL GROUP BY, font Unicode cho PDF |
 | 2026-11-11 | #17, #32 | `feature/db-erd-schema-trungdung` | `report/03-phan-tich.md` | Hoàn thiện Chương 3 Báo cáo BTL (Phân tích Use Case, ERD, 3NF, Snapshot pricing) | Chuẩn bị đầy đủ báo cáo học phần theo rubric, có chứng minh 3NF và minh chứng kỹ thuật |
 | 2026-11-17 | #17, #18, #28 | `feature/db-erd-schema-trungdung` | `db/schema.sql`, `db/seed.sql`, `db/verify_seed.sql`, `docs/erd.md` | **D làm thay (B vắng):** siết ràng buộc DB (CHECK, unique ảo `active_name`/`open_table_id`, index ghép, JSON), sửa 3 mã trùng, thêm script kiểm 21 phép | CHECK + cột ảo để DB tự chặn dữ liệu sai thay vì chỉ ghi quy ước trong tài liệu; mã trùng là nguyên nhân thật làm seed mất dòng |
+| 2026-11-18 | #22 (phần DB) | `docs/refresh-token-schema-d` | `db/schema.sql`, `db/verify_seed.sql`, `docs/erd.md`, `docs/decisions.md` | **D làm thay (B vắng):** thêm bảng thứ 10 `refresh_tokens` (hash SHA-256, `expires_at`, `revoked_at`, `replaced_by_id`, 2 CHECK) + từ điển/bất biến/ADR-013, 2 phép kiểm mới | Hợp đồng #3/#4 và skill `security` đòi logout thu hồi được token — JWT tự chứa không rút lại được, phải có chỗ lưu trạng thái phiên |
 
 ## 3. AI đã làm gì
 

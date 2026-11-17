@@ -10,7 +10,7 @@
 
 Cơ sở dữ liệu là trái tim của hệ thống phần mềm quản lý quán café TLU. Một hệ thống bán hàng thực tế đòi hỏi CSDL không chỉ đáp ứng các thao tác thêm, sửa, xóa thông thường (CRUD), mà quan trọng hơn phải bảo đảm tính toàn vẹn tài chính, chống thất thoát doanh thu, bảo toàn lịch sử giao dịch và phục vụ hiệu quả cho các báo cáo thống kê kinh doanh đa chiều.
 
-Chương này trình bày toàn bộ quy trình thiết kế CSDL của CafeTLU: từ phân tích ca sử dụng (Use Case), xây dựng sơ đồ thực thể liên kết (ERD), thiết kế chi tiết 9 bảng dữ liệu, chứng minh tính đạt chuẩn 3NF, đến các giải pháp kỹ thuật cốt lõi như bảo toàn snapshot giá bán, xóa mềm, và đánh chỉ mục tối ưu hóa hiệu năng.
+Chương này trình bày toàn bộ quy trình thiết kế CSDL của CafeTLU: từ phân tích ca sử dụng (Use Case), xây dựng sơ đồ thực thể liên kết (ERD), thiết kế chi tiết 10 bảng dữ liệu, chứng minh tính đạt chuẩn 3NF, đến các giải pháp kỹ thuật cốt lõi như bảo toàn snapshot giá bán, xóa mềm, và đánh chỉ mục tối ưu hóa hiệu năng.
 
 ---
 
@@ -45,14 +45,14 @@ erDiagram
     users ||--o{ orders : "tạo đơn"
     users ||--o{ invoices : "thu ngân lập"
     users ||--o{ audit_logs : "thực hiện"
-    
+
     categories ||--o{ products : "chứa"
-    
+
     tables ||--o{ orders : "phục vụ tại"
-    
+
     orders ||--o{ order_items : "gồm các món"
     products ||--o{ order_items : "được gọi trong"
-    
+
     orders ||--|| invoices : "thanh toán thành"
 
     roles {

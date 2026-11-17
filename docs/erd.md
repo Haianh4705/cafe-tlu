@@ -20,7 +20,7 @@ Hệ thống quản lý quán café TLU phục vụ 3 nhóm người dùng chín
 
 | Phân hệ | Nghiệp vụ cụ thể | Các bảng tương ứng |
 |---|---|---|
-| **Người dùng & Phân quyền** | Quản lý tài khoản nhân viên, mật khẩu băm, vai trò (Admin / Staff / Barista) | `roles`, `users` |
+| **Người dùng & Phân quyền** | Quản lý tài khoản nhân viên, mật khẩu băm, vai trò (Admin / Staff / Barista), phiên đăng nhập (refresh token thu hồi được) | `roles`, `users`, `refresh_tokens` |
 | **Thực đơn & Danh mục** | Phân loại đồ uống/bánh, thông tin món, giá niêm yết, đơn vị tính, trạng thái còn món | `categories`, `products` |
 | **Bàn & Khu vực** | Quản lý sơ đồ bàn, khu vực (Tầng 1, Tầng 2, Ban công), sức chứa, trạng thái bàn (Trống, Đang có khách, Đã đặt) | `tables` |
 | **Bán hàng & Gọi món** | Đơn đặt tại bàn, chi tiết từng món gọi, ghi chú tùy chọn (đường/đá), trạng thái pha chế | `orders`, `order_items` |
@@ -55,6 +55,7 @@ erDiagram
     users ||--o{ orders : "tạo đơn"
     users ||--o{ invoices : "thu ngân lập"
     users ||--o{ audit_logs : "thực hiện"
+    users ||--o{ refresh_tokens : "giữ phiên"
 
     categories ||--o{ products : "chứa"
 
@@ -170,6 +171,17 @@ erDiagram
         bigint entity_id
         json details
         varchar ip_address
+        datetime created_at
+    }
+
+    refresh_tokens {
+        bigint id PK
+        bigint user_id FK
+        char token_hash UK "sha256 của refresh token"
+        datetime expires_at
+        datetime revoked_at "NULL = còn hiệu lực"
+        bigint replaced_by_id FK "token xoay vòng thay thế"
+        varchar user_agent
         datetime created_at
     }
 ```
@@ -295,6 +307,18 @@ erDiagram
 | `ip_address` | VARCHAR(45) | NULL | NULL | Địa chỉ IP client gọi API |
 | `created_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP | Thời điểm thực hiện hành động |
 
+#### 10. Bảng `refresh_tokens` (Phiên đăng nhập / Refresh token)
+| Cột | Kiểu dữ liệu | Ràng buộc | Giá trị mặc định | Mô tả |
+|---|---|---|---|---|
+| `id` | BIGINT UNSIGNED | PK, AUTO_INCREMENT | | Định danh phiên |
+| `user_id` | BIGINT UNSIGNED | NOT NULL, FK(`users.id`) ON DELETE CASCADE | | Chủ sở hữu phiên |
+| `token_hash` | CHAR(64) | NOT NULL, UNIQUE | | SHA-256 (hex) của refresh token — **không lưu token thô**, lộ DB cũng không dùng lại được |
+| `expires_at` | DATETIME | NOT NULL, `CHECK` > `created_at` | | Hạn 7 ngày kể từ lúc phát hành |
+| `revoked_at` | DATETIME | NULL, `CHECK` ≥ `created_at` | NULL | Thời điểm thu hồi (logout/rotate); NULL = còn hiệu lực |
+| `replaced_by_id` | BIGINT UNSIGNED | NULL, FK(`refresh_tokens.id`) ON DELETE SET NULL | NULL | Token mới thay thế khi xoay vòng (rotation), truy vết chuỗi phiên |
+| `user_agent` | VARCHAR(255) | NULL | NULL | Thiết bị/ứng dụng phát hành, phục vụ đối soát |
+| `created_at` | DATETIME | NOT NULL | CURRENT_TIMESTAMP | Thời điểm phát hành |
+
 ---
 
 ### 3.3 Bất biến dữ liệu (Data Invariants)
@@ -322,6 +346,12 @@ Những quy tắc toàn vẹn nghiệp vụ **luôn luôn phải đúng**, đư�
    * Tên món unique **trong các món chưa xoá** (cột ảo `active_name` + `UNIQUE`): xoá "Trà đào" rồi tạo lại món cùng tên được, nhưng không thể có hai món đang bán cùng tên.
    * Cấm `DELETE FROM products` vật lý trên DB.
    * Giới hạn đã biết: `CHECK` so sánh theo collation `utf8mb4_unicode_ci` nên **không phân biệt hoa/thường** (`'Completed'` vẫn lọt `chk_orders_status`); giá trị lạ như `'done'` thì bị chặn.
+6. **Vòng đời phiên đăng nhập (`refresh_tokens`)** — ADR-013:
+   * Chỉ lưu **hash** (`token_hash`), không bao giờ lưu token thô; token thô chỉ tồn tại phía client.
+   * `POST /auth/logout` = đặt `revoked_at = NOW()` cho đúng dòng token đó → token cũ **không refresh được nữa** ngay lập tức.
+   * Xoay vòng (rotation): mỗi lần `POST /auth/refresh` cấp token mới và đặt `replaced_by_id` của token cũ + `revoked_at`, nên token cũ dùng lại sẽ bị từ chối.
+   * Một token chỉ thuộc một `user_id`; xoá tài khoản → `ON DELETE CASCADE` xoá sạch phiên.
+   * Token hết `expires_at` (7 ngày) → từ chối; `revoked_at IS NULL` mới được dùng.
 
 ---
 
@@ -338,6 +368,7 @@ Những quy tắc toàn vẹn nghiệp vụ **luôn luôn phải đúng**, đư�
 | `order_items` | 250 dòng | Mỗi đơn có 1–4 món, đa dạng số lượng và ghi chú, snapshot đơn giá tại lúc bán |
 | `invoices` | 119 hóa đơn | Tương ứng 119 đơn đã hoàn thành (`status = 'completed'`), 1 đơn đang phục vụ (`pending`); 119 mã hoá đơn khác nhau (hoá đơn viết tay dùng `INV-20261110-901`) |
 | `audit_logs` | 20 dòng | Các thao tác mẫu để kiểm tra màn hình Audit Log trên GUI (`details` là JSON) |
+| `refresh_tokens` | 0 dòng | **Không seed token**: token chỉ sinh khi đăng nhập thật; seed token giả sẽ tạo phiên rác và không kiểm được gì |
 
 Kiểm lại toàn bộ sau khi nạp: `db/verify_seed.sql` (đếm dòng, mã trùng, lệch tổng tiền, hoá đơn mồ côi).
 
@@ -346,9 +377,10 @@ Kiểm lại toàn bộ sau khi nạp: `db/verify_seed.sql` (đếm dòng, mã t
 ## 4. B phải tự trả lời trước khi chốt (Ngân hàng phản biện cá nhân)
 
 1. **Chia bao nhiêu bảng? Vì sao không gộp bớt (hoặc vì sao gộp)?**
-   * Hệ thống chia thành **9 bảng chuẩn hóa đạt dạng chuẩn 3NF**.
+   * Hệ thống chia thành **10 bảng chuẩn hóa đạt dạng chuẩn 3NF** (9 bảng nghiệp vụ + `refresh_tokens` cho phiên đăng nhập).
    * *Không gộp `products` vào `categories`:* Vì 1 danh mục chứa nhiều sản phẩm (quan hệ $1 - n$). Nếu gộp, tên và mô tả danh mục sẽ bị lặp lại ở từng dòng sản phẩm, gây lãng phí bộ nhớ và nguy cơ dị thường cập nhật (update anomaly).
    * *Không gộp `orders` và `order_items`:* Vì mỗi đơn hàng có thể gồm nhiều món khác nhau (quan hệ $1 - n$). Gộp chung sẽ vi phạm dạng chuẩn 1NF (dữ liệu không nguyên tố) hoặc phải lưu chuỗi JSON không tối ưu cho việc truy vấn báo cáo doanh số từng món.
+   * *Tách riêng `refresh_tokens` (thêm ở ADR-013):* trạng thái phiên (còn/hết hiệu lực, đã thu hồi) là dữ liệu **có vòng đời và phải thu hồi được** — không thể nhét vào JWT tự chứa, vì JWT không rút lại được trước khi hết hạn.
    * *Tách riêng `invoices` khỏi `orders`:* Đơn hàng (`orders`) là quá trình phục vụ gọi món tại bàn, còn Hóa đơn (`invoices`) là chứng từ tài chính kế toán khi thanh toán. Tách rời giúp hỗ trợ các trường hợp nâng cao sau này (gộp nhiều đơn vào 1 hóa đơn, hoặc thanh toán làm nhiều đợt).
 2. **Mỗi quan hệ là 1-n hay n-n? Có bảng trung gian không?**
    * Quan hệ giữa `orders` và `products` là quan hệ Nhiều - Nhiều ($n - n$), được tách thông qua bảng trung gian `order_items`.
@@ -375,7 +407,7 @@ Kiểm lại toàn bộ sau khi nạp: `db/verify_seed.sql` (đếm dòng, mã t
 ## 5. Deliverable — Điều kiện để A bắt đầu
 
 - [x] Sơ đồ ERD chuẩn cú pháp Mermaid đã hoàn thành
-- [x] Từ điển dữ liệu chi tiết cho toàn bộ 9 bảng và các cột
+- [x] Từ điển dữ liệu chi tiết cho toàn bộ 10 bảng và các cột
 - [x] Bất biến dữ liệu, snapshot đơn giá và quy tắc xóa mềm đã định nghĩa
 - [x] Kế hoạch dữ liệu mẫu cho `db/seed.sql` đã liệt kê
 - [x] Đã trả lời đầy đủ 6 câu hỏi kỹ thuật cốt lõi ở mục 4

@@ -19,6 +19,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Định nghĩa mã lỗi và exception dùng chung: `shared/error_codes.py` (hằng số `ErrorCode`) và `shared/errors.py` (`AppError`) (#19)
 - Models SQLAlchemy cho 9 bảng theo ERD v1 (`api/models/`): khoá ngoại `ON DELETE`, index, CHECK, cột sinh `active_name`/`open_table_id`; test metadata + compile DDL MySQL (`tests/test_models.py`) (#21)
 
+### Added — xác thực (Auth)
+- Bảng thứ 10 `refresh_tokens` (`token_hash` SHA-256 UNIQUE, `expires_at`, `revoked_at`, `replaced_by_id`, 2 `CHECK`) để logout/rotate **thu hồi được** token; chỉ lưu hash, seed không tạo token (ADR-013, #22)
+
 ### Added — cơ sở dữ liệu & báo cáo (Data & Reports)
 - Thiết kế ERD 9 bảng chuẩn hóa 3NF, từ điển dữ liệu, bất biến nghiệp vụ và snapshot đơn giá (`docs/erd.md`, #17)
 - DDL Schema MySQL 8.0/InnoDB/utf8mb4 đầy đủ ràng buộc khóa ngoại, chỉ mục và xóa mềm (`db/schema.sql`, #17)
