@@ -92,17 +92,17 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 
 | Cổng | Việc | Ai | Trạng thái |
 |---|---|---|---|
-| **G1** Nền móng | ERD + `db/schema.sql` (#17) · `seed.sql` 50 món (#18) | **B** | 🟡 PR #55 |
-| | Khung API + `/health` (#19) · config MySQL (#20) | **A** | 🟡 PR #56 |
+| **G1** Nền móng | ERD + `db/schema.sql` (#17) · `seed.sql` 50 món (#18) | **B** | ✅ #55 |
+| | Khung API + `/health` (#19) · config MySQL (#20) | **A** | 🟡 #56 — sai base, đang conflict |
 | | Models theo ERD (#21) → Auth JWT (#22) | **A** | ⬜ |
 | | Khung GUI + theme + BaseView (#23) · `api_client`/i18n (#24) | **C** | ✅ #40 |
 | | Màn Đăng nhập (#25) | **C** | ⬜ chờ #22 |
 | | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
-| | **Ra cổng:** 4/4 `make doctor` · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **cả nhóm** | 🔴 chờ #55 + #56 |
+| | **Ra cổng:** 4/4 `make doctor` · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **cả nhóm** | 🔴 chờ #56 |
 | **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ⬜ |
-| | 120 đơn/30 ngày (#28) · thống kê doanh thu, top món (#31) | **B** | 🟡 PR #55 |
+| | 120 đơn/30 ngày (#28) · thống kê doanh thu, top món (#31) | **B** | ✅ #55 |
 | | Màn Danh sách món (#30) | **C** | ✅ #41 |
-| | Màn Order + thanh toán (#49) | **C** | 🟡 PR #44 — chỉ thiếu body |
+| | Màn Order + thanh toán (#49) | **C** | ✅ #44 |
 | | Khung báo cáo 10 file (#32) | **D** | ⬜ |
 | | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 · ≥12 endpoint có test | **A + C + D** | 🔴 |
 | **G3** MVP | API `orders` + `checkout` (transaction) · API báo cáo | **A** | ⬜ |
@@ -117,7 +117,7 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 | | Sửa bug chặn demo | **A/B/C** | ⬜ |
 | **G6** Đóng băng | Đóng băng code · demo máy khác · nộp bộ cài + PDF + video | **D + cả nhóm** | ⬜ |
 
-**Đang chặn ngay:** B sửa 2 tổng tiền + `docs/erd.md` → merge #55 · A đổi base #56 sang `develop` → merge · C điền body #44 → merge. Xong 3 việc này mới có Swagger + 50 món để ra G1.
+**Đang chặn ngay:** chỉ còn **A** — đổi base #56 sang `develop`, rebase (conflict `CHANGELOG.md` + `api/__init__.py`), điền body. Xong #56 là G1 có đủ Swagger + `/health`; 50 món đã xong (#55).
 
 ## Làm việc nhóm
 
