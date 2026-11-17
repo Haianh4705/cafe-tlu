@@ -227,4 +227,31 @@ CREATE TABLE audit_logs (
         REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- -----------------------------------------------------------------------------
+-- 10. Bảng refresh_tokens: Refresh token đã phát hành (thu hồi được khi logout/rotate)
+--     Thêm theo ADR-013 + #22 — lưu **hash**, không lưu token thô.
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS refresh_tokens;
+CREATE TABLE refresh_tokens (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    token_hash CHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    revoked_at DATETIME NULL,
+    replaced_by_id BIGINT UNSIGNED NULL,
+    user_agent VARCHAR(255) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_refresh_tokens_hash (token_hash),
+    KEY idx_refresh_tokens_user (user_id, revoked_at),
+    KEY idx_refresh_tokens_expires (expires_at),
+    KEY idx_refresh_tokens_replaced (replaced_by_id),
+    CONSTRAINT fk_refresh_tokens_users FOREIGN KEY (user_id)
+        REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_refresh_tokens_replaced FOREIGN KEY (replaced_by_id)
+        REFERENCES refresh_tokens (id) ON DELETE SET NULL,
+    CONSTRAINT chk_refresh_tokens_expires CHECK (expires_at > created_at),
+    CONSTRAINT chk_refresh_tokens_revoked CHECK (revoked_at IS NULL OR revoked_at >= created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -170,6 +170,25 @@
 
 ---
 
+## ADR-013: Lưu refresh token trong bảng `refresh_tokens` (thu hồi được khi logout)
+
+- **Ngày:** 2026-11-18 · **Người quyết định:** D (@Haianh4705), theo đề xuất của A · **Trạng thái:** Chấp nhận
+- **Bối cảnh:** hợp đồng API có `POST /auth/refresh` (#3) và `POST /auth/logout` — "Thu hồi token" (#4),
+  `.claude/skills/security/SKILL.md` §2 ghi *"Logout phải thu hồi được refresh token"*, `WORKFLOW.md`
+  §547 ghi refresh 7 ngày. Nhưng ERD v1 (9 bảng) **không có** chỗ lưu trạng thái phiên, nên nếu chỉ dùng
+  JWT tự chứa thì logout không rút lại được gì. B vắng từ 11-11 → D làm phần schema thay B (như #55).
+- **Quyết định:** thêm bảng thứ 10 `refresh_tokens` (`token_hash` SHA-256 UNIQUE, `expires_at`, `revoked_at`,
+  `replaced_by_id` cho rotation, `user_agent`, `created_at`; FK `users` CASCADE, FK tự thân SET NULL;
+  2 `CHECK` chặn `expires_at`/`revoked_at` phi lý). **Chỉ lưu hash**, không lưu token thô. Seed không tạo token.
+- **Đã cân nhắc:** *không lưu DB* (logout chỉ xoá phía client) → trái luật security + trái hợp đồng #4, token
+  lộ dùng được tới 7 ngày; *denylist trong RAM* → mất khi restart, không kiểm chứng được; *chỉ lưu denylist
+  token đã thu hồi* → vẫn 1 bảng nhưng logic tra cứu khó hơn mà lợi ích không đáng (bảng này rất nhỏ).
+- **Hệ quả:** ERD thành **10 bảng** (`docs/erd.md` + từ điển + bất biến §3.3 mục 6); A thêm
+  `api/models/refresh_token.py` trong #22 và dùng bảng này cho `/auth/refresh` + `/auth/logout`;
+  `db/verify_seed.sql` có thêm 2 phép kiểm (bảng tồn tại, rỗng sau seed); `report/03` cập nhật số bảng.
+
+---
+
 ## Mẫu thêm ADR mới
 
 ```markdown

@@ -76,4 +76,14 @@ UNION ALL
 -- Món đang bán không được trùng tên (ràng buộc uq_products_active_name)
 SELECT 'tên món đang bán trùng = 0', 0,
        (SELECT COUNT(*) FROM (SELECT name FROM products WHERE deleted_at IS NULL GROUP BY name HAVING COUNT(*) > 1) x),
-       IF((SELECT COUNT(*) FROM (SELECT name FROM products WHERE deleted_at IS NULL GROUP BY name HAVING COUNT(*) > 1) x) = 0, 'PASS', 'FAIL');
+       IF((SELECT COUNT(*) FROM (SELECT name FROM products WHERE deleted_at IS NULL GROUP BY name HAVING COUNT(*) > 1) x) = 0, 'PASS', 'FAIL')
+UNION ALL
+-- Bảng refresh_tokens tồn tại (ADR-013, #22) và seed không tạo token nào
+SELECT 'bảng refresh_tokens tồn tại = 1', 1,
+       (SELECT COUNT(*) FROM information_schema.tables
+         WHERE table_schema = DATABASE() AND table_name = 'refresh_tokens'),
+       IF((SELECT COUNT(*) FROM information_schema.tables
+            WHERE table_schema = DATABASE() AND table_name = 'refresh_tokens') = 1, 'PASS', 'FAIL')
+UNION ALL
+SELECT 'refresh_tokens rỗng sau seed = 0', 0, COUNT(*), IF(COUNT(*) = 0, 'PASS', 'FAIL')
+FROM refresh_tokens;
