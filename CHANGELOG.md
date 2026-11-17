@@ -18,6 +18,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Cấu hình & kết nối MySQL (`api/core/config.py`, `api/core/db.py`): Đọc cấu hình từ `.env` bằng `pydantic-settings`, dependency `get_db` cấp Session SQLAlchemy, endpoint `/health` kiểm tra sống và trạng thái kết nối MySQL, trả phẳng `status`/`version`/`database` theo ADR-011 (#20)
 - Định nghĩa mã lỗi và exception dùng chung: `shared/error_codes.py` (hằng số `ErrorCode`) và `shared/errors.py` (`AppError`) (#19)
 - Models SQLAlchemy cho 9 bảng theo ERD v1 (`api/models/`): khoá ngoại `ON DELETE`, index, CHECK, cột sinh `active_name`/`open_table_id`; test metadata + compile DDL MySQL (`tests/test_models.py`) (#21)
+- CRUD thực đơn theo `docs/api-contract.md` #6-#12 (`api/routers/categories.py`, `api/routers/products.py`, `api/services/`): danh sách + tìm kiếm + lọc danh mục + phân trang, tạo/sửa món (admin), xoá mềm bằng `deleted_at`, chặn trùng tên `409 PRODUCT_NAME_DUPLICATED` (#29)
+- Schema request/response cho thực đơn (`api/schemas/category.py`, `api/schemas/product.py`): `ProductOut` trả `category` + `category_id` cho GUI, `ProductUpdate` cho PATCH từng phần (#29)
+- 13 test CRUD thực đơn trên MySQL test (`tests/test_products.py`): envelope + phân trang, search/lọc, 403 cho `staff`, 422, trùng tên, 404, xoá mềm và cho phép tạo lại tên cũ (#29)
 
 ### Added — xác thực (Auth)
 - Bảng thứ 10 `refresh_tokens` (`token_hash` SHA-256 UNIQUE, `expires_at`, `revoked_at`, `replaced_by_id`, 2 `CHECK`) để logout/rotate **thu hồi được** token; chỉ lưu hash, seed không tạo token (ADR-013, #22)

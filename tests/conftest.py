@@ -60,6 +60,23 @@ def client(db_session: Session):
 
 
 @pytest.fixture
+def admin_user(db_session: Session) -> User:
+    role = Role(name="admin")
+    db_session.add(role)
+    db_session.flush()
+
+    user = User(
+        username="admin",
+        password_hash=hash_password("123456"),
+        full_name="Quản trị viên",
+        role_id=role.id,
+    )
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
 def staff_user(db_session: Session) -> User:
     role = Role(name="staff")
     db_session.add(role)

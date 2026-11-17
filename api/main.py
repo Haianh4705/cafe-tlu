@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from api.core.config import settings
-from api.routers import auth, health
+from api.routers import auth, categories, health, products
 from shared.error_codes import ErrorCode
 from shared.errors import AppError
 from shared.version import APP_NAME, __version__
@@ -94,3 +94,7 @@ app.include_router(health.router, prefix="/api/v1")
 
 # Endpoint xác thực theo docs/api-contract.md #2-#5
 app.include_router(auth.router, prefix="/api/v1")
+
+# CRUD thực đơn theo docs/api-contract.md #6-#12
+app.include_router(categories.router, prefix="/api/v1")
+app.include_router(products.router, prefix="/api/v1")
