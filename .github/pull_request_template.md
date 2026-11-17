@@ -1,67 +1,21 @@
-<!-- Template PR — bám theo WORKFLOW.md mục 18.2. Không xoá các mục có sẵn. -->
+## Issue và thay đổi
 
-## Liên kết
+Refs #
 
-Closes #
+<!-- Nêu kết quả chính và lý do nếu PR cần giữ nhiều phần cùng nhau. -->
 
-## Đã làm gì
+## Kiểm chứng
 
-<!-- 1–3 gạch đầu dòng, nói KẾT QUẢ không phải quá trình -->
+<!-- Lệnh, kết quả thật và link CI. Thêm test case và ảnh theo quy định nếu đổi màn hình. -->
 
--
--
+## Giải thích được
 
-## Giải thích được (bắt buộc — xem `docs/defense.md`)
+1. Đoạn thay đổi làm gì?
+2. Vì sao chọn cách này?
+3. Nếu thầy hỏi vì sao không dùng cách khác thì trả lời thế nào?
 
-> Không viết được 3 câu này = chưa hiểu bài, đừng mở PR.
+## Checklist chung
 
-1. **Đoạn code này làm gì:** <!-- 1 câu, không dùng "xử lý"/"quản lý" chung chung -->
-2. **Vì sao chọn cách này thay vì cách khác:** <!-- 1 câu, nêu trade-off -->
-3. **Nếu thầy hỏi "sao không dùng X?" thì trả lời:** <!-- 1 câu -->
-
-## Cách kiểm chứng
-
-<!-- Dán kết quả THẬT. Không viết "em đã test rồi". -->
-
-| Lệnh / bước | Kết quả |
-|---|---|
-| `make lint` | |
-| `make test` | |
-| Thủ công | |
-
-## Ảnh chụp màn hình
-
-<!-- Chỉ cần khi PR hoàn thiện/đổi một màn hình. Lưu vào docs/screenshots/<module>/.
-     PR backend/DB/CI/docs: bỏ trống, dán log + link CI ở mục "Cách kiểm chứng". -->
-
-| Trước | Sau |
-|---|---|
-| | |
-
-## Ghi chú cho reviewer
-
-<!-- Chỗ nào bạn muốn được soi kỹ, chỗ nào bạn còn phân vân -->
-
--
-
-## Checklist tác giả (bắt buộc tick đủ)
-
-- [ ] Đúng phạm vi Issue, không kèm thay đổi ngoài lề
-- [ ] Tuân thủ ranh giới kiến trúc (WORKFLOW.md mục 4): GUI không gọi DB, router không chứa logic
-- [ ] Có test cho hành vi mới, hoặc ghi rõ lý do không có
-- [ ] Không có secret / `print()` debug / code comment-out
-- [ ] Đã cập nhật `docs/api-contract.md` / `docs/erd.md` nếu có đổi
-- [ ] Đã thêm 1 dòng vào `CHANGELOG.md` mục `Unreleased`
-- [ ] Đã thêm 1–3 dòng vào `docs/log/<vai>.md` (mục 2: việc · mục 3: AI đã hỗ trợ gì)
-- [ ] Đã cập nhật bảng tiến độ 6 cổng trong `README.md` nếu Issue này chuyển trạng thái
-      (⬜ → 🟡 khi mở PR, 🟡 → ✅ khi merge) — `WORKFLOW.md` mục 12.6
-- [ ] PR < 400 dòng diff
-
-## Checklist reviewer (người review tick)
-
-- [ ] Logic đúng tiêu chí nghiệm thu
-- [ ] Trường hợp biên: rỗng, trùng, số âm, quá dài, mất kết nối
-- [ ] Phân quyền được kiểm ở server, không chỉ ẩn nút
-- [ ] Test có ý nghĩa, không phải test hình thức
-- [ ] Không N+1 query; cột lọc mới có index
-- [ ] Tên biến/hàm rõ nghĩa, thông báo lỗi thân thiện
+- [ ] **Tác giả** đã kiểm phạm vi, test hồi quy hoặc nêu lý do, cập nhật tài liệu/changelog khi áp dụng và ghi nhật ký cá nhân.
+- [ ] **Reviewer** đã đối chiếu nghiệm thu, caller, trường hợp biên, phân quyền, bảo mật, dữ liệu, hiệu năng và kiến trúc liên quan.
+- [ ] **Reviewer** đã kiểm bằng chứng test, khả năng giải thích và các yêu cầu review theo WORKFLOW mục 3.2.

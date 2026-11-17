@@ -1,12 +1,12 @@
 # WORKFLOW — Quy chuẩn làm việc của dự án
 
 > **Dự án:** Ứng dụng Desktop quản lý quán café TLU (BTL học phần Python 2026 — Đề tài 5)
-> **Phiên bản:** 1.0 · **Ngày ban hành:** 2026-11-04 · **Người duy trì:** D (Infra/QA/Docs)
+> **Phiên bản:** 1.1 · **Cập nhật:** 2026-11-18 · **Người duy trì:** D (Infra/QA/Docs)
 > **Đối tượng áp dụng:** toàn bộ 4 thành viên **và mọi AI agent** làm việc trong repo này.
 
 > ⚠️ **File này là nguồn chân lý duy nhất (single source of truth) về cách làm việc.**
 > Khi có mâu thuẫn giữa thói quen cá nhân / hướng dẫn trên mạng / câu trả lời của AI với file này → **file này thắng**.
-> Muốn đổi quy định → mở PR sửa file này, cần **≥ 2 người approve** (trong đó có D).
+> Thay đổi quy định qua PR và theo quy tắc duyệt tại mục 3.2.
 
 ---
 
@@ -37,22 +37,22 @@
 
 ## 0. TL;DR — đọc trong 5 phút
 
-Nếu bạn chỉ đọc 12 dòng này, hãy nhớ:
+Vòng làm việc: **Issue → nhánh → PR → CI + review → squash vào `develop` → nghiệm thu và đóng Issue.**
 
 1. **Không ai push trực tiếp** lên `main` và `develop`. Mọi thay đổi đi qua **Pull Request**.
-2. **Một việc = một Issue = một nhánh = một PR.** PR nhỏ dưới **400 dòng**.
-3. **Bắt buộc 1 người review** (không tự merge PR của mình) + **CI xanh** mới được merge.
+2. **Một việc = một Issue = một nhánh = một PR.** Ưu tiên PR dễ review.
+3. **CI xanh** và approval theo mục 3.2. Người merge phải khác tác giả.
 4. **Commit theo Conventional Commits**: `feat(order): thêm gộp bàn`.
 5. **Không commit** `.env`, `dist/`, `build/`, `.venv/`, file DB, ảnh nặng.
 6. **Không hardcode** mật khẩu / connection string / đường dẫn tuyệt đối của máy mình.
 7. **Đổi schema DB hoặc API contract → phải bàn trước**, không tự ý đổi.
 8. **Thêm thư viện mới → phải xin phép** (1 dòng trong Issue là đủ, nhưng phải có).
 9. **Code xong là phải có test**; không sửa test cho pass thay vì sửa code.
-10. **Xong việc = cập nhật docs + chụp ảnh màn hình** ngay lúc đó, không để tuần cuối.
+10. Cập nhật tài liệu liên quan và lưu ảnh khi hoàn thiện hoặc đổi màn hình.
 11. **AI agent cũng là thành viên**: đọc file này trước, tuân thủ mục 15, báo cáo theo mẫu 15.4.
 12. **Mỗi người giữ `docs/log/<vai>.md`** (A/B/C/D): việc đã làm · AI đã làm gì · câu hỏi thầy
     hay hỏi. Cập nhật **trong PR**, không để cuối kỳ (mục 12.5).
-12. Khi không chắc → **dừng lại và hỏi trong Issue**, đừng đoán.
+13. Khi không chắc → **dừng lại và hỏi trong Issue**, đừng đoán.
 
 ---
 
@@ -89,7 +89,7 @@ Quy định của trường/GV (ưu tiên cao hơn nếu khác), quy định v�
 | `docs/defense.md` | Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết | Tất cả |
 | `docs/test-cases.md` | Danh sách ca kiểm thử (PASS/FAIL) | C, D |
 | `docs/setup-github.md` | Thiết lập GitHub một lần (đã xong, giữ để tra cứu) | D |
-| `docs/standup.md` | Mẫu standup hằng ngày | Tất cả |
+| `docs/standup.md` | Mẫu báo blocker | Tất cả |
 | `.claude/skills/` | 9 skill hướng dẫn theo loại việc | Tất cả + AI |
 | `<thư mục>/README.md` | Mỗi thư mục code có README: owner, đặt gì, **không** đặt gì | Người làm thư mục đó |
 | `CHANGELOG.md` | Lịch sử thay đổi theo phiên bản | D, GV |
@@ -133,11 +133,11 @@ Dùng đúng các từ sau (theo RFC 2119, Việt hoá):
 
 ### 3.2 Quy tắc approve
 
-- Mỗi PR **PHẢI** có **1 approval** từ **owner của vùng bị sửa**.
-- PR chạm **≥ 2 vùng** → cần **2 approval** (mỗi owner một phiếu).
-- PR sửa `WORKFLOW.md`, `docs/api-contract.md`, `db/schema.sql` (thay đổi breaking) → cần **2 approval trong đó có D** và **được nêu trong buổi sync gần nhất**.
-- **KHÔNG ĐƯỢC** tự approve/merge PR của chính mình (kể cả khi là owner).
-- Trường hợp khẩn cấp (buổi demo sắp bắt đầu, lỗi chặn toàn bộ): được merge với 1 approval + ghi rõ `[HOTFIX]` trong PR, và **phải bổ sung test + review sau trong 24h**.
+- **PR một vùng:** cần một approval từ người khác tác giả. Ưu tiên owner của vùng. Nếu owner là tác giả hoặc không thể review trong thời hạn, chọn một thành viên khác có thể kiểm chứng.
+- **PR đổi hành vi ở từ hai vùng:** cần hai approval từ hai người khác tác giả. Phân reviewer theo vùng cần kiểm, ưu tiên owner đủ điều kiện. Nhật ký, changelog và tài liệu mô tả đi kèm thuộc phạm vi PR chính.
+- **PR đổi `WORKFLOW.md`, API contract hoặc schema:** thống nhất trước trong Issue và cần hai approval. Có D trong hai người duyệt nếu D không phải tác giả. Nếu D là tác giả, hai thành viên khác duyệt và D ghi quyết định trong Issue.
+- **CI phải xanh.** Người approve và người merge đều phải khác tác giả. GitHub giữ tối thiểu một approval và tắt yêu cầu approve từ CODEOWNERS theo ADR-009. Reviewer kiểm thêm các trường hợp cần hai approval.
+- Lỗi khẩn cấp chặn demo có thể dùng `[HOTFIX]` với một approval và CI xanh. Bổ sung kiểm thử và review trong 24 giờ. Thay đổi quy định, contract hoặc schema vẫn theo quy tắc ở trên.
 
 ### 3.3 Kênh liên lạc chính thức
 
@@ -146,8 +146,8 @@ Dùng đúng các từ sau (theo RFC 2119, Việt hoá):
 | GitHub Issue | Việc cần làm, báo lỗi, câu hỏi kỹ thuật (**nguồn chân lý**) |
 | GitHub PR | Thảo luận code, review |
 | `docs/decisions.md` | Quyết định kiến trúc đã chốt |
-| Zalo/Discord nhóm | Trao đổi nhanh, standup async |
-| `docs/standup.md` (tuỳ chọn) | Lưu standup nếu nhóm muốn tra cứu lại |
+| Zalo/Discord nhóm | Trao đổi nhanh; ghi quyết định và blocker vào Issue |
+| `docs/standup.md` (tuỳ chọn) | Mẫu nhắn nhanh về blocker |
 
 > Quy ước: **quyết định kỹ thuật chốt trên chat miệng = không tồn tại.** Phải được dán lại vào Issue/ADR.
 
@@ -231,16 +231,13 @@ cafe-tlu/
 
 ```
 Issue (Ready) → Branch → Code + Test → Commit → Push → PR → CI xanh
-   → Review 1–2 approval → Squash merge vào develop → Issue Done
+   → Review 1–2 approval → Squash vào develop → Nghiệm thu → Đóng Issue
    → (theo lịch) release/vX.Y → merge main + tag → build installer tự động
 ```
 
 ### 5.1 Issue
 
-- **Mọi việc đều phải có Issue.** Việc < 30 phút vẫn tạo Issue (để có bằng chứng đóng góp) nhưng dùng label `quick`.
-- Tiêu đề Issue: động từ + đối tượng. VD: `Thêm chức năng gộp bàn khi thanh toán`.
-- Issue **PHẢI** đạt [Definition of Ready](#6-definition-of-ready--definition-of-done) trước khi vào cột `Ready`.
-- Gán: **đúng 1 assignee**, 1 `estimate` (S/M/L), 1 `milestone` (cổng), label theo vùng (`api`/`gui`/`db`/`infra`/`docs`/`bug`/`blocked`).
+Mỗi việc có một Issue, một assignee, một milestone, một nhãn vùng và ước lượng S/M/L. Việc dưới 30 phút dùng nhãn `quick`. Nội dung gồm **kết quả, nghiệm thu và phụ thuộc** theo mục 6.1. Báo lỗi ghi cách kiểm, kết quả thực tế và môi trường ngay trong mục nghiệm thu.
 
 ### 5.2 Nhánh
 
@@ -254,10 +251,10 @@ Issue (Ready) → Branch → Code + Test → Commit → Push → PR → CI xanh
 | `chore/` | Cấu hình, dependency | `chore/add-pytest-qt` |
 | `hotfix/` | Sửa gấp từ `main` | `hotfix/installer-missing-dll` |
 
-**BẮT BUỘC:**
+**Tạo và đồng bộ nhánh:**
 
 - Luôn tạo nhánh từ `develop` **mới nhất**: `git switch develop && git pull && git switch -c feature/...`
-- **Tuổi thọ nhánh ≤ 3 ngày.** Quá 3 ngày → tách nhỏ hoặc rebase `develop` ngay.
+- **Sau 3 ngày**, rà lại phạm vi nhánh và đồng bộ `develop` nếu cần.
 - Trước khi mở PR: `git rebase develop` (không merge `develop` vào nhánh feature).
 
 ### 5.3 Commit
@@ -288,18 +285,13 @@ Theo **Conventional Commits**: `<loại>(<scope>): <mô tả ngắn ở thể m�
 
 ### 5.4 Pull Request
 
-- Tiêu đề PR = tiêu đề Issue. Body **PHẢI** theo template ở [mục 18.2](#182-template-pull-request).
-- **PHẢI** có: mô tả thay đổi, **cách kiểm chứng** (lệnh đã chạy + kết quả), `Closes #<issue>`.
-- **Ảnh chụp:** chỉ bắt buộc khi PR **hoàn thiện hoặc đổi một màn hình** (ảnh dùng cho báo cáo và lúc bảo vệ).
-  PR backend / DB / CI / docs thay bằng **log + lệnh + link lần chạy CI** — không phải chụp gì.
-- PR nhỏ: **< 400 dòng diff** (không tính file sinh tự động). Lớn hơn → tách.
-- Gắn label + reviewer (owner vùng bị sửa). **Tự assign chính mình**, không để "ai đó" làm giúp.
-- Không mở PR khi còn `TODO` hoặc code chết, trừ khi ghi rõ `[Draft]`.
+- Dùng tiêu đề Conventional Commits vì squash merge dùng tiêu đề PR. Ghi `Refs #<issue>` để truy vết, gán reviewer theo mục 3.2 và điền mẫu PR.
+- Mẫu PR giữ kết quả thay đổi, bằng chứng kiểm chứng và ba câu bảo vệ. UI có ảnh khi hoàn thiện hoặc đổi màn hình. Backend, DB, CI và docs dùng lệnh, kết quả và link CI.
+- Khoảng 400 dòng diff là mốc rà phạm vi. Tách phần độc lập khi có thể. Nếu các thay đổi cần đi cùng nhau, ghi lý do cho reviewer.
 
 ### 5.5 Review
 
-Reviewer **PHẢI** kiểm tra **checklist đầy đủ ở [mục 18.3](#183-checklist-reviewer)** — đó là nguồn duy nhất.
-Ba điểm hay bị bỏ qua nhất:
+Reviewer dùng checklist chung trong [mẫu PR](.github/pull_request_template.md). Khi review:
 
 - **Đọc cả vùng code bị chạm, không chỉ diff** — mở file gọi tới hàm/endpoint/component vừa đổi.
   Lỗi hay nằm ở file *không* có trong diff.
@@ -321,7 +313,7 @@ Phân loại comment (bắt buộc dùng tiền tố):
 ### 5.6 Merge & phát hành
 
 - Merge vào `develop` bằng **Squash and merge** (giữ lịch sử sạch, 1 commit = 1 việc).
-- Xoá nhánh sau merge.
+- Người merge xác nhận tiêu chí Issue trên `develop`, thêm link PR vào Issue, rồi đóng Issue khi đạt Definition of Done. PR merge vào `develop` cần bước này vì nhánh mặc định là `main`. Xoá nhánh sau merge.
 - `develop` **PHẢI** luôn chạy được: hết mỗi ngày, CI xanh.
 - Phát hành: `develop → release/vX.Y` → test → CI build installer → `main` + tag `vX.Y.Z` + GitHub Release.
 
@@ -329,33 +321,18 @@ Phân loại comment (bắt buộc dùng tiền tố):
 
 ## 6. Definition of Ready / Definition of Done
 
-### 6.1 Definition of Ready (Issue sẵn sàng để làm)
+### 6.1 Definition of Ready
 
-- [ ] Mô tả rõ **kết quả mong đợi**, không chỉ "làm trang X"
-- [ ] Có **tiêu chí nghiệm thu** kiểm tra được (VD: "thêm món trùng tên → báo lỗi, không tạo bản ghi")
-- [ ] Biết rõ **phụ thuộc** (API nào, bảng nào, ai cung cấp)
-- [ ] Có **assignee** và ước lượng S/M/L
-- [ ] Nếu ảnh hưởng API → đã chốt trong `docs/api-contract.md`; nếu ảnh hưởng schema →
-      đã có trong `docs/erd.md` **do B thiết kế** (không có bản viết sẵn)
-- [ ] Nếu cần thư viện mới → **đã được duyệt**
+- **Kết quả** rõ ràng và có **tiêu chí nghiệm thu** kiểm được.
+- **Phụ thuộc** ghi theo Issue, API, bảng hoặc người bàn giao. Đổi contract/schema hoặc thêm thư viện cần chốt trước theo mục 4.
+- Có metadata theo mục 5.1. Assignee nhận việc khi các phụ thuộc bắt buộc đã sẵn sàng.
 
-### 6.2 Definition of Done (việc thực sự xong)
+### 6.2 Definition of Done
 
-Chỉ được kéo sang `Done` khi **tất cả** đúng:
-
-- [ ] Chạy được trên `develop` (không phải "chạy trên máy tôi")
-- [ ] Có test (unit cho logic; smoke/manual script cho UI) — hoặc ghi rõ lý do không test
-- [ ] `make lint && make test` xanh ở local và trên CI
-- [ ] Đã review + approve, đã merge
-- [ ] Không `print()` debug, không code chết, không `TODO` treo
-- [ ] Đã cập nhật `docs/api-contract.md` / `docs/erd.md` nếu có đổi
-- [ ] Đã cập nhật `CHANGELOG.md` (mục `Unreleased`)
-- [ ] **Ảnh chụp màn hình** lưu vào `docs/screenshots/<module>/` — **chỉ khi** PR hoàn thiện/đổi màn hình;
-      PR backend/DB/CI/docs bỏ qua mục này, thay bằng log + link CI
-- [ ] Đã ghi vào `docs/decisions.md` nếu có quyết định kỹ thuật mới
-- [ ] **Giải thích được**: PR có mục "Giải thích được" 3 câu (`docs/defense.md`) và người viết
-      trả lời được câu hỏi bất kỳ về đoạn code mình vừa viết
-- [ ] Đã thêm **1–3 dòng** vào `docs/log/<vai>.md` (mục 2: việc đã làm · mục 3: AI đã làm gì)
+- PR có kiểm thử hoặc lý do phù hợp, bằng chứng kiểm chứng thật và checklist chung đã rà.
+- Local chạy `make check`. CI xanh, đủ approval, squash vào `develop` và xác nhận tiêu chí trên nhánh này.
+- Cập nhật tài liệu liên quan, changelog khi đổi hành vi, ảnh vào `docs/screenshots/` khi đổi màn hình và nhật ký cá nhân ở mục 2 và 3.
+- Tác giả trả lời được ba câu bảo vệ trong PR. Người merge ghi link PR và đóng Issue sau khi xác nhận các mục trên.
 
 ## 6.3 Hiểu bài — điều kiện không thể thương lượng
 
@@ -609,7 +586,7 @@ Lỗi:
 |---|---|---|
 | `docs/api-contract.md` | A | Cập nhật mỗi khi đổi endpoint |
 | `docs/erd.md` | **B** — B tự thiết kế (ERD + từ điển + bất biến) | Kèm hình ERD (mermaid/dbdiagram) |
-| `README.md` | D biên tập | Cài & chạy trong 3 lệnh + **bảng tiến độ 6 cổng** (cập nhật theo 12.6) |
+| `README.md` | D biên tập | Cài & chạy trong 3 lệnh + **tiêu chí 6 cổng và link milestone** (mục 12.6) |
 | `CHANGELOG.md` | D biên tập | Mọi người thêm mục `Unreleased` khi merge |
 | `docs/decisions.md` | Người ra quyết định | ADR-lite, xem 18.4 |
 | `docs/test-cases.md` | D + C | Bảng test case |
@@ -665,21 +642,11 @@ mục 4, xoá câu không chỉ được vào code). File trống ở thời đi
 
 ---
 
-### 12.6 Bảng tiến độ 6 cổng trong `README.md` (BẮT BUỘC cập nhật)
+### 12.6 Theo dõi tiến độ và kết quả qua cổng
 
-`README.md` mục **"Lộ trình 6 cổng — ai làm gì"** là bảng trạng thái duy nhất cả nhóm đọc hằng ngày.
-Nó **PHẢI** khớp Issue/PR thật, không phải kế hoạch.
-
-- **Ba trạng thái, chỉ ba:** `⬜` chưa có PR · `🟡` có PR đang mở (ghi số PR) · `✅` PR **đã merge** (ghi số PR).
-  Không dùng "sắp xong", "đang làm 80%". Ra cổng (`🔴`/`xanh`) là dòng riêng của từng cổng.
-- **Ai cập nhật:** người mở/merge PR của Issue đó cập nhật **trong chính PR ấy** — cùng lúc với
-  `CHANGELOG.md` và `docs/log/<vai>.md`. Một dòng bảng, 10 giây.
-- **D rà lại mỗi tối** cùng lúc với bảng điều khiển cổng (Issue `G<n>`): nếu bảng khác Issue thì
-  sửa bảng ngay trong ngày, không để lệch quá 1 ngày.
-- **Đổi phạm vi cổng** (thêm/bớt việc, đổi người) → sửa **cả** `docs/plan.md` **và** bảng này trong
-  cùng một PR; `docs/plan.md` giữ chi tiết/phụ thuộc, bảng trong README giữ trạng thái.
-- **CẤM** để bảng lỗi thời quá 1 ngày: cổng ra muộn vì "không ai biết mình còn phải làm gì" là lỗi
-  quy trình, không phải lỗi kỹ thuật.
+- **GitHub Issues** giữ trạng thái và người phụ trách. Dùng [milestone G1–G6](https://github.com/Haianh4705/cafe-tlu/milestones) hoặc Project để xem cùng các Issue.
+- Ghi phụ thuộc, blocker, PR và kết quả nghiệm thu trên Issue. Người phụ trách cập nhật khi có thay đổi. Người merge đóng Issue theo mục 5.6.
+- **README** giữ tiêu chí, link từng milestone và kết quả khi qua cổng. **`docs/plan.md`** giữ phạm vi và thứ tự giao việc. D cập nhật kết quả cổng khi có minh chứng.
 
 ## 13. Quy chuẩn đóng gói & phát hành
 
@@ -777,7 +744,7 @@ Theo [Keep a Changelog](https://keepachangelog.com/): mục `Unreleased` (Added/
 7. TÀI LIỆU : cập nhật docs liên quan + CHANGELOG + docs/log/<vai>.md
              (+ ảnh chụp nếu vừa hoàn thiện/đổi một màn hình — để dành cho báo cáo)
 8. COMMIT   : conventional commit, nhỏ, đúng scope
-9. PR       : theo template, gắn Closes #<issue>, gán reviewer là owner vùng
+9. PR       : theo template, ghi Refs #<issue>, gán reviewer theo mục 3.2
 10. BÁO CÁO : theo mẫu 15.4 (dán vào PR hoặc chat cho người giao việc)
 ```
 
@@ -849,35 +816,23 @@ Lý do: nhật ký viết sau (vài tuần) sẽ mất chi tiết và dễ thàn
 
 ## 16. Nhịp làm việc & giao tiếp
 
-### 16.1 Hằng ngày
+### 16.1 Khi có thay đổi hoặc blocker
 
-- **Standup async** (Zalo/Discord, trước 10:00, 3 dòng):
-  ```
-  Hôm qua: ...
-  Hôm nay: ...
-  Đang chặn: ... (hoặc "không")
-  ```
-- **CẬP NHẬT BOARD** ngay khi đổi trạng thái, không để cuối ngày.
+Ghi thay đổi trạng thái ngay trên Issue hoặc trên thẻ Issue trong Project. Nếu bị chặn quá hai giờ, ghi điều đang chờ và tag người xử lý cùng D trong Issue. Chat dùng để báo nhanh khi cần.
 
-### 16.2 Nhịp cố định
+### 16.2 Demo và sync
 
-| Thời điểm | Hoạt động | Kết quả bắt buộc |
-|---|---|---|
-| Thứ 3 | Sync 20–30 phút | Gỡ blocker, chốt việc đang mở |
-| Thứ 6 | **Demo nội bộ 30 phút** | Mỗi người demo phần mình **chạy thật** trên `develop` |
-| Thứ 6 | **Cổng tích hợp** | `develop` phải chạy được end-to-end; nếu không → cắt bớt scope chặng sau |
-| Mỗi PR merge | Mỗi người cập nhật `docs/log/<vai>.md` | 1–3 dòng kiểm chứng được |
-| Chủ nhật | D tổng hợp tiến độ | 1 báo cáo ngắn 5 dòng gửi nhóm (+ GV nếu cần) |
-
-> **Demo là bắt buộc, không thay bằng slide hay "em sắp xong".** Không demo được = việc đó coi như chưa xong.
+- **Thứ Sáu:** demo luồng tích hợp trên `develop`, rà điều kiện ra cổng và hỏi chéo để chuẩn bị bảo vệ. D ghi kết quả ở Issue cổng hoặc milestone.
+- Sync khi cần chốt quyết định, gỡ blocker hoặc đổi phạm vi. Người chủ trì ghi quyết định vào Issue và cập nhật ADR khi cần.
+- Nhật ký cá nhân cập nhật trong PR theo mục 12.5.
 
 ### 16.3 Cổng kiểm tra theo mốc (không qua cổng thì không đi tiếp)
 
 | Cổng | Thời điểm | Điều kiện xanh |
 |---|---|---|
-| **G1 — Nền móng** | Khi xong 3 sóng | 3/3 máy **A, C, D** chạy `make up && make api && make gui` chỉ bằng README (ADR-012); CI xanh; **build installer thử lần 1** |
-| **G2 — Lát cắt dọc** | Khi CRUD món chạy end-to-end | Login + phân quyền + CRUD món chạy end-to-end từ GUI |
-| **G3 — MVP** | Khi đủ 6 yêu cầu đề bài | Đủ 6 yêu cầu đề bài; installer từ CI cài được trên máy sạch |
+| **G1 — Nền móng** | Khi xong 3 sóng | 3/3 máy **A, C, D** kiểm bằng `make doctor` và chạy được theo README (ADR-012) · CI xanh · Swagger mở · 50 món mẫu · bộ cài chạy trên Windows sạch |
+| **G2 — Lát cắt dọc** | Khi CRUD món chạy end-to-end | Login, phân quyền và CRUD món chạy end-to-end từ GUI trên máy người khác · xác nhận staff bị 403 ở thao tác dành cho admin · ≥12 endpoint có test |
+| **G3 — MVP** | Khi đủ 6 yêu cầu đề bài | Đủ 6 yêu cầu đề bài · demo toàn luồng · installer từ CI cài được trên Windows sạch |
 | **G4 — Deploy** | Khi backend có URL công khai | Backend có URL công khai; tag → CI tự build installer |
 | **G5 — QA** | Khi test case pass ≥ 95% | Test case pass ≥ 95%; báo cáo đủ 80%; video demo có |
 | **G6 — Đóng băng** | Trước hạn 3 ngày | Không merge gì trừ `hotfix`; tập bảo vệ xong |
@@ -901,7 +856,7 @@ Mỗi người tối đa **2 thẻ `In progress`**. Quá → đang làm dở m�
 
 ### 17.2 Trễ hạn
 
-- Trễ ≥ 1 ngày → **chủ động báo trong standup**, không chờ bị hỏi.
+- Trễ ≥ 1 ngày → **chủ động báo trong Issue**, không chờ bị hỏi.
 - Trễ ≥ 2 ngày → nhóm họp cắt scope: **bỏ tính năng phụ, giữ luồng chính chạy được**. Một app ít tính năng mà chạy ổn định ăn điểm cao hơn app nhiều tính năng mà vỡ.
 
 ### 17.3 Sổ rủi ro (cập nhật trong `docs/decisions.md`)
@@ -910,7 +865,7 @@ Mỗi người tối đa **2 thẻ `In progress`**. Quá → đang làm dở m�
 |---|---|---|
 | Integration hell | Hết G2 vẫn chưa ghép được | Cổng G2/G3; demo cuối mỗi sóng |
 | Installer vỡ phút cuối | Chưa build lần nào tới G6 | Build thử ngay G1, CI build mỗi lần merge |
-| Một người im lặng | Không commit/không standup 2 ngày | D nhắn riêng, gặp trực tiếp trong 24h |
+| Một người im lặng | Issue đang làm thiếu cập nhật 2 ngày | D nhắn riêng, gặp trực tiếp trong 24h |
 | Bus factor = 1 | Chỉ 1 người biết deploy/GUI | Mỗi module có owner + reviewer; tập bảo vệ chéo |
 | Báo cáo dồn cuối kỳ | Qua G3 chưa có chương nào | Mỗi người viết chương từ G2 |
 | Flaky test làm mất tin cậy CI | Test lúc xanh lúc đỏ | Sửa ngay, không `skip` |
@@ -929,31 +884,16 @@ Bất kỳ ai (người hoặc AI) bị chặn **> 2 giờ** phải báo. Bị c
 
 [`.github/ISSUE_TEMPLATE/task.md`](.github/ISSUE_TEMPLATE/task.md) (việc cần làm) ·
 [`.github/ISSUE_TEMPLATE/bug.md`](.github/ISSUE_TEMPLATE/bug.md) (báo lỗi).
-GitHub tự hiện khi bấm **New issue** — không cần nhớ.
+GitHub dùng mẫu từ nhánh mặc định `main` khi bấm **New issue**.
 
 ### 18.2 Template Pull Request
 
-[`.github/pull_request_template.md`](.github/pull_request_template.md) — GitHub tự điền khi mở PR.
+[`.github/pull_request_template.md`](.github/pull_request_template.md) — dùng mẫu khi mở PR. GitHub tự điền từ nhánh mặc định `main`.
 Phần **"Giải thích được" 3 câu** trong đó là bắt buộc (mục 6.3, `docs/defense.md`).
 
 ### 18.3 Checklist reviewer
 
-> Đây là **nguồn duy nhất** của checklist review. Mục 5.5 chỉ nhắc 3 điểm hay bị bỏ qua.
-
-- [ ] Logic đúng theo tiêu chí nghiệm thu của Issue
-- [ ] Đúng phạm vi Issue, không "tiện tay" sửa thứ khác
-- [ ] **Đã đọc cả vùng code bị chạm, không chỉ diff** (file gọi tới hàm/endpoint/component vừa đổi)
-- [ ] Ranh giới kiến trúc mục 4: GUI không gọi SQL, router không chứa logic, không circular import
-- [ ] Trường hợp biên: rỗng, trùng, số âm, quá dài, mất kết nối
-- [ ] Phân quyền được kiểm **ở server**, không chỉ ẩn nút
-- [ ] Có test; test kiểm tra hành vi thật (assert đỏ được nếu logic sai)
-- [ ] Không N+1 query; cột lọc/sắp xếp mới có index
-- [ ] Không có secret, `print()`, code comment-out
-- [ ] Thông báo lỗi thân thiện với người dùng cuối (tiếng Việt, có cách khắc phục)
-- [ ] Tên biến/hàm rõ nghĩa, không viết tắt khó hiểu
-- [ ] Diff không chứa code "để sau này"; chỗ cố ý cắt có `shortcut:` (mục 7.1)
-- [ ] Docs / ảnh chụp / `CHANGELOG.md` đã cập nhật
-- [ ] Người viết trả lời được 3 câu "Giải thích được" trong PR (mục 6.3)
+Dùng checklist chung trong [mẫu PR](.github/pull_request_template.md) và hướng dẫn review ở mục 5.5.
 
 ### 18.4 Template ADR
 
@@ -979,7 +919,7 @@ git switch -c feature/order-merge-table-cuong
 git add api/routers/orders.py
 git commit -m "feat(order): thêm endpoint gộp bàn"
 git push -u origin HEAD
-gh pr create --base develop --fill
+gh pr create --base develop --template .github/pull_request_template.md
 
 # Đóng gói (D)
 make build-installer   # PyInstaller + Inno Setup
@@ -987,15 +927,16 @@ make build-installer   # PyInstaller + Inno Setup
 
 > Danh sách lệnh đầy đủ: `make` (không tham số). Nguồn chân lý là `Makefile`, không phải mục này.
 
-### 18.6 Mẫu standup
+### 18.6 Mẫu báo blocker
 
-[`docs/standup.md`](docs/standup.md) — 3 dòng, trước 10:00, trên chat nhóm.
+[`docs/standup.md`](docs/standup.md) — mẫu nhắn khi một việc bị chặn.
 
 ## 19. Lịch sử thay đổi
 
 | Phiên bản | Ngày | Thay đổi | Người duy trì |
 |---|---|---|---|
 | 1.0 | 2026-11-04 | Ban hành lần đầu | D |
+| 1.1 | 2026-11-18 | Gọn Issue/PR, review chéo và theo dõi tiến độ trên GitHub (#90) | D |
 
 ---
 

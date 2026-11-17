@@ -9,8 +9,8 @@
 # ⚠️ KHÔNG bật "Require review from Code Owners" (Settings → Branches).
 #    Lý do: mỗi người là owner duy nhất của vùng mình, mà GitHub không cho tự
 #    approve PR của chính mình → PR của A sẽ kẹt vĩnh viễn vì chỉ @A được duyệt.
-#    Thay vào đó: PR bắt buộc 1 approval (bất kỳ ai khác) + gán reviewer thủ công
-#    theo bảng dưới. GitHub vẫn tự gợi ý đúng người khi bấm Reviewers.
+#    GitHub yêu cầu tối thiểu một approval. Gán reviewer theo WORKFLOW.md mục 3.2,
+#    dùng review chéo khi owner là tác giả và kiểm ngoại lệ cần hai approval.
 
 # ─────────────────────────────────────────────────────────────
 # 1. Mặc định: mọi file cần 1 trong 4 người review

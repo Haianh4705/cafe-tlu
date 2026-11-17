@@ -49,8 +49,8 @@ flowchart TD
 | 7 | **C** | Thiếu/sai API phát hiện khi nối | **A** | Ghi rõ endpoint, request, response mong đợi |
 | 8 | **A + B + C** | App chạy end-to-end trên `develop` | **D** | `make up && make api && make gui` chạy được trên máy người khác |
 | 9 | **D** | Installer + CI xanh | **Cả nhóm** | Cài được trên máy Windows sạch |
-| 10 | **Bất kỳ** | Pull request | **Owner vùng** | CI xanh, `make check` xanh, đúng template |
-| 11 | **Owner** | Review + merge | **Người viết** | Ghi rõ `[must]` / `[should]` / `[nit]` |
+| 10 | **Bất kỳ** | Pull request | **Reviewer theo mục 3.2** | CI xanh, `make check` xanh, đúng template |
+| 11 | **Reviewer** | Review + merge | **Người viết** | Ghi rõ `[must]` / `[should]` / `[nit]` |
 | 12 | **Mỗi người** | `docs/log/<vai>.md` cập nhật (1–3 dòng/PR) | **Cả nhóm** | Trong PR đã merge, mục 2 + 3 có dòng mới |
 
 > **Owner vùng** (ai review cái gì): `api/` → A · `db/`, report → B · `gui/`, `assets/` → C ·
@@ -64,15 +64,15 @@ flowchart TD
 
 | Bước | Người giữ bóng | Làm gì | Bàn giao khi |
 |---|---|---|---|
-| 1 | Người tạo / **D** | Viết Issue đạt Definition of Ready, gán assignee + milestone | Issue ở cột `Ready` |
+| 1 | Người tạo / **D** | Viết Issue đạt Definition of Ready, gán assignee + milestone | Issue đạt Definition of Ready |
 | 2 | **Assignee** | Tạo nhánh, code, `make check` | `make test` xanh + có test |
 | 3 | **Assignee** | Push + mở PR theo template | PR mở, CI xanh, reviewer được gán |
-| 4 | **Reviewer** (owner vùng) | Review theo checklist, trong 24h | Approve, hoặc comment `[must]` |
+| 4 | **Reviewer** (theo mục 3.2) | Review theo checklist, trong 24h | Approve, hoặc comment `[must]` |
 | 5 | **Assignee** | Sửa `[must]`, trả lời `[question]` | CI xanh trở lại |
 | 6 | **Reviewer** | Squash merge, nhánh tự xoá | PR merged |
-| 7 | **D** | Kiểm chứng trên `develop`, cập nhật test case, ảnh chụp | Issue → `Done` |
+| 7 | **Người merge** | Xác nhận nghiệm thu trên `develop`, gắn link PR và đóng Issue | Issue đạt Definition of Done |
 
-**Luật:** người viết **không tự merge** PR của mình (repo cũng chặn bằng branch protection).
+**Luật:** người viết **không tự merge** PR của mình.
 
 ## 4. "Xong thì đến ai" — cây quyết định
 
@@ -82,7 +82,7 @@ Xong endpoint?                →  C (nối GUI)      +  D (test case)
 Xong màn hình?                →  D (QA, ảnh chụp) +  A nếu thiếu API
 Xong query thống kê?          →  A (bọc endpoint) →  C (hiển thị)
 App chạy end-to-end?          →  D (đóng gói installer)
-Xong PR?                      →  owner vùng review
+Xong PR?                      →  reviewer theo WORKFLOW mục 3.2
 Bị chặn > 2 giờ?               →  người đang giữ blocker + D
 Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán), tag D
 ```
@@ -105,7 +105,7 @@ Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán),
 | Review PR | 24h | Nhắn trong PR, D chuyển reviewer khác |
 | Trả lời câu hỏi trong Issue | trong ngày | D nhắc trực tiếp |
 | Báo khi bị chặn | 2h | — (im lặng là lỗi quy trình) |
-| Cập nhật board | ngay khi đổi trạng thái | D rà board mỗi tối |
+| Cập nhật Issue | khi đổi trạng thái hoặc gặp blocker | Ghi trên Issue hoặc thẻ Issue đang theo dõi |
 | Cứu scope | trễ ≥ 2 ngày | Nhóm họp **cắt tính năng phụ**, giữ luồng chính chạy được |
 
 ## 7. Theo giai đoạn: ai làm gì, xong bàn giao gì

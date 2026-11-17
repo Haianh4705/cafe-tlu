@@ -35,11 +35,10 @@ git commit -m "feat(order): thêm chức năng gộp bàn"
 
 # 4. PR
 git push -u origin HEAD
-gh pr create --base develop --fill
+gh pr create --base develop --template .github/pull_request_template.md
 ```
 
-Sau đó: gán reviewer là **owner vùng bị sửa**, chờ **1 approval + CI xanh**, merge
-bằng **Squash**.
+Ghi `Refs #<issue>`, gán reviewer theo [mục 3.2](WORKFLOW.md#32-quy-tắc-approve) và chờ CI xanh. Người merge squash vào `develop`, xác nhận nghiệm thu rồi đóng Issue.
 
 ## Năm điều dễ sai nhất
 
@@ -61,7 +60,7 @@ bằng **Squash**.
 
 ## Cần giúp?
 
-- Bị chặn **> 2 giờ** → báo trong standup hoặc tag owner vùng đó trong Issue.
+- Bị chặn **> 2 giờ** → ghi blocker trong Issue và tag người xử lý cùng D.
 - Không rõ nghiệp vụ → hỏi trong Issue, đừng tự đoán rồi code.
 
 ## Nếu bạn dùng AI

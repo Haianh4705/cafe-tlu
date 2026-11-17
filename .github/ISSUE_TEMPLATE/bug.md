@@ -1,61 +1,20 @@
 ---
 name: Báo lỗi
-description: Có gì đó chạy không đúng
+about: Ghi lỗi có thể tái hiện và kết quả cần sửa
 title: "[bug] "
-labels: ["bug"]
-body:
-  - type: markdown
-    attributes:
-      value: |
-        Bug report thiếu **bước tái hiện** sẽ không được xử lý (WORKFLOW.md mục 11.3).
+labels: bug
+---
 
-  - type: textarea
-    id: steps
-    attributes:
-      label: Bước tái hiện
-      value: |
-        1.
-        2.
-        3.
-    validations:
-      required: true
+## Kết quả mong đợi
 
-  - type: textarea
-    id: expected
-    attributes:
-      label: Kết quả mong đợi
-    validations:
-      required: true
+<!-- Hành vi đúng sau khi sửa. -->
 
-  - type: textarea
-    id: actual
-    attributes:
-      label: Kết quả thực tế
-    validations:
-      required: true
+## Nghiệm thu
 
-  - type: input
-    id: env
-    attributes:
-      label: Môi trường
-      placeholder: "Windows 11 / bản build v0.1.0 / MySQL Docker"
-    validations:
-      required: true
+<!-- Ghi cách tái hiện, môi trường, kết quả thực tế và log liên quan. Thêm ảnh cho lỗi UI. -->
 
-  - type: textarea
-    id: evidence
-    attributes:
-      label: Ảnh chụp / log
-      description: Kéo ảnh vào đây. Log liên quan dán vào khối code.
-      render: text
+- [ ] <!-- Ca hồi quy cần đạt -->
 
-  - type: dropdown
-    id: severity
-    attributes:
-      label: Mức độ
-      options:
-        - "Chặn demo / không dùng được"
-        - "Sai chức năng nhưng vẫn dùng được"
-        - "Giao diện / lỗi nhỏ"
-    validations:
-      required: true
+## Phụ thuộc
+
+<!-- Link Issue/PR hoặc ghi “Không có”. Gán một người, một milestone, nhãn vùng và ghi ước lượng S/M/L. -->

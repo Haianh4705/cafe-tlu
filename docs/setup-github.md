@@ -51,7 +51,7 @@ git switch -c chore/real-codeowners-d
 git add .github/CODEOWNERS
 git commit -m "chore(ci): điền username thật vào CODEOWNERS"
 git push -u origin HEAD
-gh pr create --base develop --fill
+gh pr create --base develop --template .github/pull_request_template.md
 ```
 
 ## 3. Chờ CI chạy ít nhất một lần
@@ -78,7 +78,7 @@ for BR in main develop; do
   "required_pull_request_reviews": {
     "required_approving_review_count": 1,
     "dismiss_stale_reviews": true,
-    "require_code_owner_reviews": true,
+    "require_code_owner_reviews": false,
     "require_last_push_approval": false
   },
   "restrictions": null,
@@ -180,8 +180,8 @@ Sau đó trong giao diện Projects:
 
 - Đổi view thành **Board**
 - Thêm cột: `Backlog` · `Ready` · `In progress` · `In review` · `Done`
-- Settings → **Workflow**: bật "Item closed → Done", "PR merged → Done"
-- Settings → **Limits**: đặt **WIP = 2** cho cột `In progress` (WORKFLOW mục 16.4)
+- Settings → **Workflow**: bật "Item closed → Done" cho Issue. Tắt "PR merged → Done" nếu đã bật để thẻ chỉ xong sau khi nghiệm thu.
+- Mỗi assignee giữ tối đa hai Issue `In progress` (WORKFLOW mục 16.4). Lọc board theo assignee để kiểm.
 
 ## 8. Mời thành viên
 
@@ -198,7 +198,7 @@ Gửi kèm link để 3 bạn đọc ngay khi nhận lời mời: `WORKFLOW.md` 
 - [ ] CI xanh ít nhất 1 lần (2 job)
 - [ ] `CODEOWNERS` đã điền username thật
 - [ ] 9 nhãn + 8 milestone đã có
-- [ ] Board có 5 cột, WIP = 2
+- [ ] Nếu dùng board, Done theo Issue đã đóng và WIP tối đa hai việc mỗi người
 - [ ] 4 người đều đã nhận lời mời (và đã push được 1 nhánh thử)
 - [ ] Dependabot đã bật (Settings → Code security)
 

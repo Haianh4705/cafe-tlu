@@ -8,6 +8,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Changed — Quy trình nhóm
+- Theo dõi tiến độ trên GitHub Issues, rút gọn mẫu Issue/PR và làm rõ review chéo cùng nghiệm thu sau merge (#90).
+
 ### Fixed — CI
 - Cập nhật thư viện: `fastapi` 0.162.5 (sửa dọn dependency khi cancel), `pymysql` 1.2.4, `ruff` 0.17.5 — thay PR dependabot #57 bị conflict sau khi #45 được squash (#57)
 - `Test` job không còn treo vô hạn khi `apt-get` gặp mirror chậm: `timeout-minutes` cho job

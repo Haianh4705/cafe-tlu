@@ -1,15 +1,14 @@
 # Lộ trình theo cổng — làm gì, giao theo thứ tự nào
 
 > Bổ trợ cho [`docs/workflow.md`](workflow.md) (ai bàn giao cho ai) và `WORKFLOW.md` mục 16.3
-> (điều kiện cổng). File này trả lời: **đang ở cổng nào, việc gì mở khoá cổng đó, và giao việc
+> (điều kiện cổng). File này trả lời: **việc gì mở khoá cổng và giao việc
 > theo thứ tự nào.**
 >
 > Không chia theo tuần. Cổng mở khi **đủ điều kiện**, không phải khi hết lịch — nhóm chạy nhanh
 > thì qua cổng sớm, chậm thì cổng dời lại nhưng thứ tự công việc không đổi.
 >
-> **Trạng thái hiện tại** (việc nào ✅/🟡/⬜): bảng "Lộ trình 6 cổng" trong
-> [`README.md`](../README.md) (mục "Lộ trình 6 cổng — ai làm gì"). File này giữ **chi tiết + phụ thuộc + thứ tự giao việc**.
->
+> Xem tiến độ và người phụ trách ở [milestone GitHub](https://github.com/Haianh4705/cafe-tlu/milestones).
+
 > **Phân vai đã chốt:** A = [@bao20062005dh-creator](https://github.com/bao20062005dh-creator) ·
 > B = [@trungdunxg](https://github.com/trungdunxg) ·
 > C = [@MeoCamGuitar](https://github.com/MeoCamGuitar) ·

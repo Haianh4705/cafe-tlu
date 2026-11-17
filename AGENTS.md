@@ -74,7 +74,7 @@ git commit -m "feat(order): thêm endpoint gộp bàn"
 git push -u origin HEAD
 ```
 
-Sau đó mở PR theo template trong `WORKFLOW.md` mục 18.2 và gán reviewer là **owner vùng bị sửa**.
+Sau đó mở PR theo template trong `WORKFLOW.md` mục 18.2 và gán reviewer theo **WORKFLOW.md mục 3.2**. Ghi `Refs #<issue>` trong PR.
 
 Nếu **baseline đã đỏ** từ trước: báo ngay, không tự sửa ngoài phạm vi để dọn.
 
@@ -135,8 +135,7 @@ make doctor      # kiểm tra môi trường máy
       không viết được 3 câu đó thay cho người dùng, thì code chưa đủ rõ để họ bảo vệ
 - [ ] Commit message đúng Conventional Commits, có `Co-authored-by` nếu code do AI sinh
 - [ ] Đã ghi `docs/log/<vai>.md`: 1 dòng việc + 1 dòng AI, và mục 5 nếu còn chỗ chưa hiểu
-- [ ] Đã cập nhật bảng tiến độ 6 cổng trong `README.md` nếu Issue vừa đổi trạng thái
-      (⬜ → 🟡 khi mở PR · 🟡 → ✅ khi merge) — `WORKFLOW.md` mục 12.6
+- [ ] Trạng thái và blocker nằm trên GitHub Issue. Người merge xác nhận trên `develop` rồi đóng Issue.
 
 ---
 

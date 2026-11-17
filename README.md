@@ -8,9 +8,6 @@
 PySide6 (gui/)  ──HTTP/JSON──►  FastAPI (api/)  ──SQLAlchemy──►  MySQL 8.0
 ```
 
-> **Trạng thái:** hạ tầng xong, GUI đã có khung + màn Đăng nhập/Thực đơn; `api/` và `db/` còn trống
-> — đang ở **cổng G1**. Lộ trình: [`docs/plan.md`](docs/plan.md).
-
 ## Hôm nay tôi làm gì?
 
 ```bash
@@ -84,51 +81,29 @@ Mỗi thư mục có `README.md` riêng: owner · đặt gì · **không** đặ
 | **C** | GUI/UX | `gui/`, `assets/` | [@MeoCamGuitar](https://github.com/MeoCamGuitar) |
 | **D** | Infra + QA + Docs | `infra/`, `installer/`, `docs/`, `report/` | [@Haianh4705](https://github.com/Haianh4705) |
 
-## Lộ trình 6 cổng — ai làm gì
+## Sáu cổng bàn giao
 
-Ký hiệu: ✅ PR đã merge · 🟡 có PR đang mở · ⬜ chưa có PR.
-**Bảng này là trạng thái hiện tại** — chi tiết, phụ thuộc và thứ tự giao việc ở [`docs/plan.md`](docs/plan.md).
-Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
+Xem tiến độ theo [milestone GitHub](https://github.com/Haianh4705/cafe-tlu/milestones). Xem [quy tắc qua cổng và nhật ký](WORKFLOW.md#163-cổng-kiểm-tra-theo-mốc-không-qua-cổng-thì-không-đi-tiếp) và [thứ tự giao việc](docs/plan.md).
 
-| Cổng | Việc | Ai | Trạng thái |
-|---|---|---|---|
-| **G1** Nền móng | ERD + `db/schema.sql` (#17) · `seed.sql` 50 món (#18) | **B** | ✅ #55 |
-| | Khung API + `/health` (#19) · config MySQL (#20) | **A** | ✅ #56 |
-| | Models theo ERD (#21) → Auth JWT (#22) | **A** | ✅ #65 · ✅ #22 |
-| | Khung GUI + theme + BaseView (#23) · `api_client`/i18n (#24) | **C** | ✅ #40 |
-| | Màn Đăng nhập (#25) | **C** | ⬜ #25 — API đã sẵn sàng |
-| | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
-| | **Ra cổng:** 3/3 `make doctor` (A, C, D — ADR-012) · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **A + C + D** | 🔴 còn **C** (A, D xong) |
-| **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ✅ #73 |
-| | 120 đơn/30 ngày (#28) · thống kê doanh thu, top món (#31) | **B** | ✅ #55 |
-| | Màn Danh sách món (#30) | **C** | ✅ #41 |
-| | Màn Order + thanh toán (#49) | **C** | ✅ #44 |
-| | Khung báo cáo 10 file (#32) | **D** | ⬜ |
-| | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 ✅ · ≥12 endpoint có test ✅ (12/12 contract #1–#12) | **A + C + D** | 🔴 còn demo login → CRUD trên 3 máy |
-| **G3** MVP | API `orders` + `checkout` (transaction) · API báo cáo | **A** | ⬜ |
-| | Seed bàn · xuất Excel + PDF font tiếng Việt | **B** | ⬜ |
-| | Màn Order · Thanh toán + in bill · Dashboard 4 KPI | **C** | ✅ #44 · ✅ #70 (Dashboard đang mock, chờ API `/reports/*`) |
-| | Test case `TC-ORD` · installer bản đầy đủ | **D** | ⬜ |
-| | **Ra cổng:** đủ 6 yêu cầu đề bài, demo full luồng | **cả nhóm** | 🔴 |
-| **G4** Deploy | Dockerfile prod + deploy URL công khai | **D** | ⬜ |
-| | Config production + review `security` | **A + D** | ⬜ |
-| | Backup DB định kỳ | **B** | ⬜ |
-| **G5** QA & báo cáo | QA hồi quy · video demo · biên tập báo cáo | **D** | ⬜ |
-| | Sửa bug chặn demo | **A/B/C** | ⬜ |
-| **G6** Đóng băng | Đóng băng code · demo máy khác · nộp bộ cài + PDF + video | **D + cả nhóm** | ⬜ |
-
-**Đang chặn ngay:** **A** và **C** chạy `make doctor` rồi dán kết quả (D đã xanh — Python 3.12, MySQL healthy, cổng 3307; B không tính, ADR-012) · **A** sang #29 CRUD products · **C** đổi base #70 sang `develop` + làm #25 (màn Đăng nhập, API `/auth/*` đã có). Swagger, `/health`, 50 món, auth, bộ cài đều đã xong.
+| Cổng | Minh chứng chính |
+|---|---|
+| [G1 — Nền móng](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG1) | Máy A/C/D chạy được theo README, CI xanh, Swagger mở, có 50 món mẫu và bộ cài chạy trên Windows sạch |
+| [G2 — Lát cắt dọc](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG2) | Demo login, phân quyền và CRUD món trên máy người khác. Có kiểm thử cho ít nhất 12 endpoint |
+| [G3 — MVP](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG3) | Đủ sáu yêu cầu đề bài, demo toàn luồng và cài được bộ cài từ CI trên Windows sạch |
+| [G4 — Deploy](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG4) | Backend có URL công khai và tag kích hoạt build bộ cài qua CI |
+| [G5 — QA](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG5) | Test case đạt ít nhất 95%, báo cáo đạt 80% và có video demo |
+| [G6 — Đóng băng](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG6) | Đóng băng trước hạn ba ngày, chỉ nhận hotfix và đã tập bảo vệ |
 
 ## Làm việc nhóm
 
 1. Mọi việc bắt đầu từ **Issue** → nhánh `feature/*` từ `develop`.
-2. `make check` phải xanh → commit Conventional Commits → mở **PR**.
-3. Cần **1 approval** + **CI xanh** → merge **Squash**.
+2. `make check` phải xanh → commit Conventional Commits → mở **PR** có link Issue.
+3. Chờ **CI xanh** và approval theo [WORKFLOW mục 3.2](WORKFLOW.md#32-quy-tắc-approve). Người merge squash vào `develop`, xác nhận nghiệm thu rồi đóng Issue.
 
 | Tài liệu | Nội dung |
 |---|---|
 | [`WORKFLOW.md`](WORKFLOW.md) | Quy chuẩn làm việc đầy đủ — **nguồn chân lý** |
-| [`docs/plan.md`](docs/plan.md) | **Lộ trình theo cổng: đang ở đâu, việc gì mở khoá cổng, giao theo thứ tự nào** |
+| [`docs/plan.md`](docs/plan.md) | **Phạm vi từng cổng, phụ thuộc và thứ tự giao việc** |
 | [`docs/workflow.md`](docs/workflow.md) | Ai làm gì, xong thì bàn giao cho ai |
 | [`docs/defense.md`](docs/defense.md) | Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết |
 | [`docs/log/`](docs/log/README.md) | **Nhật ký cá nhân A/B/C/D** — mỗi người ghi việc đã làm + AI đã hỗ trợ gì |
