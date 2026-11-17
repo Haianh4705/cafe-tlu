@@ -100,6 +100,32 @@ Mỗi thư mục có `README.md` riêng: owner · đặt gì · **không** đặ
 | [`AGENTS.md`](AGENTS.md) | Quy tắc cho AI agent |
 | [`.claude/skills/`](.claude/skills/README.md) | 10 skill: API, DB, GUI, UI, test, đóng gói, báo cáo, bảo mật, tối giản, hỏi việc |
 
+## Skill — đọc theo vùng việc (10 skill)
+
+Skill là file hướng dẫn chi tiết cho **một loại việc**: bất biến cần giữ, khuôn mẫu copy được,
+checklist trước khi mở PR. **Đọc trước khi viết code**, không phải sau. Đường dẫn:
+`.claude/skills/<tên>/SKILL.md`. Khi mâu thuẫn với `WORKFLOW.md` → `WORKFLOW.md` thắng.
+
+| Skill | Đọc khi | Của ai |
+|---|---|---|
+| [`next-task`](.claude/skills/next-task/SKILL.md) | **"Tôi cần làm gì?"** — tra Issue được gán, trả lời theo thứ tự | Cả nhóm |
+| [`minimal-change`](.claude/skills/minimal-change/SKILL.md) | **Mọi việc code** — chọn cách nhỏ nhất đủ dùng | Cả nhóm |
+| [`fastapi-endpoint`](.claude/skills/fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | A |
+| [`sqlalchemy-model`](.claude/skills/sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | B |
+| [`pyside6-screen`](.claude/skills/pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | C |
+| [`ui-design`](.claude/skills/ui-design/SKILL.md) | Màu, font, khoảng cách, chống "AI slop" | C |
+| [`pytest-db`](.claude/skills/pytest-db/SKILL.md) | Fixture DB, test API, test hồi quy | A, B |
+| [`report-export`](.claude/skills/report-export/SKILL.md) | Xuất Excel/PDF, in hoá đơn | B, C |
+| [`win-installer`](.claude/skills/win-installer/SKILL.md) | Build `.exe`, lỗi đóng gói | D |
+| [`security`](.claude/skills/security/SKILL.md) | Auth, phân quyền, secret, review trước deploy | Cả nhóm (D review) |
+
+**Cách dùng nhanh:** mở phiên AI agent ở gốc repo và nói
+
+> Đọc `AGENTS.md` và skill `next-task`, cho tôi biết việc tiếp theo của tôi.
+
+Muốn tra tay thì chạy `make next` (lấy Issue đang gán cho bạn, kèm skill phải đọc).
+Quy ước viết skill mới: xem [`.claude/skills/README.md`](.claude/skills/README.md).
+
 ## Xử lý sự cố
 
 | Hiện tượng | Cách sửa |

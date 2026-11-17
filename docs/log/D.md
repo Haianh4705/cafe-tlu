@@ -38,6 +38,7 @@
 | 11-11 | — | — | `WORKFLOW.md`, `AGENTS.md`, `docs/log/` | thêm **nhật ký cá nhân bắt buộc** cho 4 người, nối vào DoD + PR template + cổng | kiến thức nằm trong chat sẽ mất; file trong repo thì lúc bảo vệ mở ra là có |
 | 11-17 | #56 | PR `docs/adr-health-exemption-d` | `WORKFLOW.md` §9.3, `docs/decisions.md` | ghi `/health` là ngoại lệ duy nhất của envelope + ADR-011 | ba consumer của `/health` (Docker healthcheck, `make doctor`, probe bộ cài) không đi qua GUI nên không parse envelope |
 | 11-17 | #26 | PR `feat/installer-verify-windows` | `scripts/verify_installer.ps1`, `.github/workflows/release.yml` | job CI cài thử bộ cài trên Windows sạch: cài im lặng → chạy app → chụp ảnh cửa sổ → gỡ cài, ghi báo cáo 13 bước | cả nhóm dùng macOS, chỉ runner `windows-latest` (máy ảo mới mỗi lần chạy) mới là "Windows sạch" kiểm chứng được |
+| 11-17 | — | PR `docs/skill-table-readme-d` | `README.md` | đưa bảng 10 skill (đọc khi nào · của ai) vào README chính | bảng skill nằm trong `.claude/skills/README.md` nhưng thành viên không mở file đó |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.
