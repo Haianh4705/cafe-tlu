@@ -18,12 +18,14 @@
 |---|---|---|---|---|---|
 | 2026-11-11 | #19 | feat(api) | `api/main.py`, `shared/error_codes.py`, `shared/errors.py` | Tạo khung FastAPI app, chuẩn hoá envelope lỗi và endpoint `/health` | Giúp GUI và Docker có thể kiểm tra sống đồng thời định hình format lỗi chung |
 | 2026-11-11 | #20 | feat(api) | `api/core/config.py`, `api/core/db.py`, `api/routers/health.py` | Đọc cấu hình từ `.env` qua Pydantic Settings và kiểm tra kết nối MySQL trong `/health` | Tách biệt cấu hình khỏi code, không hardcode secret và báo lỗi 503 khi mất DB |
+| 2026-11-17 | #21 | `feature/api-models-bao` (chưa PR) | `api/models/` (9 bảng), `tests/test_models.py` | Viết SQLAlchemy models khớp ERD v1 và test metadata/DDL | Dùng chung `Base` ở `api/core/db.py`, test không cần MySQL nên CI chạy nhanh |
 
 ## 3. AI đã làm gì
 
 | Ngày | Công cụ | AI làm gì | Tôi sửa / kiểm chứng gì |
 |---|---|---|---|
 | 2026-11-11 | Antigravity AI | Sinh boilerplate cho `api/main.py`, `config.py`, `db.py`, `shared/errors.py` và test | Kiểm tra format envelope theo WORKFLOW mục 9.3, kiểm thử 5 test cases bằng pytest |
+| 2026-11-17 | Command Code | Scaffold 9 model + `tests/test_models.py` từ `docs/erd.md` và `db/schema.sql` | Tự đối chiếu từng cột/FK/index với schema, chạy `configure_mappers()` và compile DDL MySQL, 39 test pass |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng A)
 
@@ -43,13 +45,14 @@
 
 ## 5. Chưa làm / chưa hiểu
 
-- [x] Đã hoàn thành khung FastAPI và `/health` (Issue #19 & #20).
-- [ ] Chờ B hoàn thiện `docs/erd.md` và `db/schema.sql` để triển khai SQLAlchemy Models (#21).
+- [x] Đã hoàn thành khung FastAPI và `/health` (Issue #19 & #20) — PR #56 đã rebase lên `develop`, chờ merge.
+- [x] Đã có `docs/erd.md` v1 + `db/schema.sql` của B; models 9 bảng đã viết (#21), chờ #56 merge để mở PR riêng.
+- [ ] #21 chưa chạy test trên MySQL thật (máy local đang tắt Docker) — cần `make up` rồi kiểm `Base.metadata.create_all`.
 
 ## 6. Nhật ký theo cổng
 
 | Cổng | Ngày | Đã xong gì | Còn thiếu gì |
 |---|---|---|---|
-| G1 | 2026-11-11 | Xong #19 (khung FastAPI), #20 (kết nối DB + config) | #21 (Models - chờ B), #22 (Auth JWT) |
+| G1 | 2026-11-17 | #19/#20 rebase lên develop + khớp ADR-011; #21 models 9 bảng | PR #56 chờ approve/merge; #21 chờ #56 để mở PR; #22 (Auth JWT) |
 | G2 | | | |
 | G3 | | | |
