@@ -51,7 +51,7 @@
 - [x] PR #44 (màn Order): đã sửa review lần 3 — trả `TC-ORD-01..03` về `⬜`, bọc mock sau `APP_ENV=demo` + `# shortcut:`, sửa bug mất nút khi huỷ đơn / thanh toán trên Windows, bổ sung assert lọc món & test trạng thái lỗi
 - [ ] Màn hình Login (#25), Thực đơn (#30) và Order (#49) chưa nối API + MySQL thật vì A/B chưa xong backend (`#17`–`#22`, `#29`), nên chưa có ca e2e nào được tính `PASS`
 - [ ] Chưa chạy kiểm tra `Setup.exe` (Release `v0.1.0`, #26) và `make doctor` đầy đủ trên máy Windows (điều kiện cổng G1)
-- [ ] Dashboard chờ API `#20`/`#21`; `docs/api-contract.md` **chưa có shape** response báo cáo nên GUI đang đọc `{total_revenue, total_orders, daily[]}` và `[{name, quantity}]` — cần A chốt
+- [ ] Dashboard chờ endpoint `GET /reports/revenue` và `GET /reports/top-products`; `docs/api-contract.md` **chưa có shape** response báo cáo nên GUI đang đọc `{total_revenue, total_orders, daily[]}` và `[{name, quantity}]` — cần A chốt
 - [ ] _(ghi những chỗ mình còn cần ôn kỹ trước buổi hỏi chéo — xem mục 4 và `docs/defense.md`)_
 
 ## 6. Nhật ký theo cổng
@@ -60,4 +60,4 @@
 |---|---|---|---|
 | G1 | 11-11 | khung GUI, `theme.py`, `BaseView`, `ApiClient`, `i18n.py`, màn Đăng nhập (#40) | nối API `#22` của A; xác nhận `make doctor` + test cài `Setup.exe` trên Windows (#26) |
 | G2 | 11-11 | giao diện Quản lý thực đơn CRUD + phân trang + tìm kiếm (#41) | nối API `#29` của A; chạy lại e2e và điền `TC-AUTH`, `TC-PRD`, `TC-SRC` |
-| G3 | 11-17 | giao diện Order tại bàn + thanh toán + in bill K80 (PR #44 / `#49`); màn Dashboard 4 KPI + 2 biểu đồ (mock, có unit test + ảnh chụp) | nối API `orders`/`checkout` và #20/#21 của A; màn Báo cáo + lọc ngày; chốt shape response với A |
+| G3 | 11-17 | giao diện Order tại bàn + thanh toán + in bill K80 (PR #44 / `#49`); màn Dashboard 4 KPI + 2 biểu đồ (mock, có unit test + ảnh chụp) | nối API `orders`/`checkout` và endpoint `GET /reports/...` của A; màn Báo cáo + lọc ngày; chốt shape response với A |
