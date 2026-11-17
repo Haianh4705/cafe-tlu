@@ -25,7 +25,7 @@ def test_health_check_endpoint_connected() -> None:
         data = response.json()
         assert data["status"] == "ok"
         assert data["version"] == __version__
-        assert data["database"] == "connected"
+        assert data["database"] == "ok"
 
 
 def test_health_check_endpoint_api_v1_connected() -> None:
@@ -36,7 +36,7 @@ def test_health_check_endpoint_api_v1_connected() -> None:
         data = response.json()
         assert data["status"] == "ok"
         assert data["version"] == __version__
-        assert data["database"] == "connected"
+        assert data["database"] == "ok"
 
 
 def test_health_check_endpoint_db_disconnected() -> None:
@@ -46,7 +46,7 @@ def test_health_check_endpoint_db_disconnected() -> None:
         assert response.status_code == 503
         data = response.json()
         assert data["status"] == "degraded"
-        assert data["database"] == "disconnected"
+        assert data["database"] == "error"
 
 
 def test_app_error_handler_format() -> None:

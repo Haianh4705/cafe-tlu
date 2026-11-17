@@ -2,6 +2,7 @@
 
 Tuân thủ:
 - docs/api-contract.md #1: GET /health.
+- docs/decisions.md ADR-011: /health là ngoại lệ duy nhất của envelope, trả phẳng.
 - Issue #19 & #20: Trả về trạng thái app và kiểm tra kết nối DB.
 """
 
@@ -23,7 +24,7 @@ def health_check() -> Any:
     payload = {
         "status": "ok" if db_ok else "degraded",
         "version": __version__,
-        "database": "connected" if db_ok else "disconnected",
+        "database": "ok" if db_ok else "error",
     }
     if not db_ok:
         return JSONResponse(

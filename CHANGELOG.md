@@ -15,7 +15,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Added — backend (API)
 - Khung FastAPI Backend (`api/main.py`): Khởi tạo FastAPI app, cấu hình CORS, xử lý ngoại lệ chung bọc envelope `error` (`AppError` và `RequestValidationError`), tự sinh Swagger tại `/docs` (#19)
-- Cấu hình & kết nối MySQL (`api/core/config.py`, `api/core/db.py`): Đọc cấu hình từ `.env` bằng `pydantic-settings`, dependency `get_db` cấp Session SQLAlchemy, endpoint `/health` kiểm tra sống và trạng thái kết nối MySQL (#20)
+- Cấu hình & kết nối MySQL (`api/core/config.py`, `api/core/db.py`): Đọc cấu hình từ `.env` bằng `pydantic-settings`, dependency `get_db` cấp Session SQLAlchemy, endpoint `/health` kiểm tra sống và trạng thái kết nối MySQL, trả phẳng `status`/`version`/`database` theo ADR-011 (#20)
 - Định nghĩa mã lỗi và exception dùng chung: `shared/error_codes.py` (hằng số `ErrorCode`) và `shared/errors.py` (`AppError`) (#19)
 
 ### Added — cơ sở dữ liệu & báo cáo (Data & Reports)
