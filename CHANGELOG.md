@@ -21,6 +21,10 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Added — xác thực (Auth)
 - Bảng thứ 10 `refresh_tokens` (`token_hash` SHA-256 UNIQUE, `expires_at`, `revoked_at`, `replaced_by_id`, 2 `CHECK`) để logout/rotate **thu hồi được** token; chỉ lưu hash, seed không tạo token (ADR-013, #22)
+- Model `RefreshToken` + quan hệ `User.refresh_tokens`, test metadata/DDL cập nhật đủ 10 bảng (`api/models/refresh_token.py`, `tests/test_models.py`) (#22)
+- `api/core/security.py`: băm mật khẩu bcrypt cost 12, access token JWT 30 phút, dependency `get_current_user` (Bearer) và `require_role(...)` kiểm quyền ở server (#22)
+- 4 endpoint `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/me`: login phát cặp token, refresh xoay vòng token cũ (`revoked_at` + `replaced_by_id`), logout thu hồi token; response bọc envelope `data`/`meta` (#22)
+- Test auth: 5 unit (bcrypt 12, JWT hết hạn, `require_role` 403) + 9 test DB (login sai trả cùng thông điệp, audit `LOGIN_FAILED`, refresh rotation, logout → 401, `staff` bị 403), fixture tự skip nếu không có MySQL `*_test` (`tests/test_auth.py`, `tests/conftest.py`) (#22)
 
 ### Added — cơ sở dữ liệu & báo cáo (Data & Reports)
 - Thiết kế ERD 9 bảng chuẩn hóa 3NF, từ điển dữ liệu, bất biến nghiệp vụ và snapshot đơn giá (`docs/erd.md`, #17)

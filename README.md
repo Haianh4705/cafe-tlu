@@ -94,9 +94,9 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 |---|---|---|---|
 | **G1** Nền móng | ERD + `db/schema.sql` (#17) · `seed.sql` 50 món (#18) | **B** | ✅ #55 |
 | | Khung API + `/health` (#19) · config MySQL (#20) | **A** | ✅ #56 |
-| | Models theo ERD (#21) → Auth JWT (#22) | **A** | ✅ #65 · ⬜ #22 |
+| | Models theo ERD (#21) → Auth JWT (#22) | **A** | ✅ #65 · ✅ #22 |
 | | Khung GUI + theme + BaseView (#23) · `api_client`/i18n (#24) | **C** | ✅ #40 |
-| | Màn Đăng nhập (#25) | **C** | ⬜ chờ #22 |
+| | Màn Đăng nhập (#25) | **C** | ⬜ #25 — API đã sẵn sàng |
 | | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
 | | **Ra cổng:** 3/3 `make doctor` (A, C, D — ADR-012) · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **A + C + D** | 🔴 còn A, C (D xong) |
 | **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ⬜ |
@@ -117,7 +117,7 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 | | Sửa bug chặn demo | **A/B/C** | ⬜ |
 | **G6** Đóng băng | Đóng băng code · demo máy khác · nộp bộ cài + PDF + video | **D + cả nhóm** | ⬜ |
 
-**Đang chặn ngay:** **A** và **C** chạy `make doctor` rồi dán kết quả (D đã xanh — Python 3.12, MySQL healthy, cổng 3307; B không tính, ADR-012) · **A** rebase #65 lên `develop` sau #56 rồi chuyển Ready. Swagger, `/health`, 50 món, bộ cài đều đã xong.
+**Đang chặn ngay:** **A** và **C** chạy `make doctor` rồi dán kết quả (D đã xanh — Python 3.12, MySQL healthy, cổng 3307; B không tính, ADR-012) · **A** sang #29 CRUD products · **C** đổi base #70 sang `develop` + làm #25 (màn Đăng nhập, API `/auth/*` đã có). Swagger, `/health`, 50 món, auth, bộ cài đều đã xong.
 
 ## Làm việc nhóm
 

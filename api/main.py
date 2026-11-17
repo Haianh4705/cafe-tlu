@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from api.core.config import settings
-from api.routers import health
+from api.routers import auth, health
 from shared.error_codes import ErrorCode
 from shared.errors import AppError
 from shared.version import APP_NAME, __version__
@@ -91,3 +91,6 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 # Mount healthcheck ở root (/health cho Dockerfile) và api/v1 (/api/v1/health theo contract)
 app.include_router(health.router)
 app.include_router(health.router, prefix="/api/v1")
+
+# Endpoint xác thực theo docs/api-contract.md #2-#5
+app.include_router(auth.router, prefix="/api/v1")
