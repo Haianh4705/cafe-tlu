@@ -13,6 +13,30 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - `Test` job không còn treo vô hạn khi `apt-get` gặp mirror chậm: `timeout-minutes` cho job
   (lint 10', test 15', release 45') + `Acquire::Retries/Timeout/ForceIPv4` và `timeout` cho apt (#52)
 
+### Added — cơ sở dữ liệu & báo cáo (Data & Reports)
+- Thiết kế ERD 9 bảng chuẩn hóa 3NF, từ điển dữ liệu, bất biến nghiệp vụ và snapshot đơn giá (`docs/erd.md`, #17)
+- DDL Schema MySQL 8.0/InnoDB/utf8mb4 đầy đủ ràng buộc khóa ngoại, chỉ mục và xóa mềm (`db/schema.sql`, #17)
+- Dữ liệu mẫu idempotent (`db/seed.sql`) với 3 vai trò, 5 tài khoản bcrypt (mật khẩu `123456`), 6 danh mục, 51 món ăn uống, 12 bàn phục vụ (#18) và 120 đơn hàng mẫu trải dài 30 ngày
+- Script sinh tự động 120 đơn hàng & hoá đơn mẫu có kiểm soát tính nhất quán (`scripts/seed_data.py`, #28)
+- Module dịch vụ thống kê doanh thu theo ngày, top món bán chạy, theo danh mục và xuất file Excel/PDF chuẩn nhận diện TLU (`api/services/reports.py`, #31)
+- Bộ unit test kiểm thử hàm thống kê và xuất file báo cáo (`tests/test_reports.py`)
+- Bật tự động nạp `schema.sql` và `seed.sql` trong `docker-compose.yml` khi khởi tạo container MySQL
+- Nhật ký cá nhân và ngân hàng phản biện của B (`docs/log/B.md`)
+- Chương 3 Báo cáo BTL về Phân tích & Thiết kế CSDL đạt chuẩn 3NF (`report/03-phan-tich.md`)
+
+### Changed — cơ sở dữ liệu (ràng buộc ở tầng DB)
+
+- `products` xoá mềm bằng `deleted_at` + cột ảo `active_name` UNIQUE: xoá "Trà đào" rồi tạo lại món
+  cùng tên được, nhưng không thể có hai món đang bán cùng tên (`db/schema.sql`)
+- `orders.open_table_id` (cột ảo) + UNIQUE: mỗi bàn chỉ được **một đơn đang mở**
+- 9 `CHECK` thay cho quy ước bằng lời: `subtotal = quantity × unit_price`, `final = subtotal − discount`,
+  `change = paid − final`, `paid ≥ final`, trạng thái đơn/dòng món/bàn, phương thức thanh toán
+- Index ghép cho báo cáo: `orders(status, created_at)`, `order_items(order_id, status)`,
+  `invoices(paid_at, order_id)`, `audit_logs(entity_type, entity_id)`; `audit_logs.details` đổi sang `JSON`
+- Sửa **3 mã trùng** (`ORD-20261110-001` ×2, `ORD-20261111-002` ×2, `INV-20261110-001` ×2) từng làm
+  `ON DUPLICATE KEY UPDATE` ghi đè 2 đơn và 1 hoá đơn → seed giờ đủ **120 đơn / 119 hoá đơn, 0 trùng**
+- Thêm `db/verify_seed.sql`: 21 phép kiểm PASS/FAIL (đếm dòng, mã trùng, lệch tổng tiền, mồ côi, 30 ngày)
+
 ### Added — quy trình
 - **Nhật ký cá nhân bắt buộc:** `docs/log/A.md` … `D.md` — mỗi người ghi việc đã làm, AI đã hỗ trợ
   gì, câu hỏi thầy hay hỏi, phần còn chưa hiểu; cập nhật trong mỗi PR, rà trước mỗi cổng
