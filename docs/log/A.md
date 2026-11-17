@@ -18,7 +18,8 @@
 |---|---|---|---|---|---|
 | 2026-11-11 | #19 | feat(api) | `api/main.py`, `shared/error_codes.py`, `shared/errors.py` | Tạo khung FastAPI app, chuẩn hoá envelope lỗi và endpoint `/health` | Giúp GUI và Docker có thể kiểm tra sống đồng thời định hình format lỗi chung |
 | 2026-11-11 | #20 | feat(api) | `api/core/config.py`, `api/core/db.py`, `api/routers/health.py` | Đọc cấu hình từ `.env` qua Pydantic Settings và kiểm tra kết nối MySQL trong `/health` | Tách biệt cấu hình khỏi code, không hardcode secret và báo lỗi 503 khi mất DB |
-| 2026-11-17 | #21 | `feature/api-models-bao` (chưa PR) | `api/models/` (9 bảng), `tests/test_models.py` | Viết SQLAlchemy models khớp ERD v1 và test metadata/DDL | Dùng chung `Base` ở `api/core/db.py`, test không cần MySQL nên CI chạy nhanh |
+| 2026-11-17 | #21 | #65 (merged) | `api/models/` (9 bảng), `tests/test_models.py` | Viết SQLAlchemy models khớp ERD v1 và test metadata/DDL | Dùng chung `Base` ở `api/core/db.py`, test không cần MySQL nên CI chạy nhanh |
+| 2026-11-17 | #22 | `feature/api-auth-bao` | `api/core/security.py`, `api/routers/auth.py`, `api/services/auth.py`, `api/models/refresh_token.py`, `tests/test_auth.py`, `tests/conftest.py` | Làm login/refresh/logout/me: bcrypt 12, JWT 30 phút, refresh token lưu hash + rotation, `require_role` kiểm quyền | Lưu hash thay token thô và thu hồi được khi logout (ADR-013); envelope `data`/`meta` theo hợp đồng |
 
 ## 3. AI đã làm gì
 
@@ -26,6 +27,7 @@
 |---|---|---|---|
 | 2026-11-11 | Antigravity AI | Sinh boilerplate cho `api/main.py`, `config.py`, `db.py`, `shared/errors.py` và test | Kiểm tra format envelope theo WORKFLOW mục 9.3, kiểm thử 5 test cases bằng pytest |
 | 2026-11-17 | Command Code | Scaffold 9 model + `tests/test_models.py` từ `docs/erd.md` và `db/schema.sql` | Tự đối chiếu từng cột/FK/index với schema, chạy `configure_mappers()` và compile DDL MySQL, 39 test pass |
+| 2026-11-17 | Command Code | Viết `security.py`, service/router auth, model `refresh_tokens` và 14 test auth theo DDL D chốt | Tự kiểm OpenAPI, chạy ruff/black/pytest; test DB skip ở máy local vì chưa có Docker, chờ CI xác nhận |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng A)
 
@@ -45,14 +47,15 @@
 
 ## 5. Chưa làm / chưa hiểu
 
-- [x] Đã hoàn thành khung FastAPI và `/health` (Issue #19 & #20) — PR #56 đã rebase lên `develop`, chờ merge.
-- [x] Đã có `docs/erd.md` v1 + `db/schema.sql` của B; models 9 bảng đã viết (#21), chờ #56 merge để mở PR riêng.
-- [ ] #21 chưa chạy test trên MySQL thật (máy local đang tắt Docker) — cần `make up` rồi kiểm `Base.metadata.create_all`.
+- [x] #19/#20 (PR #56) và #21 (PR #65) đã merge vào `develop`.
+- [x] #22: login/refresh/logout/me + bcrypt cost 12 + `require_role`; 9 test DB tự skip ở máy local, CI sẽ chạy.
+- [ ] Chưa kiểm `Base.metadata.create_all` / Alembic autogenerate trên MySQL thật — cần cài Docker Desktop (máy hiện chưa có).
+- [ ] Rate limit `/auth/login` chưa làm: cần mã lỗi 429 mới + cập nhật contract bằng PR riêng (để G4).
 
 ## 6. Nhật ký theo cổng
 
 | Cổng | Ngày | Đã xong gì | Còn thiếu gì |
 |---|---|---|---|
-| G1 | 2026-11-17 | #19/#20 rebase lên develop + khớp ADR-011; #21 models 9 bảng | PR #56 chờ approve/merge; #21 chờ #56 để mở PR; #22 (Auth JWT) |
+| G1 | 2026-11-17 | #19/#20, #21 đã merge; #22 auth + phân quyền xong (chờ PR) | PR #22 chờ approve + CI; `make doctor` 4/4 máy (D); rate limit login để G4 |
 | G2 | | | |
 | G3 | | | |

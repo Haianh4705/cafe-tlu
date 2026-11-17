@@ -26,10 +26,10 @@
 | # | Method | Path | Quyền | Mô tả | Trạng thái |
 |---|---|---|---|---|---|
 | 1 | GET | `/health` | public | Kiểm tra sống + version | ✅ |
-| 2 | POST | `/auth/login` | public | Trả access + refresh token | ⬜ |
-| 3 | POST | `/auth/refresh` | public | Làm mới access token | ⬜ |
-| 4 | POST | `/auth/logout` | đã đăng nhập | Thu hồi token | ⬜ |
-| 5 | GET | `/auth/me` | đã đăng nhập | Thông tin người dùng hiện tại | ⬜ |
+| 2 | POST | `/auth/login` | public | Trả access + refresh token | ✅ |
+| 3 | POST | `/auth/refresh` | public | Làm mới access token | ✅ |
+| 4 | POST | `/auth/logout` | đã đăng nhập | Thu hồi token | ✅ |
+| 5 | GET | `/auth/me` | đã đăng nhập | Thông tin người dùng hiện tại | ✅ |
 | 6 | GET | `/categories` | staff+ | Danh sách danh mục | ⬜ |
 | 7 | POST | `/categories` | admin | Tạo danh mục | ⬜ |
 | 8 | GET | `/products` | staff+ | Danh sách + tìm kiếm + lọc | ⬜ |
