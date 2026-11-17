@@ -44,6 +44,7 @@
 | 11-17 | #17 #18 #28 #31 | #55 (**D làm thay B**) | `db/schema.sql`, `db/seed.sql`, `db/verify_seed.sql`, `docs/erd.md`, `db/README.md` | làm nốt phần DB của B: sửa 3 mã trùng trong seed (118→120 đơn), thêm `deleted_at` + cột ảo UNIQUE, `open_table_id` UNIQUE, 9 `CHECK`, index ghép, `details` → JSON, script kiểm 21 phép | quy ước ghi trong `erd.md` thì không chặn được dữ liệu sai; đưa xuống ràng buộc DB mới kiểm chứng được — B vắng nên D làm thay và ghi rõ trong PR + log để B vẫn bảo vệ được |
 | 11-17 | #49 | #44 (merge) | `README.md` | merge màn Order của C (`--squash --admin` vì nhánh `BEHIND`) rồi tick #55/#44 thành ✅, sửa "Đang chặn ngay" chỉ còn #56 | bảng 6 cổng phải khớp sự thật trong cùng ngày (12.6), không để người sau đọc phải trạng thái cũ |
 | 11-17 | #19 #20 | #56 (merge) | `README.md` | duyệt #56 kèm kiểm chứng chạy thật (MySQL 8.0: `/health` 200, `/docs` 200, tắt DB 503, bật lại 200), merge, đóng #19/#20, tick bảng cổng | review chỉ đọc diff thì không biết `/health` có sống thật không — chạy uvicorn với DB thật mới chứng minh được tiêu chí "Swagger mở" của G1 |
+| 11-18 | #33 | PR `docs/doctor-3-may-adr012` | `docs/decisions.md`, `README.md`, `docs/plan.md`, `WORKFLOW.md` §16.3, `docs/workflow.md`, `docs/defense-D.md` | ADR-012: điều kiện ra G1 đổi từ 4/4 máy `make doctor` thành **3/3 (A, C, D)**, máy B không tính | phần DB của B kiểm bằng `db/verify_seed.sql` trên máy nào cũng được, còn B vắng từ 11-11 — giữ 4/4 là để một cổng kỹ thuật kẹt theo lịch của một người |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.
@@ -91,7 +92,7 @@
 
 | Cổng | Ngày | Đã xong gì | Còn thiếu gì |
 |---|---|---|---|
-| G1 | _(chưa ra cổng)_ | CI xanh; bộ cài build + Release `v0.1.0`; `make doctor` kiểm health + cổng; Dockerfile backend; lộ trình cổng | Swagger (A #19), DB 50 món (B #17/#18), 4/4 máy doctor, cài thử trên Windows sạch |
+| G1 | _(chưa ra cổng)_ | CI xanh; bộ cài build + Release `v0.1.0`; `make doctor` kiểm health + cổng; Dockerfile backend; lộ trình cổng; **Swagger + `/health` (A #56) và 50 món (B #55) đã vào `develop`** | 3/3 máy A/C/D `make doctor` (D xong, còn A + C — ADR-012), cài thử trên Windows sạch |
 | G2 | | | |
 | G3 | | | |
 | G4 | | | |

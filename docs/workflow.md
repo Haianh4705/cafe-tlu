@@ -123,7 +123,7 @@ Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán),
 | C | khung `gui/` + `theme.py` + `api_client.py` | → D |
 | D | build installer thử lần 1, `make doctor` + MySQL | → cả nhóm |
 
-**Cổng:** cả 4 máy chạy được bằng README, CI xanh, có 1 bản cài cài được.
+**Cổng:** 3 máy **A, C, D** chạy được bằng README (ADR-012; B chỉ cần `db/verify_seed.sql`), CI xanh, có 1 bản cài cài được.
 
 ### G2 — Lát cắt dọc
 

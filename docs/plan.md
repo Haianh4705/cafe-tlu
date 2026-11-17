@@ -40,7 +40,7 @@ nào phải đọc · đang chờ ai.
 
 | Cổng | Mục tiêu | Điều kiện ra cổng | Đường găng |
 |---|---|---|---|
-| **G1 — Nền móng** | Dữ liệu + khung 2 đầu chạy được | 4/4 máy `make doctor` xanh · CI xanh · installer cài được · DB có 50 món · Swagger mở được | B: schema → A: models |
+| **G1 — Nền móng** | Dữ liệu + khung 2 đầu chạy được | 3/3 máy A/C/D `make doctor` xanh (ADR-012) · CI xanh · installer cài được · DB có 50 món · Swagger mở được | B: schema → A: models |
 | **G2 — Lát cắt dọc** | Login → CRUD món chạy end-to-end | Chạy trên máy người khác · `staff` bị 403 · ≥ 12 endpoint có test | A: CRUD → C: màn hình |
 | **G3 — MVP** | Đủ 6 yêu cầu đề bài | Order + hoá đơn + thống kê + báo cáo chạy · installer từ CI cài trên máy sạch | A: orders API → C: màn order → B: thống kê |
 | **G4 — Deploy** | Backend công khai, phát hành tự động | URL công khai · tag → CI build `.exe` · `pip-audit` sạch | D: Docker + deploy |
@@ -55,7 +55,7 @@ Chặng này chen vào được bất cứ lúc nào G3 đã xong, trước khi 
 ## 2. G1 — Nền móng
 
 **Mục tiêu:** mỗi người chạy được hệ thống trên máy mình; DB có 50 món; Swagger mở được.
-**Ra cổng khi:** 4/4 máy `make doctor` xanh · CI xanh · **có bản cài cài được** trên Windows sạch.
+**Ra cổng khi:** 3/3 máy **A, C, D** `make doctor` xanh (máy B không tính — ADR-012; phần DB kiểm bằng `db/verify_seed.sql`) · CI xanh · **có bản cài cài được** trên Windows sạch.
 
 ### Sóng 1 — không phụ thuộc ai, cả 4 chạy ngay
 

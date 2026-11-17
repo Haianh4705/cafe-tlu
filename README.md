@@ -98,7 +98,7 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 | | Khung GUI + theme + BaseView (#23) · `api_client`/i18n (#24) | **C** | ✅ #40 |
 | | Màn Đăng nhập (#25) | **C** | ⬜ chờ #22 |
 | | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
-| | **Ra cổng:** 4/4 `make doctor` · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **cả nhóm** | 🔴 còn 3 máy `make doctor` (D 1/4) |
+| | **Ra cổng:** 3/3 `make doctor` (A, C, D — ADR-012) · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **A + C + D** | 🔴 còn A, C (D xong) |
 | **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ⬜ |
 | | 120 đơn/30 ngày (#28) · thống kê doanh thu, top món (#31) | **B** | ✅ #55 |
 | | Màn Danh sách món (#30) | **C** | ✅ #41 |
@@ -117,7 +117,7 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 | | Sửa bug chặn demo | **A/B/C** | ⬜ |
 | **G6** Đóng băng | Đóng băng code · demo máy khác · nộp bộ cài + PDF + video | **D + cả nhóm** | ⬜ |
 
-**Đang chặn ngay:** 3 máy còn lại chạy `make doctor` rồi dán kết quả (D đã xanh 1/4 — Python 3.12, MySQL healthy, cổng 3307) · **A** rebase #65 lên `develop` sau #56 rồi chuyển Ready. Swagger, `/health`, 50 món, bộ cài đều đã xong.
+**Đang chặn ngay:** **A** và **C** chạy `make doctor` rồi dán kết quả (D đã xanh — Python 3.12, MySQL healthy, cổng 3307; B không tính, ADR-012) · **A** rebase #65 lên `develop` sau #56 rồi chuyển Ready. Swagger, `/health`, 50 món, bộ cài đều đã xong.
 
 ## Làm việc nhóm
 
