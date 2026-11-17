@@ -53,6 +53,7 @@ function Add-Check {
 }
 
 function Write-Report {
+    $table = ($script:rows | ForEach-Object { "| $($_.Step) | $($_.Status) | $($_.Detail) |" }) -join "`n"
     $lines = @(
         '# Kết quả cài thử bộ cài CafeTLU trên Windows sạch',
         '',
@@ -63,7 +64,7 @@ function Write-Report {
         '',
         '| Bước | Kết quả | Chi tiết |',
         '|---|---|---|',
-        ($script:rows | ForEach-Object { "| $($_.Step) | $($_.Status) | $($_.Detail) |" }) -join "`n"
+        $table
     )
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $ReportPath) | Out-Null
     Set-Content -LiteralPath $ReportPath -Value ($lines -join "`n") -Encoding utf8
