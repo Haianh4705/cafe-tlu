@@ -875,7 +875,7 @@ Lý do: nhật ký viết sau (vài tuần) sẽ mất chi tiết và dễ thàn
 
 | Cổng | Thời điểm | Điều kiện xanh |
 |---|---|---|
-| **G1 — Nền móng** | Khi xong 3 sóng | Cả 4 máy chạy `make up && make api && make gui` chỉ bằng README; CI xanh; **build installer thử lần 1** |
+| **G1 — Nền móng** | Khi xong 3 sóng | 3/3 máy **A, C, D** chạy `make up && make api && make gui` chỉ bằng README (ADR-012); CI xanh; **build installer thử lần 1** |
 | **G2 — Lát cắt dọc** | Khi CRUD món chạy end-to-end | Login + phân quyền + CRUD món chạy end-to-end từ GUI |
 | **G3 — MVP** | Khi đủ 6 yêu cầu đề bài | Đủ 6 yêu cầu đề bài; installer từ CI cài được trên máy sạch |
 | **G4 — Deploy** | Khi backend có URL công khai | Backend có URL công khai; tag → CI tự build installer |

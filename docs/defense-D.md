@@ -283,7 +283,7 @@ chưa MySQL), cài bằng `Setup.exe`, mở từ Start Menu. ⚠️ **Hiện ch�
 
 ### 6.1 Vì sao theo cổng, không theo tuần
 
-- Cổng = **điều kiện kiểm chứng được** ("4/4 máy `make doctor` xanh", "DB có 50 món"), tuần = **thời
+- Cổng = **điều kiện kiểm chứng được** ("3/3 máy A/C/D `make doctor` xanh", "DB có 50 món"), tuần = **thời
   gian trôi** — tuần 3 vẫn "đúng tiến độ" dù chưa có `schema.sql`.
 - Thứ tự công việc không đổi, chỉ bỏ mốc lịch; ước lượng giờ vẫn giữ trong `docs/plan.md`.
 - Có **đường găng**: `db/schema.sql` (B) chặn A (models) và C (màn hình) → giao B trước.

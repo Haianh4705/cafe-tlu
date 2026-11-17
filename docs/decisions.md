@@ -151,6 +151,25 @@
 
 ---
 
+## ADR-012: `make doctor` bắt buộc trên máy A, C, D — không tính máy B vào cổng G1
+
+- **Ngày:** 2026-11-18 · **Người quyết định:** D (@Haianh4705) · **Trạng thái:** Chấp nhận
+- **Bối cảnh:** điều kiện ra G1 ghi "4/4 máy `make doctor` xanh". Nhưng B chỉ làm `db/` +
+  `api/services/reports.py` — phần của B kiểm chứng được bằng `db/verify_seed.sql` (21 phép kiểm
+  PASS/FAIL) trên **bất kỳ** máy nào có Docker, không cần môi trường riêng của B. B vắng từ 11-11,
+  nên điều kiện 4/4 biến một cổng kỹ thuật thành phụ thuộc vào một người không có mặt.
+- **Quyết định:** `make doctor` phải xanh trên **3/3 máy A, C, D**. Máy B **không** nằm trong điều
+  kiện ra G1; nếu B chạy được thì ghi nhận, không chặn.
+- **Đã cân nhắc:** giữ 4/4 → G1 kẹt vô thời hạn mà không thêm thông tin (B không chạy `api/`/`gui/`);
+  bỏ hẳn điều kiện doctor → mất bằng chứng "môi trường giống nhau", ba lỗi môi trường đã gặp
+  (Docker CLI không có trong PATH, MySQL `running` nhưng chưa nhận truy vấn, cổng 3307 bị chiếm)
+  sẽ quay lại.
+- **Hệ quả:** `README.md` (bảng cổng), `docs/plan.md`, `docs/defense-D.md`, `WORKFLOW.md` §16.3 ghi
+  "3/3 (A, C, D)". `make doctor` vẫn **bắt buộc** với ai chạm `api/`, `gui/`, `installer/`, `.github/`
+  trước khi mở PR — quy tắc này không đổi.
+
+---
+
 ## Mẫu thêm ADR mới
 
 ```markdown
