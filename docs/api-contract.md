@@ -25,7 +25,7 @@
 
 | # | Method | Path | Quyền | Mô tả | Trạng thái |
 |---|---|---|---|---|---|
-| 1 | GET | `/health` | public | Kiểm tra sống + version | ⬜ |
+| 1 | GET | `/health` | public | Kiểm tra sống + version | ✅ |
 | 2 | POST | `/auth/login` | public | Trả access + refresh token | ⬜ |
 | 3 | POST | `/auth/refresh` | public | Làm mới access token | ⬜ |
 | 4 | POST | `/auth/logout` | đã đăng nhập | Thu hồi token | ⬜ |
