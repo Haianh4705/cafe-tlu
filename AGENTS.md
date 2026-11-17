@@ -129,7 +129,8 @@ make doctor      # kiểm tra môi trường máy
 - [ ] Đúng phạm vi Issue, không file thừa trong diff
 - [ ] Có test cho hành vi mới (hoặc lý do chính đáng không có)
 - [ ] Đã cập nhật `docs/api-contract.md` / `CHANGELOG.md` nếu đổi hành vi
-- [ ] Ảnh chụp màn hình (nếu là UI) lưu vào `docs/screenshots/<module>/`
+- [ ] Ảnh chụp màn hình **chỉ khi** PR hoàn thiện/đổi màn hình (UI) → `docs/screenshots/<module>/`;
+      PR backend/DB/CI/docs thay bằng log + link lần chạy CI
 - [ ] **Trả lời được** 3 câu trong mục "Giải thích được" của PR (`docs/defense.md`) — nếu bạn
       không viết được 3 câu đó thay cho người dùng, thì code chưa đủ rõ để họ bảo vệ
 - [ ] Commit message đúng Conventional Commits, có `Co-authored-by` nếu code do AI sinh

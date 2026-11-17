@@ -62,7 +62,8 @@ Sau đó **một dòng** về việc kế tiếp, không liệt kê hết.
    Được: giải thích, chỉ file, gợi ý cách làm. Không: viết cả file rồi bảo họ commit.
 4. **Nhắc điều kiện xong** ngắn gọn: `make check` xanh · PR cần 1 approval + CI xanh ·
    3 câu "Giải thích được" (`docs/defense.md`).
-5. **Không quên ảnh chụp** nếu là việc UI — đó là điểm mốc 8, và dễ bị bỏ nhất.
+5. **Không quên ảnh chụp** nếu việc của bạn là *hoàn thiện một màn hình* — ảnh là tư liệu báo cáo và để
+   GV xem lúc bảo vệ. Việc backend/DB/CI thì **không** cần ảnh: dán log + link CI là đủ.
 
 ## Nếu họ hỏi "cổng này tôi làm gì?" (không phải "việc tiếp theo")
 
