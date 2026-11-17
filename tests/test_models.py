@@ -19,6 +19,7 @@ EXPECTED_TABLES = {
     "order_items",
     "invoices",
     "audit_logs",
+    "refresh_tokens",
 }
 
 MONEY_COLUMNS = {
@@ -44,10 +45,12 @@ FOREIGN_KEYS = {
     ("invoices", "order_id"): ("orders", "RESTRICT"),
     ("invoices", "cashier_id"): ("users", "RESTRICT"),
     ("audit_logs", "user_id"): ("users", "SET NULL"),
+    ("refresh_tokens", "user_id"): ("users", "CASCADE"),
+    ("refresh_tokens", "replaced_by_id"): ("refresh_tokens", "SET NULL"),
 }
 
 
-def test_models_define_all_nine_tables() -> None:
+def test_models_define_all_ten_tables() -> None:
     assert set(Base.metadata.tables) == EXPECTED_TABLES
 
 
@@ -87,6 +90,7 @@ def test_unique_constraints_and_indexes_match_schema() -> None:
         "tables": "uq_tables_table_number",
         "orders": "uq_orders_order_code",
         "invoices": "uq_invoices_order_id",
+        "refresh_tokens": "uq_refresh_tokens_hash",
     }
     for table_name, constraint_name in expected_unique.items():
         names = {c.name for c in Base.metadata.tables[table_name].constraints}
@@ -100,6 +104,11 @@ def test_unique_constraints_and_indexes_match_schema() -> None:
 
     audit_logs = Base.metadata.tables["audit_logs"]
     assert "idx_audit_logs_entity" in {i.name for i in audit_logs.indexes}
+
+    refresh_tokens = Base.metadata.tables["refresh_tokens"]
+    assert {"idx_refresh_tokens_user", "idx_refresh_tokens_expires"} <= {
+        i.name for i in refresh_tokens.indexes
+    }
 
 
 def test_models_compile_to_mysql_ddl() -> None:

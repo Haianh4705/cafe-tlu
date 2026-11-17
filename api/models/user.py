@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from api.models.audit_log import AuditLog
     from api.models.invoice import Invoice
     from api.models.order import Order
+    from api.models.refresh_token import RefreshToken
     from api.models.role import Role
 
 
@@ -46,3 +47,6 @@ class User(Base):
     orders: Mapped[list[Order]] = relationship(back_populates="creator")
     invoices: Mapped[list[Invoice]] = relationship(back_populates="cashier")
     audit_logs: Mapped[list[AuditLog]] = relationship(back_populates="user")
+    refresh_tokens: Mapped[list[RefreshToken]] = relationship(
+        back_populates="user", passive_deletes=True
+    )
