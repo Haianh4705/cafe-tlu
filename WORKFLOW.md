@@ -527,6 +527,18 @@ Lỗi:
 - `message` là tiếng Việt, hiển thị được trực tiếp cho người dùng cuối.
 - **CẤM** trả `detail` mặc định của FastAPI ra ngoài — phải qua exception handler chung.
 
+**Ngoại lệ duy nhất: `/health`** (và bí danh `/api/v1/health`) — xem ADR-011.
+
+```json
+{ "status": "ok", "version": "0.1.0", "database": "ok" }
+```
+
+- Trả **phẳng**, không bọc `data`/`meta`/`error`. Lý do: Docker `healthcheck`, script `make doctor`
+  và probe của bộ cài đọc thẳng `status`/`database`, không qua lớp xử lý response của GUI.
+- HTTP **200** khi DB thông, **503** khi DB không thông (`status: "degraded"`, `database: "error"`).
+  Trường hợp 503 vẫn **không** dùng envelope `error`.
+- Ngoại lệ này **chỉ** áp cho health check. Mọi endpoint khác, kể cả nội bộ, phải theo mục 9.3.
+
 ### 9.4 Bảo mật API
 
 - JWT trong header `Authorization: Bearer <token>`; access token 30 phút, refresh 7 ngày.

@@ -129,6 +129,28 @@
 
 ---
 
+## ADR-011: `/health` là ngoại lệ duy nhất của envelope mục 9.3
+
+- **Ngày:** 2026-11-17 · **Người quyết định:** D · **Trạng thái:** ✅ Chấp nhận
+- **Bối cảnh:** `WORKFLOW.md` §9.3 bắt mọi response phải bọc `data`/`meta`/`error`. Nhưng `/health` bị
+  đọc bởi ba thứ **không phải GUI**: `healthcheck` của Docker Compose, `make doctor`, và probe sau khi
+  cài trên Windows. Cả ba đều chỉ cần biết "sống/chết", phải parse được bằng `curl`/`jq`/Python một
+  dòng. Bọc envelope khiến mỗi nơi phải biết thêm một tầng định dạng, và khi DB chết thì chính
+  endpoint dùng để chẩn đoán lại trả về cấu trúc khác — `make doctor` báo sai.
+- **Quyết định:** `/health` và bí danh `/api/v1/health` trả **phẳng**
+  `{"status": "ok|degraded", "version": "<shared/version.py>", "database": "ok|error"}`; HTTP 200 khi
+  DB thông, 503 khi DB lỗi. **Không** dùng envelope kể cả ở nhánh 503. Đây là ngoại lệ **duy nhất**;
+  mọi endpoint khác giữ nguyên §9.3.
+- **Đã cân nhắc:** (a) ép `/health` theo envelope cho "sạch quy chuẩn" → mọi consumer phải sửa, và
+  healthcheck của Docker phải viết script riêng; (b) tách `/health` ra thành endpoint ngoài `/api/v1`
+  và không tính là API → vẫn phải ghi ở đâu đó, dễ sinh endpoint thứ hai lách luật; (c) để mỗi service
+  tự chọn → không thống nhất được, đúng thứ §9.3 sinh ra để chặn.
+- **Hệ quả:** §9.3 có thêm mục "Ngoại lệ" ghi rõ ca này. Test `tests/test_api_health.py` phải khẳng
+  định trả phẳng **và** đúng 200/503. Ai thêm endpoint kiểu `/health` thứ hai phải mở ADR mới. Bộ cài
+  và `make doctor` được phép đọc thẳng `status`/`database` mà không qua `gui/api_client.py`.
+
+---
+
 ## Mẫu thêm ADR mới
 
 ```markdown
