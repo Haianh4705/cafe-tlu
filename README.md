@@ -99,12 +99,12 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 | | Màn Đăng nhập (#25) | **C** | ⬜ #25 — API đã sẵn sàng |
 | | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
 | | **Ra cổng:** 3/3 `make doctor` (A, C, D — ADR-012) · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **A + C + D** | 🔴 còn A, C (D xong) |
-| **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ⬜ |
+| **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ✅ #73 |
 | | 120 đơn/30 ngày (#28) · thống kê doanh thu, top món (#31) | **B** | ✅ #55 |
 | | Màn Danh sách món (#30) | **C** | ✅ #41 |
 | | Màn Order + thanh toán (#49) | **C** | ✅ #44 |
 | | Khung báo cáo 10 file (#32) | **D** | ⬜ |
-| | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 · ≥12 endpoint có test | **A + C + D** | 🔴 |
+| | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 ✅ · ≥12 endpoint có test ✅ (12/12 contract #1–#12) | **A + C + D** | 🔴 còn demo login → CRUD trên 3 máy |
 | **G3** MVP | API `orders` + `checkout` (transaction) · API báo cáo | **A** | ⬜ |
 | | Seed bàn · xuất Excel + PDF font tiếng Việt | **B** | ⬜ |
 | | Màn Order · Thanh toán + in bill · Dashboard 4 KPI | **C** | ⬜ |
