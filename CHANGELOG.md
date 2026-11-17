@@ -30,6 +30,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Khung giao diện desktop PySide6: theme nhận diện TLU (palette navy `#000066` + swoosh đỏ `#F32409`), BaseView 4 trạng thái bắt buộc, ApiClient bọc 23 endpoint, màn hình Đăng nhập (`LoginView`) phân quyền vai trò (`admin`/`staff`/`barista`), nhúng font Manrope và tài liệu ảnh chụp (#40, Closes #23, #24, #25)
 
 ### Added — hạ tầng & công cụ
+- Job `verify-installer`: cài bộ cài `.exe` vừa build lên runner `windows-latest` (máy Windows sạch),
+  chạy app, chụp ảnh cửa sổ bằng `PrintWindow`, gỡ cài và kiểm thư mục đã sạch; báo cáo 11 bước
+  đưa vào Summary + artifact 30 ngày (`scripts/verify_installer.ps1`, #26)
 - Bộ cài Windows: `installer/cafetlu.spec` (PyInstaller onedir, nhúng `assets/`), `cafetlu.iss`
   (Inno Setup, cài per-user, shortcut + uninstall), `app.ico` 7 kích thước, `scripts/build_installer.sh`
   và `scripts/make_icon.py`; version lấy duy nhất từ `shared/version.py` (#26)
