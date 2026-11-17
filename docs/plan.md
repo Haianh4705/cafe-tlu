@@ -7,6 +7,9 @@
 > Không chia theo tuần. Cổng mở khi **đủ điều kiện**, không phải khi hết lịch — nhóm chạy nhanh
 > thì qua cổng sớm, chậm thì cổng dời lại nhưng thứ tự công việc không đổi.
 >
+> **Trạng thái hiện tại** (việc nào ✅/🟡/⬜): bảng "Lộ trình 6 cổng" trong
+> [`README.md`](../README.md) (mục "Lộ trình 6 cổng — ai làm gì"). File này giữ **chi tiết + phụ thuộc + thứ tự giao việc**.
+>
 > **Phân vai đã chốt:** A = [@bao20062005dh-creator](https://github.com/bao20062005dh-creator) ·
 > B = [@trungdunxg](https://github.com/trungdunxg) ·
 > C = [@MeoCamGuitar](https://github.com/MeoCamGuitar) ·

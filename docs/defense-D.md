@@ -307,7 +307,7 @@ chưa MySQL), cài bằng `Setup.exe`, mở từ Start Menu. ⚠️ **Hiện ch�
 ### 6.4 Định nghĩa "xong" (Definition of Done)
 
 `make lint` + `make test` xanh (dán kết quả thật) · đúng phạm vi Issue · có test cho hành vi mới ·
-CHANGELOG 1 dòng · ảnh chụp nếu là UI · **3 câu "Giải thích được"** · commit Conventional Commits.
+CHANGELOG 1 dòng · ảnh chụp **chỉ khi** vừa hoàn thiện/đổi một màn hình · **3 câu "Giải thích được"** · commit Conventional Commits.
 
 ---
 

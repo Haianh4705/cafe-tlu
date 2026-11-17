@@ -102,4 +102,5 @@ git push origin v1.0.0        # CI tự build + đính vào GitHub Release
 - [ ] Gỡ cài đặt: không còn thư mục trong `Program Files`, không còn shortcut
 - [ ] `AppVersion` hiển thị trong app khớp với tên file cài
 - [ ] Dung lượng hợp lý (< 150MB) — nếu lớn hơn, kiểm tra `excludes`
-- [ ] Ảnh chụp từng bước cài → `docs/screenshots/installer/`
+- [ ] Bằng chứng cài thử: **log job `verify-installer`** + link lần chạy (bắt buộc);
+      ảnh chụp từng bước cài → `docs/screenshots/installer/` (tuỳ chọn, chỉ khi có máy Windows thật)

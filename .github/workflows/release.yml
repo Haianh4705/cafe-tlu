@@ -20,6 +20,8 @@ jobs:
   build-installer:
     name: Build bộ cài (.exe)
     runs-on: windows-latest
+    outputs:
+      ready: ${{ steps.probe.outputs.ready }}
     # PyInstaller + Inno Setup bình thường ~6–10 phút; treo quá 45 phút là bất thường.
     timeout-minutes: 45
     steps:
@@ -84,3 +86,48 @@ jobs:
           files: installer/Output/*.exe
           generate_release_notes: true
           fail_on_unmatched_files: true
+
+  verify-installer:
+    name: Cài thử trên Windows sạch
+    # Máy ảo Windows mới mỗi lần chạy = "máy sạch": không có Python, PySide6 hay
+    # bản cài cũ từ máy lập trình viên. Đây là bằng chứng cho cổng G1.
+    needs: build-installer
+    if: needs.build-installer.outputs.ready == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Tải bộ cài vừa build
+        uses: actions/download-artifact@v4
+        with:
+          name: CafeTLU-Setup
+          path: installer-download
+
+      - name: Cài im lặng, chạy thử, chụp ảnh, gỡ cài
+        shell: pwsh
+        run: |
+          ./scripts/verify_installer.ps1 `
+            -InstallerPath installer-download `
+            -InstallDir "C:\CafeTLU-verify" `
+            -ScreenshotPath "verification/gui.png" `
+            -ReportPath "verification/report.md"
+
+      - name: Đưa báo cáo vào phần tóm tắt của lần chạy
+        if: always()
+        shell: bash
+        run: |
+          if [ -f verification/report.md ]; then
+            cat verification/report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Không có verification/report.md — bước cài thử hỏng trước khi ghi báo cáo." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Lưu ảnh chụp + báo cáo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: install-verification-windows
+          path: verification/
+          retention-days: 30
+          if-no-files-found: warn

@@ -36,6 +36,11 @@
 | 11-11 | — | — | `docs/defense-D.md`, `docs/log/` | tài liệu ôn bảo vệ + nhật ký cá nhân | kiến thức rải trong chat sẽ mất, phải nằm trong repo để cả nhóm dùng |
 | 11-11 | #52 | #54 | `.github/workflows/ci.yml`, `release.yml` | thêm `timeout-minutes` + `timeout`/`Acquire::*` cho apt, chặn job treo 10–30 phút | apt treo 3 lần liên tiếp (9–13 phút) phải cancel tay; giới hạn thời gian thì fail nhanh để rerun |
 | 11-11 | — | — | `WORKFLOW.md`, `AGENTS.md`, `docs/log/` | thêm **nhật ký cá nhân bắt buộc** cho 4 người, nối vào DoD + PR template + cổng | kiến thức nằm trong chat sẽ mất; file trong repo thì lúc bảo vệ mở ra là có |
+| 11-17 | #56 | PR `docs/adr-health-exemption-d` | `WORKFLOW.md` §9.3, `docs/decisions.md` | ghi `/health` là ngoại lệ duy nhất của envelope + ADR-011 | ba consumer của `/health` (Docker healthcheck, `make doctor`, probe bộ cài) không đi qua GUI nên không parse envelope |
+| 11-17 | #26 | PR `feat/installer-verify-windows` | `scripts/verify_installer.ps1`, `.github/workflows/release.yml` | job CI cài thử bộ cài trên Windows sạch: cài im lặng → chạy app → chụp ảnh cửa sổ → gỡ cài, ghi báo cáo 13 bước | cả nhóm dùng macOS, chỉ runner `windows-latest` (máy ảo mới mỗi lần chạy) mới là "Windows sạch" kiểm chứng được |
+| 11-17 | — | PR `docs/skill-table-readme-d` | `README.md` | đưa bảng 10 skill (đọc khi nào · của ai) vào README chính | bảng skill nằm trong `.claude/skills/README.md` nhưng thành viên không mở file đó |
+| 11-17 | — | PR `docs/screenshot-policy-optional-d` | `WORKFLOW.md`, `AGENTS.md`, `.github/pull_request_template.md`, 3 skill, `docs/defense-D.md` | ảnh chụp thành **có điều kiện**: chỉ bắt buộc khi xong/đổi một màn hình; PR backend/DB/CI dùng log + link CI | chụp ảnh mọi PR làm chậm việc backend/DB mà không thêm thông tin; ảnh vẫn giữ cho báo cáo và lúc bảo vệ |
+| 11-17 | — | PR `docs/readme-gate-board-d` | `README.md`, `WORKFLOW.md` 12.6, `docs/plan.md`, PR template, `AGENTS.md` | đưa bảng 6 cổng (ai làm gì · ✅/🟡/⬜) vào README + quy tắc cập nhật mỗi lần trạng thái đổi | bảng nằm trong chat thì mỗi người phải hỏi lại; trong README thì mở ra là biết, và có luật bắt cập nhật |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.

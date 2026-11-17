@@ -289,7 +289,9 @@ Theo **Conventional Commits**: `<loại>(<scope>): <mô tả ngắn ở thể m�
 ### 5.4 Pull Request
 
 - Tiêu đề PR = tiêu đề Issue. Body **PHẢI** theo template ở [mục 18.2](#182-template-pull-request).
-- **PHẢI** có: mô tả thay đổi, **cách kiểm chứng** (lệnh đã chạy + kết quả), **ảnh chụp** nếu là UI, `Closes #<issue>`.
+- **PHẢI** có: mô tả thay đổi, **cách kiểm chứng** (lệnh đã chạy + kết quả), `Closes #<issue>`.
+- **Ảnh chụp:** chỉ bắt buộc khi PR **hoàn thiện hoặc đổi một màn hình** (ảnh dùng cho báo cáo và lúc bảo vệ).
+  PR backend / DB / CI / docs thay bằng **log + lệnh + link lần chạy CI** — không phải chụp gì.
 - PR nhỏ: **< 400 dòng diff** (không tính file sinh tự động). Lớn hơn → tách.
 - Gắn label + reviewer (owner vùng bị sửa). **Tự assign chính mình**, không để "ai đó" làm giúp.
 - Không mở PR khi còn `TODO` hoặc code chết, trừ khi ghi rõ `[Draft]`.
@@ -348,7 +350,8 @@ Chỉ được kéo sang `Done` khi **tất cả** đúng:
 - [ ] Không `print()` debug, không code chết, không `TODO` treo
 - [ ] Đã cập nhật `docs/api-contract.md` / `docs/erd.md` nếu có đổi
 - [ ] Đã cập nhật `CHANGELOG.md` (mục `Unreleased`)
-- [ ] **Có ảnh chụp màn hình** lưu vào `docs/screenshots/<module>/` (nếu là UI)
+- [ ] **Ảnh chụp màn hình** lưu vào `docs/screenshots/<module>/` — **chỉ khi** PR hoàn thiện/đổi màn hình;
+      PR backend/DB/CI/docs bỏ qua mục này, thay bằng log + link CI
 - [ ] Đã ghi vào `docs/decisions.md` nếu có quyết định kỹ thuật mới
 - [ ] **Giải thích được**: PR có mục "Giải thích được" 3 câu (`docs/defense.md`) và người viết
       trả lời được câu hỏi bất kỳ về đoạn code mình vừa viết
@@ -527,6 +530,18 @@ Lỗi:
 - `message` là tiếng Việt, hiển thị được trực tiếp cho người dùng cuối.
 - **CẤM** trả `detail` mặc định của FastAPI ra ngoài — phải qua exception handler chung.
 
+**Ngoại lệ duy nhất: `/health`** (và bí danh `/api/v1/health`) — xem ADR-011.
+
+```json
+{ "status": "ok", "version": "0.1.0", "database": "ok" }
+```
+
+- Trả **phẳng**, không bọc `data`/`meta`/`error`. Lý do: Docker `healthcheck`, script `make doctor`
+  và probe của bộ cài đọc thẳng `status`/`database`, không qua lớp xử lý response của GUI.
+- HTTP **200** khi DB thông, **503** khi DB không thông (`status: "degraded"`, `database: "error"`).
+  Trường hợp 503 vẫn **không** dùng envelope `error`.
+- Ngoại lệ này **chỉ** áp cho health check. Mọi endpoint khác, kể cả nội bộ, phải theo mục 9.3.
+
 ### 9.4 Bảo mật API
 
 - JWT trong header `Authorization: Bearer <token>`; access token 30 phút, refresh 7 ngày.
@@ -576,7 +591,8 @@ Lỗi:
 
 ### 11.3 Bug report (Issue label `bug`)
 
-**PHẢI** có: môi trường (OS, phiên bản app), bước tái hiện (1-2-3), kết quả mong đợi, kết quả thực tế, ảnh chụp/video, log liên quan. Thiếu bước tái hiện → không xử lý.
+**PHẢI** có: môi trường (OS, phiên bản app), bước tái hiện (1-2-3), kết quả mong đợi, kết quả thực tế, log liên quan;
+ảnh chụp/video **chỉ khi** lỗi nằm ở giao diện. Thiếu bước tái hiện → không xử lý.
 
 ---
 
@@ -593,7 +609,7 @@ Lỗi:
 |---|---|---|
 | `docs/api-contract.md` | A | Cập nhật mỗi khi đổi endpoint |
 | `docs/erd.md` | **B** — B tự thiết kế (ERD + từ điển + bất biến) | Kèm hình ERD (mermaid/dbdiagram) |
-| `README.md` | D biên tập | Cài & chạy trong 3 lệnh |
+| `README.md` | D biên tập | Cài & chạy trong 3 lệnh + **bảng tiến độ 6 cổng** (cập nhật theo 12.6) |
 | `CHANGELOG.md` | D biên tập | Mọi người thêm mục `Unreleased` khi merge |
 | `docs/decisions.md` | Người ra quyết định | ADR-lite, xem 18.4 |
 | `docs/test-cases.md` | D + C | Bảng test case |
@@ -648,6 +664,22 @@ cáo nộp bài (báo cáo ở `report/`).
 mục 4, xoá câu không chỉ được vào code). File trống ở thời điểm cổng = **cổng chưa xanh**.
 
 ---
+
+### 12.6 Bảng tiến độ 6 cổng trong `README.md` (BẮT BUỘC cập nhật)
+
+`README.md` mục **"Lộ trình 6 cổng — ai làm gì"** là bảng trạng thái duy nhất cả nhóm đọc hằng ngày.
+Nó **PHẢI** khớp Issue/PR thật, không phải kế hoạch.
+
+- **Ba trạng thái, chỉ ba:** `⬜` chưa có PR · `🟡` có PR đang mở (ghi số PR) · `✅` PR **đã merge** (ghi số PR).
+  Không dùng "sắp xong", "đang làm 80%". Ra cổng (`🔴`/`xanh`) là dòng riêng của từng cổng.
+- **Ai cập nhật:** người mở/merge PR của Issue đó cập nhật **trong chính PR ấy** — cùng lúc với
+  `CHANGELOG.md` và `docs/log/<vai>.md`. Một dòng bảng, 10 giây.
+- **D rà lại mỗi tối** cùng lúc với bảng điều khiển cổng (Issue `G<n>`): nếu bảng khác Issue thì
+  sửa bảng ngay trong ngày, không để lệch quá 1 ngày.
+- **Đổi phạm vi cổng** (thêm/bớt việc, đổi người) → sửa **cả** `docs/plan.md` **và** bảng này trong
+  cùng một PR; `docs/plan.md` giữ chi tiết/phụ thuộc, bảng trong README giữ trạng thái.
+- **CẤM** để bảng lỗi thời quá 1 ngày: cổng ra muộn vì "không ai biết mình còn phải làm gì" là lỗi
+  quy trình, không phải lỗi kỹ thuật.
 
 ## 13. Quy chuẩn đóng gói & phát hành
 
@@ -742,7 +774,8 @@ Theo [Keep a Changelog](https://keepachangelog.com/): mục `Unreleased` (Added/
 4. BASELINE : make lint && make test        # ghi lại trạng thái TRƯỚC khi sửa
 5. LÀM      : thay đổi nhỏ nhất đủ đáp ứng Issue, từng bước có thể chạy được
 6. KIỂM CHỨNG: make lint && make test  (+ chạy tay luồng chính nếu là GUI/API)
-7. TÀI LIỆU : cập nhật docs liên quan + CHANGELOG + ảnh chụp nếu là UI + docs/log/<vai>.md
+7. TÀI LIỆU : cập nhật docs liên quan + CHANGELOG + docs/log/<vai>.md
+             (+ ảnh chụp nếu vừa hoàn thiện/đổi một màn hình — để dành cho báo cáo)
 8. COMMIT   : conventional commit, nhỏ, đúng scope
 9. PR       : theo template, gắn Closes #<issue>, gán reviewer là owner vùng
 10. BÁO CÁO : theo mẫu 15.4 (dán vào PR hoặc chat cho người giao việc)
