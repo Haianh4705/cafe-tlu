@@ -19,7 +19,8 @@
 | 2026-11-11 | #19 | feat(api) | `api/main.py`, `shared/error_codes.py`, `shared/errors.py` | Tạo khung FastAPI app, chuẩn hoá envelope lỗi và endpoint `/health` | Giúp GUI và Docker có thể kiểm tra sống đồng thời định hình format lỗi chung |
 | 2026-11-11 | #20 | feat(api) | `api/core/config.py`, `api/core/db.py`, `api/routers/health.py` | Đọc cấu hình từ `.env` qua Pydantic Settings và kiểm tra kết nối MySQL trong `/health` | Tách biệt cấu hình khỏi code, không hardcode secret và báo lỗi 503 khi mất DB |
 | 2026-11-17 | #21 | #65 (merged) | `api/models/` (9 bảng), `tests/test_models.py` | Viết SQLAlchemy models khớp ERD v1 và test metadata/DDL | Dùng chung `Base` ở `api/core/db.py`, test không cần MySQL nên CI chạy nhanh |
-| 2026-11-17 | #22 | `feature/api-auth-bao` | `api/core/security.py`, `api/routers/auth.py`, `api/services/auth.py`, `api/models/refresh_token.py`, `tests/test_auth.py`, `tests/conftest.py` | Làm login/refresh/logout/me: bcrypt 12, JWT 30 phút, refresh token lưu hash + rotation, `require_role` kiểm quyền | Lưu hash thay token thô và thu hồi được khi logout (ADR-013); envelope `data`/`meta` theo hợp đồng |
+| 2026-11-17 | #22 | #71 (merged) | `api/core/security.py`, `api/routers/auth.py`, `api/services/auth.py`, `api/models/refresh_token.py`, `tests/test_auth.py`, `tests/conftest.py` | Làm login/refresh/logout/me: bcrypt 12, JWT 30 phút, refresh token lưu hash + rotation, `require_role` kiểm quyền | Lưu hash thay token thô và thu hồi được khi logout (ADR-013); envelope `data`/`meta` theo hợp đồng |
+| 2026-11-17 | #22 (fix) | `fix/api-logout-optional-body` | `api/schemas/auth.py`, `api/services/auth.py`, `api/routers/auth.py`, `tests/test_auth.py` | Nới `/auth/logout` cho body tuỳ chọn; không gửi token thì thu hồi mọi phiên | GUI `api_client.logout()` gọi không body → giữ hành vi thu hồi thật thay vì bắt C sửa client |
 
 ## 3. AI đã làm gì
 

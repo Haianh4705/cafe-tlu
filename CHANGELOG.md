@@ -127,6 +127,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Checklist review gom về **một nguồn duy nhất** (WORKFLOW 18.3); template Issue/PR trỏ về `.github/`
 
 ### Fixed
+- `/auth/logout` nhận body **tuỳ chọn**: client không gửi `refresh_token` (như `gui/api_client`) sẽ thu hồi **mọi phiên** của user thay vì trả 422 (#22)
 - `make install` chạy pip nhầm vào Python hệ thống (PEP 668) — nay dùng đúng python của `.venv`
 - `make up`/`down`/`logs`/`tools` không tìm thấy Docker CLI và credential helper khi
   `~/.docker/bin` chưa trong PATH (macOS) — Makefile tự dò, dùng đường dẫn tuyệt đối
