@@ -94,7 +94,7 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 |---|---|---|---|
 | **G1** Nền móng | ERD + `db/schema.sql` (#17) · `seed.sql` 50 món (#18) | **B** | ✅ #55 |
 | | Khung API + `/health` (#19) · config MySQL (#20) | **A** | ✅ #56 |
-| | Models theo ERD (#21) → Auth JWT (#22) | **A** | 🟡 #65 (draft) · ⬜ #22 |
+| | Models theo ERD (#21) → Auth JWT (#22) | **A** | ✅ #65 · ⬜ #22 |
 | | Khung GUI + theme + BaseView (#23) · `api_client`/i18n (#24) | **C** | ✅ #40 |
 | | Màn Đăng nhập (#25) | **C** | ⬜ chờ #22 |
 | | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
