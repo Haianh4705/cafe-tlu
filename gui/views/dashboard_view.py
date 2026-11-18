@@ -146,7 +146,7 @@ class DashboardView(BaseView):
         use_mock: bool | None = None,
     ) -> None:
         self.api = api_client
-        # shortcut: mock báo cáo chỉ bật khi APP_ENV=demo hoặc use_mock=True, bỏ khi #20/#21 xong
+        # shortcut: mock báo cáo chỉ bật khi APP_ENV=demo hoặc use_mock=True, bỏ khi API báo cáo GET /reports/... xong
         self._use_mock = (
             use_mock if use_mock is not None else os.getenv("APP_ENV", "").strip().lower() == "demo"
         )
