@@ -135,6 +135,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Checklist review gom về **một nguồn duy nhất** (WORKFLOW 18.3); template Issue/PR trỏ về `.github/`
 
 ### Fixed
+- Cấu hình Alembic (`alembic.ini`, `db/migrations/`) kèm 2 revision `0001`/`0002` nâng cấp volume MySQL cũ trước `#69` thêm bảng `refresh_tokens` mà không mất dữ liệu (#78)
 - `/auth/logout` nhận body **tuỳ chọn**: client không gửi `refresh_token` (như `gui/api_client`) sẽ thu hồi **mọi phiên** của user thay vì trả 422 (#22)
 - `make install` chạy pip nhầm vào Python hệ thống (PEP 668) — nay dùng đúng python của `.venv`
 - `make up`/`down`/`logs`/`tools` không tìm thấy Docker CLI và credential helper khi

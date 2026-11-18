@@ -31,3 +31,12 @@ docker exec -i cafetlu-mysql mysql -uroot -proot cafetlu < db/verify_seed.sql   
 
 Nạp `seed.sql` lần 2 không được lỗi và không đổi số dòng (idempotent). Seed **không** hồi sinh món
 đã xoá mềm (`deleted_at` không nằm trong `ON DUPLICATE KEY UPDATE`).
+
+### Nâng cấp DB cũ (khi pull schema mới)
+
+Nếu máy giữ volume MySQL cũ (chưa có bảng mới như `refresh_tokens`), không cần `make reset-db`:
+
+```bash
+.venv/bin/python -m alembic current        # Windows: .venv\Scripts\python -m alembic current
+.venv/bin/python -m alembic upgrade head   # giữ nguyên dữ liệu cũ, chỉ thêm bảng/cột còn thiếu
+```
