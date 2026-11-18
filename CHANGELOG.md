@@ -98,6 +98,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   `installer/`, `assets/`, `report/`) — mỗi thư mục có README nêu owner, đặt gì, **không** đặt gì
 
 ### Added — quy trình & tài liệu
+- Khung báo cáo BTL đủ 10 chương trong `report/` (`00-bia.md` → `09-huong-phat-trien.md`): mục lục dự kiến, phân công theo vai A/B/C/D, gắn cổng G2–G5 và danh sách ảnh khớp `docs/screenshots/` (#32)
 - `docs/plan.md` — lộ trình theo cổng: mục tiêu + điều kiện ra cổng, thứ tự giao việc theo "sóng",
   thứ tự cắt scope khi trễ, việc điều phối của D
 - `WORKFLOW.md` — quy chuẩn làm việc cho người và AI (nguồn chân lý)
