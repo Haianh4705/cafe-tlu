@@ -11,6 +11,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ### Fixed — giao diện đăng nhập
 - Sau khi nhận token, GUI xác nhận tài khoản qua `GET /auth/me`; phiên 401 được xoá token và đưa người dùng về form đăng nhập (#25)
 
+### Added — Kiosk khách hàng & chuẩn hoá GUI
+- Thêm màn Kiosk khách hàng tự gọi món (`CustomerKioskView`), hộp thoại tuỳ chọn đường/đá, sinh mã QR thanh toán thật qua `reportlab` (`QrPaymentWidget`) cho Kiosk & `CheckoutDialog`, cùng 2 endpoint public `GET /api/v1/public/menu`, `POST /api/v1/public/orders` và chuẩn hoá toàn bộ `gui/` theo skill `ui-design` (`0` hex cứng ngoài `theme.py`, `0` `QFrame` trần, hết tràn ngang `1280×720`) (#112)
+
 ### Changed — Quy trình nhóm
 - Chuyển quy trình sang gán thành viên theo chức năng (`ADR-014`), bỏ bắt buộc approve trên GitHub (`required_approving_review_count = 0`) và bật `enforce_admins: true` để mọi chức năng đi qua Issue & PR (#90)
 - Nâng cấp skill `ui-design` và `pyside6-screen`: bổ sung luật Floor chặn rò QSS `QFrame#objectName`/hardcode màu, ngân sách chiều ngang `1280×720`, chuẩn microcopy tiếng Việt, quy trình Polish Pass 5 lượt, giữ dữ liệu form khi lỗi API và lệnh kiểm nhanh trước PR (#105)

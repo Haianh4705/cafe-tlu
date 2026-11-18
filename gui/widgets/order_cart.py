@@ -3,7 +3,7 @@
 Tuân thủ:
 - docs/api-contract.md: Endpoint 14-19 (Order lifecycle & checkout).
 - docs/test-cases.md: TC-ORD-01, TC-ORD-02, TC-ORD-03.
-- .claude/skills/ui-design/SKILL.md: Phân cấp thông tin, bảng gọn gàng, nút bấm rõ ràng.
+- .claude/skills/ui-design/SKILL.md: QFrame#objectName, token màu trong theme.py.
 """
 
 from decimal import Decimal
@@ -48,9 +48,7 @@ class ConfirmCancelOrderDialog(QDialog):
 
         warning = QLabel(t("order_confirm_cancel_warning"), self)
         warning.setWordWrap(True)
-        warning.setStyleSheet(
-            f"color: {COLOR['muted']}; font-size: {FONT['body']}px; line-height: 1.4;"
-        )
+        warning.setStyleSheet(f"color: {COLOR['muted']}; font-size: {FONT['body']}px;")
 
         layout.addWidget(title)
         layout.addWidget(warning)
@@ -66,7 +64,8 @@ class ConfirmCancelOrderDialog(QDialog):
             f"border: 1.5px solid {COLOR['navy']}; border-radius: {RADIUS['sm']}px; "
             f"font-weight: bold; font-size: {FONT['body']}px; "
             f"padding: {SPACE['sm']}px {SPACE['md']}px; min-height: 22px; }} "
-            f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }}"
+            f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }} "
+            f"QPushButton:disabled {{ background-color: {COLOR['border']}; color: {COLOR['muted']}; }}"
         )
         self.skip_btn.clicked.connect(self.reject)
 
@@ -77,7 +76,8 @@ class ConfirmCancelOrderDialog(QDialog):
             f"border: none; border-radius: {RADIUS['sm']}px; "
             f"font-weight: bold; font-size: {FONT['body']}px; "
             f"padding: {SPACE['sm']}px {SPACE['md']}px; min-height: 22px; }} "
-            f"QPushButton:hover {{ background-color: {COLOR['red_text']}; }}"
+            f"QPushButton:hover {{ background-color: {COLOR['danger_hover']}; }} "
+            f"QPushButton:disabled {{ background-color: {COLOR['border']}; color: {COLOR['muted']}; }}"
         )
         self.confirm_btn.clicked.connect(self.accept)
 
@@ -90,19 +90,20 @@ class ConfirmCancelOrderDialog(QDialog):
 class OrderCartWidget(QFrame):
     """Widget quản lý danh sách món đã gọi, cập nhật số lượng và chuẩn bị thanh toán."""
 
-    item_quantity_changed = Signal(int, int)  # product_id, new_quantity
-    item_removed = Signal(int)  # product_id
+    item_quantity_changed = Signal(int, int)
+    item_removed = Signal(int)
     checkout_requested = Signal()
     save_requested = Signal()
     cancel_order_requested = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        self.setObjectName("orderCartPanel")
         self.table_data: dict[str, Any] | None = None
         self.items: list[dict[str, Any]] = []
 
         self.setStyleSheet(
-            f"OrderCartWidget {{ background-color: {COLOR['surface']}; "
+            f"QFrame#orderCartPanel {{ background-color: {COLOR['surface']}; "
             f"border: 1px solid {COLOR['border']}; border-radius: {RADIUS['md']}px; }}"
         )
         self._init_ui()
@@ -112,24 +113,23 @@ class OrderCartWidget(QFrame):
         layout.setContentsMargins(SPACE["md"], SPACE["md"], SPACE["md"], SPACE["md"])
         layout.setSpacing(SPACE["sm"])
 
-        # 1. Header: Tên bàn + Trạng thái
         header_layout = QHBoxLayout()
         self._table_title_lbl = QLabel(t("order_cart_title"), self)
         self._table_title_lbl.setStyleSheet(
-            f"font-size: {FONT['title']}px; font-weight: bold; color: {COLOR['navy']}; background: transparent;"
+            f"font-size: {FONT['title']}px; font-weight: bold; color: {COLOR['navy']}; "
+            f"background: transparent; border: none;"
         )
         header_layout.addWidget(self._table_title_lbl)
         header_layout.addStretch()
 
         self._status_badge = QLabel("", self)
         self._status_badge.setStyleSheet(
-            f"font-size: {FONT['caption']}px; font-weight: 600; padding: 2px 8px; "
-            f"border-radius: {RADIUS['sm']}px; background: transparent;"
+            f"font-size: {FONT['caption']}px; font-weight: 600; padding: 2px {SPACE['sm']}px; "
+            f"border-radius: {RADIUS['sm']}px; background: transparent; border: none;"
         )
         header_layout.addWidget(self._status_badge)
         layout.addLayout(header_layout)
 
-        # 2. Bảng danh sách món
         self._items_table = QTableWidget(self)
         self._items_table.setColumnCount(4)
         self._items_table.setHorizontalHeaderLabels(
@@ -139,9 +139,9 @@ class OrderCartWidget(QFrame):
         self._items_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
         self._items_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
         self._items_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
-        self._items_table.setColumnWidth(1, 80)
-        self._items_table.setColumnWidth(2, 90)
-        self._items_table.setColumnWidth(3, 30)
+        self._items_table.setColumnWidth(1, 72)
+        self._items_table.setColumnWidth(2, 92)
+        self._items_table.setColumnWidth(3, 28)
         self._items_table.verticalHeader().setVisible(False)
         self._items_table.verticalHeader().setDefaultSectionSize(36)
         self._items_table.setAlternatingRowColors(True)
@@ -150,49 +150,56 @@ class OrderCartWidget(QFrame):
             f"border-radius: {RADIUS['sm']}px; background-color: {COLOR['surface']}; "
             f"alternate-background-color: {COLOR['surface_subtle']}; }}"
             f"QHeaderView::section {{ background-color: {COLOR['surface_subtle']}; "
-            f"font-weight: bold; border: none; border-bottom: 1px solid {COLOR['border']}; "
-            f"padding: 6px; }}"
+            f"font-weight: 600; border: none; border-bottom: 1px solid {COLOR['border']}; "
+            f"padding: {SPACE['xs']}px; }}"
         )
         layout.addWidget(self._items_table, stretch=1)
 
-        # Thông báo rỗng khi chưa có món
         self._empty_cart_lbl = QLabel(t("order_empty_cart"), self)
         self._empty_cart_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._empty_cart_lbl.setWordWrap(True)
         self._empty_cart_lbl.setStyleSheet(
-            f"color: {COLOR['muted']}; font-size: {FONT['body']}px; padding: {SPACE['lg']}px;"
+            f"color: {COLOR['muted']}; font-size: {FONT['body']}px; "
+            f"padding: {SPACE['lg']}px; background: transparent; border: none;"
         )
         layout.addWidget(self._empty_cart_lbl)
 
-        # 3. Khối tổng thanh toán
         summary_frame = QFrame(self)
+        summary_frame.setObjectName("cartSummaryFrame")
         summary_frame.setStyleSheet(
-            f"background-color: {COLOR['surface_subtle']}; border: 1px solid {COLOR['border']}; "
-            f"border-radius: {RADIUS['sm']}px; padding: {SPACE['xs']}px;"
+            f"QFrame#cartSummaryFrame {{ background-color: {COLOR['surface_subtle']}; "
+            f"border: 1px solid {COLOR['border']}; border-radius: {RADIUS['sm']}px; }}"
         )
         summary_layout = QVBoxLayout(summary_frame)
         summary_layout.setContentsMargins(SPACE["sm"], SPACE["sm"], SPACE["sm"], SPACE["sm"])
         summary_layout.setSpacing(SPACE["xs"])
 
-        # Tạm tính
         subtotal_row = QHBoxLayout()
-        subtotal_lbl = QLabel(t("order_subtotal") + ":", summary_frame)
-        subtotal_lbl.setStyleSheet(f"color: {COLOR['muted']}; font-size: {FONT['caption']}px;")
+        subtotal_lbl = QLabel(t("order_subtotal"), summary_frame)
+        subtotal_lbl.setStyleSheet(
+            f"color: {COLOR['muted']}; font-size: {FONT['caption']}px; "
+            f"background: transparent; border: none;"
+        )
         self._subtotal_val_lbl = QLabel("0 đ", summary_frame)
-        self._subtotal_val_lbl.setStyleSheet(f"font-size: {FONT['caption']}px; font-weight: 600;")
+        self._subtotal_val_lbl.setStyleSheet(
+            f"color: {COLOR['ink']}; font-size: {FONT['caption']}px; font-weight: 600; "
+            f"background: transparent; border: none;"
+        )
         subtotal_row.addWidget(subtotal_lbl)
         subtotal_row.addStretch()
         subtotal_row.addWidget(self._subtotal_val_lbl)
         summary_layout.addLayout(subtotal_row)
 
-        # Tổng cộng
         total_row = QHBoxLayout()
-        total_lbl = QLabel(t("order_total") + ":", summary_frame)
+        total_lbl = QLabel(t("order_total"), summary_frame)
         total_lbl.setStyleSheet(
-            f"font-size: {FONT['body']}px; font-weight: bold; color: {COLOR['navy']};"
+            f"font-size: {FONT['body']}px; font-weight: bold; color: {COLOR['navy']}; "
+            f"background: transparent; border: none;"
         )
         self._total_val_lbl = QLabel("0 đ", summary_frame)
         self._total_val_lbl.setStyleSheet(
-            f"font-size: {FONT['title']}px; font-weight: bold; color: {COLOR['navy']};"
+            f"font-size: {FONT['title']}px; font-weight: bold; color: {COLOR['navy']}; "
+            f"background: transparent; border: none;"
         )
         total_row.addWidget(total_lbl)
         total_row.addStretch()
@@ -201,7 +208,6 @@ class OrderCartWidget(QFrame):
 
         layout.addWidget(summary_frame)
 
-        # 4. Các nút thao tác
         actions_layout = QHBoxLayout()
         actions_layout.setSpacing(SPACE["sm"])
 
@@ -210,8 +216,11 @@ class OrderCartWidget(QFrame):
         self._cancel_btn.setFixedHeight(38)
         self._cancel_btn.setStyleSheet(
             f"QPushButton {{ background-color: transparent; color: {COLOR['red_text']}; "
-            f"border: 1px solid {COLOR['red']}; border-radius: {RADIUS['sm']}px; font-weight: 600; padding: 0 12px; }} "
-            f"QPushButton:hover {{ background-color: #FEE2E2; }}"
+            f"border: 1px solid {COLOR['red']}; border-radius: {RADIUS['sm']}px; "
+            f"font-weight: 600; padding: 0 {SPACE['sm']}px; }} "
+            f"QPushButton:hover {{ background-color: {COLOR['danger_bg']}; }} "
+            f"QPushButton:disabled {{ background-color: {COLOR['surface_subtle']}; "
+            f"color: {COLOR['muted']}; border-color: {COLOR['border']}; }}"
         )
         self._cancel_btn.clicked.connect(self._handle_cancel_clicked)
         actions_layout.addWidget(self._cancel_btn, stretch=1)
@@ -220,15 +229,15 @@ class OrderCartWidget(QFrame):
         self._checkout_btn.setFixedHeight(38)
         self._checkout_btn.setStyleSheet(
             f"QPushButton {{ background-color: {COLOR['navy']}; color: {COLOR['surface']}; "
-            f"border: none; border-radius: {RADIUS['sm']}px; font-weight: 600; padding: 0 12px; }} "
+            f"border: none; border-radius: {RADIUS['sm']}px; font-weight: 600; "
+            f"padding: 0 {SPACE['sm']}px; }} "
             f"QPushButton:hover {{ background-color: {COLOR['navy_600']}; }} "
-            f"QPushButton:disabled {{ background-color: #E7E5E4; color: {COLOR['muted']}; }}"
+            f"QPushButton:disabled {{ background-color: {COLOR['border']}; color: {COLOR['muted']}; }}"
         )
         self._checkout_btn.clicked.connect(self.checkout_requested.emit)
         actions_layout.addWidget(self._checkout_btn, stretch=2)
 
         layout.addLayout(actions_layout)
-
         self._update_ui_state()
 
     def set_table(self, table_data: dict[str, Any] | None) -> None:
@@ -240,8 +249,8 @@ class OrderCartWidget(QFrame):
             self.set_items([])
             return
 
-        table_name = table_data.get("name", "Bàn")
-        self._table_title_lbl.setText(f"{t('order_cart_title')} — {table_name}")
+        table_name = table_data.get("table_number") or table_data.get("name", t("order_cart_table"))
+        self._table_title_lbl.setText(t("order_cart_table_title", table_name=table_name))
 
         status = table_data.get("status", "free")
         self._status_badge.setVisible(True)
@@ -249,13 +258,13 @@ class OrderCartWidget(QFrame):
             self._status_badge.setText(t("table_occupied"))
             self._status_badge.setStyleSheet(
                 f"background-color: {COLOR['tint_200']}; color: {COLOR['navy']}; "
-                f"border-radius: {RADIUS['sm']}px; padding: 2px 6px; font-weight: bold;"
+                f"border-radius: {RADIUS['sm']}px; padding: 2px {SPACE['sm']}px; font-weight: bold;"
             )
         else:
             self._status_badge.setText(t("table_free"))
             self._status_badge.setStyleSheet(
-                f"background-color: #D1FAE5; color: {COLOR['success']}; "
-                f"border-radius: {RADIUS['sm']}px; padding: 2px 6px; font-weight: bold;"
+                f"background-color: {COLOR['success_bg']}; color: {COLOR['success']}; "
+                f"border-radius: {RADIUS['sm']}px; padding: 2px {SPACE['sm']}px; font-weight: bold;"
             )
 
     def set_items(self, items: list[dict[str, Any]]) -> None:
@@ -275,7 +284,7 @@ class OrderCartWidget(QFrame):
 
         new_item = {
             "product_id": p_id,
-            "product_name": product.get("name", "Món"),
+            "product_name": product.get("name", ""),
             "price": product.get("price", 0),
             "quantity": 1,
             "note": "",
@@ -299,26 +308,34 @@ class OrderCartWidget(QFrame):
             self._to_vnd(it.get("price", 0)) * int(it.get("quantity", 1)) for it in self.items
         )
 
+    def _qty_btn_qss(self) -> str:
+        return (
+            f"QPushButton {{ background-color: {COLOR['surface_subtle']}; color: {COLOR['ink']}; "
+            f"border: 1px solid {COLOR['border']}; border-radius: {RADIUS['sm']}px; "
+            f"font-weight: bold; min-height: 0px; padding: 0px; }} "
+            f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }} "
+            f"QPushButton:disabled {{ background-color: {COLOR['border']}; color: {COLOR['muted']}; }}"
+        )
+
     def _render_items(self) -> None:
         total = self.calculate_total()
         self._subtotal_val_lbl.setText(format_currency(total))
         self._total_val_lbl.setText(format_currency(total))
 
         self._items_table.clearContents()
+        self._items_table.setRowCount(0)
         self._items_table.setRowCount(len(self.items))
         for row, it in enumerate(self.items):
             p_id = it.get("product_id") or it.get("id", 0)
-            name = it.get("product_name") or it.get("name", "Món")
+            name = it.get("product_name") or it.get("name", "")
             qty = int(it.get("quantity", 1))
             price = self._to_vnd(it.get("price", 0))
             line_total = price * qty
 
-            # Cột 1: Tên món
             name_item = QTableWidgetItem(name)
             name_item.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
             self._items_table.setItem(row, 0, name_item)
 
-            # Cột 2: Nút - SL +
             qty_widget = QWidget()
             qty_layout = QHBoxLayout(qty_widget)
             qty_layout.setContentsMargins(0, 0, 0, 0)
@@ -326,12 +343,7 @@ class OrderCartWidget(QFrame):
 
             minus_btn = QPushButton("-", qty_widget)
             minus_btn.setFixedSize(22, 22)
-            minus_btn.setStyleSheet(
-                f"QPushButton {{ background-color: {COLOR['surface_subtle']}; color: {COLOR['ink']}; "
-                f"border: 1px solid {COLOR['border']}; border-radius: {RADIUS['sm']}px; "
-                f"font-weight: bold; min-height: 0px; padding: 0px; }} "
-                f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }}"
-            )
+            minus_btn.setStyleSheet(self._qty_btn_qss())
             minus_btn.clicked.connect(lambda _, pid=p_id: self._change_qty(pid, -1))
 
             qty_lbl = QLabel(str(qty), qty_widget)
@@ -340,12 +352,7 @@ class OrderCartWidget(QFrame):
 
             plus_btn = QPushButton("+", qty_widget)
             plus_btn.setFixedSize(22, 22)
-            plus_btn.setStyleSheet(
-                f"QPushButton {{ background-color: {COLOR['surface_subtle']}; color: {COLOR['ink']}; "
-                f"border: 1px solid {COLOR['border']}; border-radius: {RADIUS['sm']}px; "
-                f"font-weight: bold; min-height: 0px; padding: 0px; }} "
-                f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }}"
-            )
+            plus_btn.setStyleSheet(self._qty_btn_qss())
             plus_btn.clicked.connect(lambda _, pid=p_id: self._change_qty(pid, 1))
 
             qty_layout.addWidget(minus_btn)
@@ -353,19 +360,19 @@ class OrderCartWidget(QFrame):
             qty_layout.addWidget(plus_btn)
             self._items_table.setCellWidget(row, 1, qty_widget)
 
-            # Cột 3: Thành tiền
             total_item = QTableWidgetItem(format_currency(line_total))
             total_item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             total_item.setFlags(Qt.ItemFlag.ItemIsEnabled)
             self._items_table.setItem(row, 2, total_item)
 
-            # Cột 4: Nút Xoá
             del_btn = QPushButton("X")
             del_btn.setFixedSize(22, 22)
             del_btn.setStyleSheet(
                 f"QPushButton {{ background-color: transparent; color: {COLOR['red_text']}; "
-                f"border: none; font-weight: bold; font-size: 13px; min-height: 0px; padding: 0px; }} "
-                f"QPushButton:hover {{ color: {COLOR['red']}; background-color: #FEE2E2; border-radius: 3px; }}"
+                f"border: none; font-weight: bold; font-size: {FONT['caption']}px; "
+                f"min-height: 0px; padding: 0px; }} "
+                f"QPushButton:hover {{ color: {COLOR['red']}; background-color: {COLOR['danger_bg']}; "
+                f"border-radius: {RADIUS['sm']}px; }}"
             )
             del_btn.clicked.connect(lambda _, pid=p_id: self._remove_item(pid))
             self._items_table.setCellWidget(row, 3, del_btn)
@@ -408,7 +415,11 @@ class OrderCartWidget(QFrame):
             self._empty_cart_lbl.setText(t("order_empty_cart"))
 
     def _handle_cancel_clicked(self) -> None:
-        table_name = self.table_data.get("name", "bàn") if self.table_data else "bàn"
+        table_name = (
+            (self.table_data.get("table_number") or self.table_data.get("name", ""))
+            if self.table_data
+            else t("order_cart_table")
+        )
         dialog = ConfirmCancelOrderDialog(table_name=table_name, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.set_items([])

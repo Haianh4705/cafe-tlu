@@ -1,9 +1,9 @@
-"""Hộp thoại Thanh toán đơn hàng (CheckoutDialog) trong CafeTLU.
+"""Hộp thoại Thanh toán đơn hàng (CheckoutDialog) kèm QR VietQR trong CafeTLU.
 
 Tuân thủ:
 - docs/api-contract.md: Endpoint 19 POST /orders/{id}/checkout.
 - docs/test-cases.md: TC-ORD-03.
-- .claude/skills/ui-design/SKILL.md: Nút hành động chính Navy, tương phản cao, bo góc chuẩn.
+- .claude/skills/ui-design/SKILL.md: Nút hành động chính Navy, QFrame#objectName, token theme.py.
 """
 
 from typing import Any
@@ -22,10 +22,11 @@ from PySide6.QtWidgets import (
 
 from gui.i18n import format_currency, t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
+from gui.widgets.qr_widget import QrPaymentWidget
 
 
 class CheckoutDialog(QDialog):
-    """Hộp thoại xác nhận thanh toán và tính toán tiền thối lại cho thu ngân."""
+    """Hộp thoại xác nhận thanh toán, tính tiền thừa hoặc hiện mã QR chuyển khoản."""
 
     def __init__(
         self,
@@ -52,40 +53,40 @@ class CheckoutDialog(QDialog):
         layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
         layout.setSpacing(SPACE["md"])
 
-        # 1. Header: Tên bàn & Số lượng món
         title_box = QVBoxLayout()
         title_lbl = QLabel(f"{t('checkout_title')} — {self.table_name}", self)
         title_lbl.setStyleSheet(
             f"font-size: {FONT['title']}px; font-weight: bold; color: {COLOR['navy']};"
         )
-        subtitle_lbl = QLabel(f"Số lượng món trong đơn: {len(self.order_items)} món", self)
+        subtitle_lbl = QLabel(t("checkout_item_count", count=len(self.order_items)), self)
         subtitle_lbl.setStyleSheet(f"font-size: {FONT['caption']}px; color: {COLOR['muted']};")
         title_box.addWidget(title_lbl)
         title_box.addWidget(subtitle_lbl)
         layout.addLayout(title_box)
 
-        # 2. Tổng tiền cần thanh toán (Nổi bật)
         amount_card = QFrame(self)
+        amount_card.setObjectName("checkoutAmountCard")
         amount_card.setStyleSheet(
-            f"background-color: {COLOR['tint_100']}; border: 1px solid {COLOR['brand_400']}; "
-            f"border-radius: {RADIUS['md']}px; padding: {SPACE['sm']}px;"
+            f"QFrame#checkoutAmountCard {{ background-color: {COLOR['tint_100']}; "
+            f"border: 1px solid {COLOR['brand_400']}; border-radius: {RADIUS['md']}px; }}"
         )
         card_layout = QVBoxLayout(amount_card)
         card_layout.setContentsMargins(SPACE["md"], SPACE["sm"], SPACE["md"], SPACE["sm"])
 
-        total_lbl = QLabel(t("order_total").upper(), amount_card)
+        total_lbl = QLabel(t("order_total"), amount_card)
         total_lbl.setStyleSheet(
-            f"font-size: {FONT['caption']}px; font-weight: bold; color: {COLOR['navy']};"
+            f"font-size: {FONT['caption']}px; font-weight: 600; color: {COLOR['navy']}; "
+            f"background: transparent; border: none;"
         )
         self._total_val_lbl = QLabel(format_currency(self.total_amount), amount_card)
         self._total_val_lbl.setStyleSheet(
-            f"font-size: {FONT['h1']}px; font-weight: bold; color: {COLOR['navy']};"
+            f"font-size: {FONT['h1']}px; font-weight: bold; color: {COLOR['navy']}; "
+            f"background: transparent; border: none;"
         )
         card_layout.addWidget(total_lbl)
         card_layout.addWidget(self._total_val_lbl)
         layout.addWidget(amount_card)
 
-        # 3. Phương thức thanh toán
         pm_lbl = QLabel(t("checkout_payment_method"), self)
         pm_lbl.setStyleSheet(f"font-weight: bold; font-size: {FONT['body']}px;")
         layout.addWidget(pm_lbl)
@@ -101,7 +102,6 @@ class CheckoutDialog(QDialog):
         pm_layout.addWidget(self._qr_radio)
         layout.addLayout(pm_layout)
 
-        # 4. Khu vực tiền khách đưa & tiền thừa (chỉ hiện khi thanh toán tiền mặt)
         self._cash_calc_widget = QWidget(self)
         calc_layout = QVBoxLayout(self._cash_calc_widget)
         calc_layout.setContentsMargins(0, 0, 0, 0)
@@ -117,7 +117,6 @@ class CheckoutDialog(QDialog):
         self._received_input.textChanged.connect(self._calculate_change)
         calc_layout.addWidget(self._received_input)
 
-        # Nút nhập nhanh tiền
         quick_btn_layout = QHBoxLayout()
         quick_btn_layout.setSpacing(SPACE["xs"])
         for amt in [50000, 100000, 200000, 500000]:
@@ -127,15 +126,13 @@ class CheckoutDialog(QDialog):
             btn.clicked.connect(lambda _, a=amt: self._set_quick_cash(a))
             quick_btn_layout.addWidget(btn)
 
-        exact_btn = QPushButton("Vừa đủ", self._cash_calc_widget)
+        exact_btn = QPushButton(t("checkout_exact"), self._cash_calc_widget)
         exact_btn.setProperty("variant", "secondary")
         exact_btn.setFixedHeight(28)
         exact_btn.clicked.connect(lambda: self._set_quick_cash(self.total_amount))
         quick_btn_layout.addWidget(exact_btn)
-
         calc_layout.addLayout(quick_btn_layout)
 
-        # Tiền thừa trả khách
         change_layout = QHBoxLayout()
         change_title = QLabel(t("checkout_change") + ":", self._cash_calc_widget)
         change_title.setStyleSheet(f"font-weight: bold; font-size: {FONT['body']}px;")
@@ -150,7 +147,17 @@ class CheckoutDialog(QDialog):
 
         layout.addWidget(self._cash_calc_widget)
 
-        # 5. Buttons hành động
+        qr_payload = f"CAFETLU|VIETQR|{self.table_name}|{self.total_amount}"
+        self._qr_widget = QrPaymentWidget(
+            payload=qr_payload,
+            amount=self.total_amount,
+            memo=self.table_name,
+            parent=self,
+            qr_size=144,
+        )
+        self._qr_widget.setVisible(False)
+        layout.addWidget(self._qr_widget)
+
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(SPACE["md"])
 
@@ -161,7 +168,8 @@ class CheckoutDialog(QDialog):
             f"border: 1.5px solid {COLOR['navy']}; border-radius: {RADIUS['sm']}px; "
             f"font-weight: bold; font-size: {FONT['body']}px; "
             f"padding: {SPACE['sm']}px {SPACE['md']}px; min-height: 22px; }} "
-            f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }}"
+            f"QPushButton:hover {{ background-color: {COLOR['tint_100']}; }} "
+            f"QPushButton:disabled {{ background-color: {COLOR['border']}; color: {COLOR['muted']}; }}"
         )
         cancel_btn.clicked.connect(self.reject)
 
@@ -187,10 +195,16 @@ class CheckoutDialog(QDialog):
         if self._cash_radio.isChecked():
             self.payment_method = "cash"
             self._cash_calc_widget.setVisible(True)
+            self._qr_widget.setVisible(False)
+            self._calculate_change()
         else:
             self.payment_method = "qr"
             self._cash_calc_widget.setVisible(False)
+            self._qr_widget.setVisible(True)
             self._received_input.setText(str(self.total_amount))
+            self._confirm_btn.setEnabled(True)
+            self._confirm_btn.setText(t("checkout_confirm"))
+        self.adjustSize()
 
     def _set_quick_cash(self, amount: int) -> None:
         self._received_input.setText(str(amount))
@@ -212,7 +226,9 @@ class CheckoutDialog(QDialog):
             self._confirm_btn.setEnabled(True)
             self._confirm_btn.setText(t("checkout_confirm"))
         else:
-            self._change_val_lbl.setText(f"Thiếu {format_currency(abs(change))}")
+            self._change_val_lbl.setText(
+                t("checkout_change_shortage", amount=format_currency(abs(change)))
+            )
             self._change_val_lbl.setStyleSheet(
                 f"font-size: {FONT['body']}px; font-weight: bold; color: {COLOR['red_text']};"
             )
