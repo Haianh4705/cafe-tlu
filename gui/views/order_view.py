@@ -45,6 +45,8 @@ MOCK_TABLES: list[dict[str, Any]] = [
     for i in range(1, 13)
 ]
 
+PRODUCT_PAGE_SIZE = 100
+
 MOCK_PRODUCTS: list[dict[str, Any]] = [
     {
         "id": 1,
@@ -307,6 +309,22 @@ class OrderView(BaseView):
             return list(products_res)
         return []
 
+    def _fetch_all_products(self) -> list[dict[str, Any]]:
+        """Tải hết các trang món theo meta phân trang để không bỏ sót món ngoài trang đầu."""
+        first_page = self.api.get_products(page=1, page_size=PRODUCT_PAGE_SIZE)
+        products = self._extract_products(first_page)
+        meta = first_page.get("meta") if isinstance(first_page, dict) else None
+        total_pages = int(meta.get("total_pages") or 1) if isinstance(meta, dict) else 1
+
+        for page in range(2, total_pages + 1):
+            batch = self._extract_products(
+                self.api.get_products(page=page, page_size=PRODUCT_PAGE_SIZE)
+            )
+            if not batch:
+                break
+            products.extend(batch)
+        return products
+
     def load(self) -> None:
         """Nạp danh sách bàn và thực đơn món."""
         self._set_state(self.STATE_LOADING)
@@ -321,7 +339,7 @@ class OrderView(BaseView):
                     tables = MOCK_TABLES
 
                 try:
-                    products = self._extract_products(self.api.get_products()) or MOCK_PRODUCTS
+                    products = self._fetch_all_products() or MOCK_PRODUCTS
                 except Exception as exc:
                     logger.warning("Chế độ demo dùng thực đơn mẫu (%s)", exc)
                     products = MOCK_PRODUCTS
@@ -329,7 +347,7 @@ class OrderView(BaseView):
                 return tables, products
 
             tables = self.api.get_tables() or []
-            products = self._extract_products(self.api.get_products(page_size=100))
+            products = self._fetch_all_products()
             return tables, products
 
         self.start_worker(fetch_data, on_success=self._on_data_loaded, on_error=self._on_load_error)
@@ -483,6 +501,8 @@ class OrderView(BaseView):
         return card
 
     def _add_product_to_cart(self, product: dict[str, Any]) -> None:
+        if not bool(product.get("is_available", True)):
+            return
         if not self._selected_table:
             QMessageBox.information(self, t("notice"), t("order_select_table_hint"))
             return
