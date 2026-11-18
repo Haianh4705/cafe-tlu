@@ -33,26 +33,11 @@ git switch -c develop
 git push -u origin develop
 ```
 
-## 2. Điền username thật vào CODEOWNERS
+## 2. Cấu hình `.github/CODEOWNERS`
 
-Mở `.github/CODEOWNERS`, thay 4 chỗ `@TODO-*`:
-
-| Placeholder | Username thật |
-|---|---|
-| `@TODO-backend-a` | |
-| `@TODO-data-b` | |
-| `@TODO-gui-c` | |
-| `@TODO-infra-d` | |
-
-Commit qua PR (đây là bài tập đầu tiên về quy trình):
-
-```bash
-git switch -c chore/real-codeowners-d
-git add .github/CODEOWNERS
-git commit -m "chore(ci): điền username thật vào CODEOWNERS"
-git push -u origin HEAD
-gh pr create --base develop --fill
-```
+Repo dùng `.github/CODEOWNERS` để chú thích chính sách phân công: từ 2026-11-18 (**ADR-014**), nhóm
+giao việc theo chức năng và tắt tự động ép reviewer theo thư mục (`require_code_owner_reviews: false`,
+`required_approving_review_count: 0`). Thành viên tự gắn reviewer khi cần đồng đội góp ý thêm.
 
 ## 3. Chờ CI chạy ít nhất một lần
 
@@ -66,7 +51,7 @@ gh run watch            # phải thấy 2 job "Lint & format" và "Test" xanh
 ## 4. Bật branch protection cho `main` và `develop`
 
 ```bash
-for BR in main develop; do
+for BR in develop main; do
   echo "→ Bảo vệ nhánh $BR"
   gh api --method PUT "repos/{owner}/{repo}/branches/$BR/protection" --input - <<'JSON'
 {
@@ -74,11 +59,11 @@ for BR in main develop; do
     "strict": true,
     "contexts": ["Lint & format", "Test"]
   },
-  "enforce_admins": false,
+  "enforce_admins": true,
   "required_pull_request_reviews": {
-    "required_approving_review_count": 1,
-    "dismiss_stale_reviews": true,
-    "require_code_owner_reviews": true,
+    "required_approving_review_count": 0,
+    "dismiss_stale_reviews": false,
+    "require_code_owner_reviews": false,
     "require_last_push_approval": false
   },
   "restrictions": null,
@@ -147,16 +132,16 @@ lên `main`/`develop` ở cả 4 máy (sau khi chạy `make install`).
 ## 5. Tạo nhãn (labels)
 
 ```bash
-gh label create api     -c 1D76DB -d "Backend / API — A"        || true
-gh label create gui     -c 5319E7 -d "Giao diện desktop — C"    || true
-gh label create db      -c 006B75 -d "CSDL / migration — B"     || true
-gh label create report  -c 0E8A16 -d "Thống kê / báo cáo — B"   || true
-gh label create infra   -c FBCA04 -d "Docker / CI / deploy — D" || true
-gh label create docs    -c C2E0C6 -d "Tài liệu — D"             || true
-gh label create bug     -c D73A4A -d "Lỗi"                      || true
-gh label create blocked -c 000000 -d "Đang bị chặn"             || true
-gh label create quick   -c EDEDED -d "Việc dưới 30 phút"        || true
-gh label create triage  -c D4C5F9 -d "Mới tạo, chưa phân loại"  || true
+gh label create api     -c 1D76DB -d "Tầng Backend / REST API (FastAPI)"             || true
+gh label create gui     -c 5319E7 -d "Tầng Giao diện desktop (PySide6)"              || true
+gh label create db      -c 006B75 -d "Tầng CSDL / schema / migration / seed (MySQL)" || true
+gh label create report  -c 0E8A16 -d "Thống kê / xuất Excel & PDF / in hoá đơn"      || true
+gh label create infra   -c FBCA04 -d "Docker / CI-CD / đóng gói .exe / deploy"       || true
+gh label create docs    -c C2E0C6 -d "Tài liệu / QA / báo cáo BTL"                   || true
+gh label create bug     -c D73A4A -d "Lỗi"                                           || true
+gh label create blocked -c 000000 -d "Đang bị chặn"                                  || true
+gh label create quick   -c EDEDED -d "Việc dưới 30 phút"                             || true
+gh label create triage  -c D4C5F9 -d "Mới tạo, chưa phân loại"                       || true
 ```
 
 ## 6. Tạo milestone theo cổng
@@ -180,8 +165,8 @@ Sau đó trong giao diện Projects:
 
 - Đổi view thành **Board**
 - Thêm cột: `Backlog` · `Ready` · `In progress` · `In review` · `Done`
-- Settings → **Workflow**: bật "Item closed → Done", "PR merged → Done"
-- Settings → **Limits**: đặt **WIP = 2** cho cột `In progress` (WORKFLOW mục 16.4)
+- Settings → **Workflow**: bật "Item closed → Done" cho Issue. Tắt "PR merged → Done" nếu đã bật để thẻ chỉ xong sau khi nghiệm thu.
+- Mỗi assignee giữ tối đa hai Issue `In progress` (WORKFLOW mục 16.4). Lọc board theo assignee để kiểm.
 
 ## 8. Mời thành viên
 
@@ -193,14 +178,12 @@ Gửi kèm link để 3 bạn đọc ngay khi nhận lời mời: `WORKFLOW.md` 
 
 ## 9. Kiểm tra lần cuối
 
-- [ ] `main` và `develop` đều bị chặn push trực tiếp
-- [ ] PR vào `develop` bắt buộc 1 approval + CI xanh
-- [ ] CI xanh ít nhất 1 lần (2 job)
-- [ ] `CODEOWNERS` đã điền username thật
-- [ ] 9 nhãn + 8 milestone đã có
-- [ ] Board có 5 cột, WIP = 2
-- [ ] 4 người đều đã nhận lời mời (và đã push được 1 nhánh thử)
-- [ ] Dependabot đã bật (Settings → Code security)
+- [x] `main` và `develop` đều chặn push trực tiếp (bật `enforce_admins: true`, bắt buộc qua PR)
+- [x] PR vào `develop` bắt buộc CI xanh (`Lint & format` + `Test`, `strict: true`), bỏ bắt buộc approve (`required_approving_review_count = 0`)
+- [x] CI xanh và linear history (`Squash merge`) hoạt động
+- [x] Nhãn tầng kỹ thuật + milestone G1–G6 đã cập nhật theo ADR-014
+- [x] 4 thành viên đều có quyền `push` vào repo
+- [x] Dependabot đã bật
 
 ## 10. Bài kiểm tra quy trình (làm cho cả nhóm xem)
 
@@ -211,8 +194,7 @@ echo "- [x] Kiểm tra quy trình" >> CHANGELOG.md
 git add CHANGELOG.md
 git commit -m "chore(docs): kiểm tra quy trình PR"
 git push -u origin HEAD
-gh pr create --base develop --fill
+gh pr create --base develop --template .github/pull_request_template.md
 ```
 
-Kỳ vọng: PR **không merge được** cho tới khi có 1 approval + CI xanh. Đó là bằng chứng
-hàng rào hoạt động.
+Kỳ vọng: push thẳng lên `develop` bị từ chối (kể cả admin); PR không merge được cho tới khi 2 check CI xanh và nhánh cập nhật với `develop`. Khi CI xanh, tác giả tự bấm **Squash & merge** mà không cần chờ approve. Đó là bằng chứng hàng rào hoạt động đúng.

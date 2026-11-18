@@ -1,6 +1,6 @@
 # `shared/` — Dùng chung cho cả api và gui
 
-**Owner:** A (chung, ai sửa phải nêu trong PR) · **Bắt đầu:** cổng G1 · **Trạng thái:** 🟡 khung trống
+**Phạm vi:** sửa theo Issue chức năng được giao (`ADR-014`) — dùng chung cho cả `api/` và `gui/`, phải nêu rõ trong PR nếu đổi contract/hằng số chung.
 
 ## Đặt gì ở đây
 
@@ -19,5 +19,5 @@
 
 ## Quy ước
 
-Chỉ chứa thứ **thuần tuý, không phụ thuộc framework**. Thay đổi ở đây ảnh hưởng 2 vùng →
-phải nêu rõ trong PR và được cả A và C đồng ý.
+Chỉ chứa thứ **thuần tuý, không phụ thuộc framework**. Thay đổi ở đây ảnh hưởng cả API và GUI →
+phải nêu rõ trong PR và đồng bộ tài liệu `docs/api-contract.md` / GUI liên quan.

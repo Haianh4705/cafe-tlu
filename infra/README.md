@@ -1,6 +1,6 @@
 # `infra/` — Triển khai
 
-**Owner:** D · **Bắt đầu:** cổng G4 (deploy) · **Trạng thái:** 🟡 khung trống
+**Phạm vi:** sửa theo Issue chức năng được giao (`ADR-014`) — đọc skill `win-installer` + `security` trước khi sửa, giữ kiến trúc `gui → api → db`.
 
 ## Đặt gì ở đây
 
@@ -8,7 +8,7 @@
 |---|---|
 | `Dockerfile` | Đóng gói backend FastAPI (image chạy trên server) |
 | `docker-compose.prod.yml` | Compose cho môi trường thật: api + mysql + nginx, không map cổng DB ra ngoài |
-| `deploy.md` | Hướng dẫn deploy **step-by-step** (D viết, GV đọc được) |
+| `deploy.md` | Hướng dẫn deploy **step-by-step** (GV và cả nhóm đọc được) |
 | `nginx.conf` | Reverse proxy + HTTPS (nếu dùng VPS) |
 | `.env.prod.example` | Mẫu biến môi trường production — **giá trị giả**, không commit `.env` thật |
 

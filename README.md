@@ -8,9 +8,6 @@
 PySide6 (gui/)  ──HTTP/JSON──►  FastAPI (api/)  ──SQLAlchemy──►  MySQL 8.0
 ```
 
-> **Trạng thái:** hạ tầng xong, GUI đã có khung + màn Đăng nhập/Thực đơn; `api/` và `db/` còn trống
-> — đang ở **cổng G1**. Lộ trình: [`docs/plan.md`](docs/plan.md).
-
 ## Hôm nay tôi làm gì?
 
 ```bash
@@ -60,99 +57,79 @@ Không cần cài MySQL, không cần Inno Setup (bộ cài `.exe` build trên G
 ## Cấu trúc
 
 ```
-api/            Backend FastAPI            — A
-gui/            Giao diện PySide6          — C
-db/             schema.sql, seed, migrations — B
-shared/         mã lỗi, version, paths
-tests/          pytest
-scripts/        next_task.sh, smoke test, build script
-infra/          Dockerfile, deploy         — D
-installer/      Inno Setup .spec/.iss      — D
+api/            Backend FastAPI (routers, services, models, schemas)
+gui/            Giao diện PySide6 (views, widgets, api_client, theme, i18n)
+db/             schema.sql, seed, verify_seed, migrations (Alembic)
+shared/         mã lỗi, version, paths dùng chung
+tests/          pytest (unit, API, DB, smoke)
+scripts/        next_task.sh, smoke test, seed data, build script
+infra/          Dockerfile, compose production, deploy
+installer/      Inno Setup .spec/.iss
 docs/           erd, api-contract, plan, workflow, defense, decisions, log/
-report/         báo cáo BTL (mỗi người 1 chương)
-.claude/skills/ 10 skill hướng dẫn theo loại việc
+report/         báo cáo BTL (10 file theo chương)
+.claude/skills/ 10 skill hướng dẫn theo tầng kỹ thuật / loại việc
 ```
 
-Mỗi thư mục có `README.md` riêng: owner · đặt gì · **không** đặt gì.
+Mỗi thư mục có `README.md` riêng: vai trò tầng · đặt gì · **không** đặt gì · skill cần đọc.
 
-## Vai trò
+## Thành viên & Nhật ký (giao việc theo chức năng — ADR-014)
 
-| | Vai trò | Vùng | GitHub |
+> Công việc được gán **theo từng chức năng trên GitHub Issue** (người nhận sửa trọn gói `db/` → `api/` → `gui/` → `tests/` của chức năng đó, giữ kiến trúc `gui → api → db`).
+
+| Mã | GitHub | Thế mạnh tham khảo | Nhật ký cá nhân |
 |---|---|---|---|
-| **A** | Backend/API | `api/`, `shared/` | [@bao20062005dh-creator](https://github.com/bao20062005dh-creator) |
-| **B** | Data & Reports | `db/`, reports | [@trungdunxg](https://github.com/trungdunxg) |
-| **C** | GUI/UX | `gui/`, `assets/` | [@MeoCamGuitar](https://github.com/MeoCamGuitar) |
-| **D** | Infra + QA + Docs | `infra/`, `installer/`, `docs/`, `report/` | [@Haianh4705](https://github.com/Haianh4705) |
+| **A** | [@bao20062005dh-creator](https://github.com/bao20062005dh-creator) | Backend / FastAPI / Auth / Test | [`docs/log/A.md`](docs/log/A.md) |
+| **B** | [@trungdunxg](https://github.com/trungdunxg) | MySQL / Schema / Báo cáo Excel & PDF | [`docs/log/B.md`](docs/log/B.md) |
+| **C** | [@MeoCamGuitar](https://github.com/MeoCamGuitar) | Giao diện PySide6 / UX / Theme TLU | [`docs/log/C.md`](docs/log/C.md) |
+| **D** | [@Haianh4705](https://github.com/Haianh4705) | Infra / CI-CD / Đóng gói / QA / Điều phối | [`docs/log/D.md`](docs/log/D.md) |
 
-## Lộ trình 6 cổng — ai làm gì
+## Sáu cổng bàn giao
 
-Ký hiệu: ✅ PR đã merge · 🟡 có PR đang mở · ⬜ chưa có PR.
-**Bảng này là trạng thái hiện tại** — chi tiết, phụ thuộc và thứ tự giao việc ở [`docs/plan.md`](docs/plan.md).
-Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
+Xem tiến độ và người phụ trách theo từng chức năng tại [milestone GitHub](https://github.com/Haianh4705/cafe-tlu/milestones). Xem [quy tắc qua cổng và nhật ký](WORKFLOW.md#163-cổng-kiểm-tra-theo-mốc-không-qua-cổng-thì-không-đi-tiếp) và [lộ trình Issue chức năng](docs/plan.md).
 
-| Cổng | Việc | Ai | Trạng thái |
-|---|---|---|---|
-| **G1** Nền móng | ERD + `db/schema.sql` (#17) · `seed.sql` 50 món (#18) | **B** | ✅ #55 |
-| | Khung API + `/health` (#19) · config MySQL (#20) | **A** | ✅ #56 |
-| | Models theo ERD (#21) → Auth JWT (#22) | **A** | ✅ #65 · ✅ #22 |
-| | Khung GUI + theme + BaseView (#23) · `api_client`/i18n (#24) | **C** | ✅ #40 |
-| | Màn Đăng nhập (#25) | **C** | ⬜ #25 — API đã sẵn sàng |
-| | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
-| | **Ra cổng:** 3/3 `make doctor` (A, C, D — ADR-012) · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **A + C + D** | 🔴 còn **C** (A, D xong) |
-| **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ✅ #73 |
-| | 120 đơn/30 ngày (#28) · thống kê doanh thu, top món (#31) | **B** | ✅ #55 |
-| | Màn Danh sách món (#30) | **C** | ✅ #41 |
-| | Màn Order + thanh toán (#49) | **C** | ✅ #44 |
-| | Khung báo cáo 10 file (#32) | **D** | ⬜ |
-| | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 ✅ · ≥12 endpoint có test ✅ (12/12 contract #1–#12) | **A + C + D** | 🔴 còn demo login → CRUD trên 3 máy |
-| **G3** MVP | API `orders` + `checkout` (transaction) · API báo cáo | **A** | ⬜ |
-| | Seed bàn · xuất Excel + PDF font tiếng Việt | **B** | ⬜ |
-| | Màn Order · Thanh toán + in bill · Dashboard 4 KPI | **C** | ✅ #44 · ✅ #70 (Dashboard đang mock, chờ API `/reports/*`) |
-| | Test case `TC-ORD` · installer bản đầy đủ | **D** | ⬜ |
-| | **Ra cổng:** đủ 6 yêu cầu đề bài, demo full luồng | **cả nhóm** | 🔴 |
-| **G4** Deploy | Dockerfile prod + deploy URL công khai | **D** | ⬜ |
-| | Config production + review `security` | **A + D** | ⬜ |
-| | Backup DB định kỳ | **B** | ⬜ |
-| **G5** QA & báo cáo | QA hồi quy · video demo · biên tập báo cáo | **D** | ⬜ |
-| | Sửa bug chặn demo | **A/B/C** | ⬜ |
-| **G6** Đóng băng | Đóng băng code · demo máy khác · nộp bộ cài + PDF + video | **D + cả nhóm** | ⬜ |
-
-**Đang chặn ngay:** **A** và **C** chạy `make doctor` rồi dán kết quả (D đã xanh — Python 3.12, MySQL healthy, cổng 3307; B không tính, ADR-012) · **A** sang #29 CRUD products · **C** đổi base #70 sang `develop` + làm #25 (màn Đăng nhập, API `/auth/*` đã có). Swagger, `/health`, 50 món, auth, bộ cài đều đã xong.
+| Cổng | Minh chứng chính |
+|---|---|
+| [G1 — Nền móng](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG1) | Máy A/C/D chạy được theo README, CI xanh, Swagger mở, có 50 món mẫu và bộ cài chạy trên Windows sạch |
+| [G2 — Lát cắt dọc](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG2) | Demo login, phân quyền và CRUD món trên máy người khác. Có kiểm thử cho ít nhất 12 endpoint |
+| [G3 — MVP](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG3) | Đủ sáu yêu cầu đề bài, demo toàn luồng và cài được bộ cài từ CI trên Windows sạch |
+| [G4 — Deploy](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG4) | Backend có URL công khai và tag kích hoạt build bộ cài qua CI |
+| [G5 — QA](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG5) | Test case đạt ít nhất 95%, báo cáo đạt 80% và có video demo |
+| [G6 — Đóng băng](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG6) | Đóng băng trước hạn ba ngày, chỉ nhận hotfix và đã tập bảo vệ |
 
 ## Làm việc nhóm
 
-1. Mọi việc bắt đầu từ **Issue** → nhánh `feature/*` từ `develop`.
-2. `make check` phải xanh → commit Conventional Commits → mở **PR**.
-3. Cần **1 approval** + **CI xanh** → merge **Squash**.
+1. **100% chức năng qua Issue & PR** (không push thẳng lên `main`/`develop`; repo bật `enforce_admins: true`).
+2. `make check` phải xanh → commit Conventional Commits → mở **PR** từ nhánh `feature/*`/`fix/*` với `Refs #<issue>`.
+3. **Bỏ bắt buộc approve:** chờ **CI xanh** (`Lint & format`, `Test`) + hoàn thành checklist (3 câu bảo vệ + nhật ký cá nhân) → tác giả tự **Squash & merge** vào `develop`, nghiệm thu rồi đóng Issue ([WORKFLOW mục 3.2](WORKFLOW.md#32-quy-tắc-kiểm-tra-và-merge-pr)).
 
 | Tài liệu | Nội dung |
 |---|---|
 | [`WORKFLOW.md`](WORKFLOW.md) | Quy chuẩn làm việc đầy đủ — **nguồn chân lý** |
-| [`docs/plan.md`](docs/plan.md) | **Lộ trình theo cổng: đang ở đâu, việc gì mở khoá cổng, giao theo thứ tự nào** |
-| [`docs/workflow.md`](docs/workflow.md) | Ai làm gì, xong thì bàn giao cho ai |
+| [`docs/plan.md`](docs/plan.md) | **Phạm vi từng cổng, phụ thuộc và danh sách Issue chức năng** |
+| [`docs/workflow.md`](docs/workflow.md) | Quy trình làm một chức năng từ Issue đến đóng trên `develop` |
 | [`docs/defense.md`](docs/defense.md) | Ngân hàng câu hỏi bảo vệ + cách hiểu bài mình viết |
-| [`docs/log/`](docs/log/README.md) | **Nhật ký cá nhân A/B/C/D** — mỗi người ghi việc đã làm + AI đã hỗ trợ gì |
+| [`docs/log/`](docs/log/README.md) | **Nhật ký cá nhân A/B/C/D** — mỗi người ghi Issue chức năng mình làm + AI đã hỗ trợ gì |
 | [`AGENTS.md`](AGENTS.md) | Quy tắc cho AI agent |
 | [`.claude/skills/`](.claude/skills/README.md) | 10 skill: API, DB, GUI, UI, test, đóng gói, báo cáo, bảo mật, tối giản, hỏi việc |
 
-## Skill — đọc theo vùng việc (10 skill)
+## Skill — đọc theo tầng chạm tới (10 skill)
 
 Skill là file hướng dẫn chi tiết cho **một loại việc**: bất biến cần giữ, khuôn mẫu copy được,
 checklist trước khi mở PR. **Đọc trước khi viết code**, không phải sau. Đường dẫn:
 `.claude/skills/<tên>/SKILL.md`. Khi mâu thuẫn với `WORKFLOW.md` → `WORKFLOW.md` thắng.
 
-| Skill | Đọc khi | Của ai |
+| Skill | Đọc khi | Tầng áp dụng |
 |---|---|---|
 | [`next-task`](.claude/skills/next-task/SKILL.md) | **"Tôi cần làm gì?"** — tra Issue được gán, trả lời theo thứ tự | Cả nhóm |
 | [`minimal-change`](.claude/skills/minimal-change/SKILL.md) | **Mọi việc code** — chọn cách nhỏ nhất đủ dùng | Cả nhóm |
-| [`fastapi-endpoint`](.claude/skills/fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | A |
-| [`sqlalchemy-model`](.claude/skills/sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | B |
-| [`pyside6-screen`](.claude/skills/pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | C |
-| [`ui-design`](.claude/skills/ui-design/SKILL.md) | Màu, font, khoảng cách, chống "AI slop" | C |
-| [`pytest-db`](.claude/skills/pytest-db/SKILL.md) | Fixture DB, test API, test hồi quy | A, B |
-| [`report-export`](.claude/skills/report-export/SKILL.md) | Xuất Excel/PDF, in hoá đơn | B, C |
-| [`win-installer`](.claude/skills/win-installer/SKILL.md) | Build `.exe`, lỗi đóng gói | D |
-| [`security`](.claude/skills/security/SKILL.md) | Auth, phân quyền, secret, review trước deploy | Cả nhóm (D review) |
+| [`fastapi-endpoint`](.claude/skills/fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | Khi chạm `api/` |
+| [`sqlalchemy-model`](.claude/skills/sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | Khi chạm `db/` |
+| [`pyside6-screen`](.claude/skills/pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | Khi chạm `gui/` |
+| [`ui-design`](.claude/skills/ui-design/SKILL.md) | Màu, font, khoảng cách, chống "AI slop" | Khi chạm `gui/` |
+| [`pytest-db`](.claude/skills/pytest-db/SKILL.md) | Fixture DB, test API, test hồi quy | Khi viết test |
+| [`report-export`](.claude/skills/report-export/SKILL.md) | Xuất Excel/PDF, in hoá đơn | Khi làm báo cáo / bill |
+| [`win-installer`](.claude/skills/win-installer/SKILL.md) | Build `.exe`, lỗi đóng gói | Khi chạm `installer/` / CI |
+| [`security`](.claude/skills/security/SKILL.md) | Auth, phân quyền, secret, review trước deploy | Mọi chức năng liên quan auth / deploy |
 
 **Cách dùng nhanh:** mở phiên AI agent ở gốc repo và nói
 

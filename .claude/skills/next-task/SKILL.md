@@ -32,19 +32,19 @@ Nếu vẫn không có: hỏi họ giữ vai nào (A/B/C/D) rồi xem `docs/plan
 gh issue view <số> --json title,body,labels,milestone
 ```
 
-Đọc **hai mục** trong body: `## Việc cần làm` và `## Tiêu chí nghiệm thu`.
-Không đọc hết 16 issue — chỉ issue tiếp theo.
+Chỉ đọc Issue tiếp theo. Tìm **Kết quả mong đợi**, **Nghiệm thu** và **Phụ thuộc**.
+Issue cũ có thể dùng **Việc cần làm** và **Tiêu chí nghiệm thu**.
 
 ## Bước 3 — Trả lời theo đúng khuôn này
 
 ```
 ## Việc tiếp theo: #<số> — <tiêu đề>  (<milestone>)
 
-**Làm gì:** 2–4 gạch đầu dòng, lấy từ mục "Việc cần làm" của issue.
-**Xong khi:** 2–3 gạch đầu dòng từ "Tiêu chí nghiệm thu".
-**Đọc trước:** skill `<tên>` (.claude/skills/<tên>/SKILL.md) + `minimal-change`.
+**Làm gì:** 2–4 gạch đầu dòng, tóm tắt kết quả cần đạt của Issue.
+**Xong khi:** 2–3 gạch đầu dòng từ tiêu chí nghiệm thu của Issue.
+**Đọc trước:** tất cả skill ứng với các tầng Issue chạm tới (.claude/skills/<tên>/SKILL.md) + `minimal-change`.
 **Chờ ai / chặn ai:** <nếu issue có phụ thuộc, nêu rõ issue nào phải xong trước,
-   và việc này đang chặn ai — tra trong docs/plan.md hoặc docs/workflow.md>
+   và việc này đang chặn issue nào — tra trong docs/plan.md hoặc docs/workflow.md>
 **Lệnh bắt đầu:**
    git switch develop && git pull --ff-only
    git switch -c feature/<scope>-<slug>-<ten>
@@ -54,14 +54,14 @@ Sau đó **một dòng** về việc kế tiếp, không liệt kê hết.
 
 ## Quy tắc
 
-1. **Không tự bịa việc.** Không có việc nào được gán → nói thật, bảo họ hỏi D hoặc nhận issue
-   ở cột Ready. Không tự đề xuất tính năng mới.
-2. **Không đảo thứ tự.** Nếu việc số 2 phụ thuộc việc số 1 của người khác, nói rõ:
-   *"#21 cần #17 của B xong trước"*. Đừng khuyên họ làm sớm rồi sửa lại.
-3. **Không code thay họ.** Họ phải tự làm để bảo vệ trước GV (đề bài: copy = 0 điểm).
-   Được: giải thích, chỉ file, gợi ý cách làm. Không: viết cả file rồi bảo họ commit.
-4. **Nhắc điều kiện xong** ngắn gọn: `make check` xanh · PR cần 1 approval + CI xanh ·
-   3 câu "Giải thích được" (`docs/defense.md`).
+1. **Không tự bịa việc.** Không có việc nào được gán → nói thật, bảo họ hỏi D hoặc nhận một Issue chức năng
+   đã đạt Definition of Ready (chưa có assignee). Không tự đề xuất tính năng mới.
+2. **Không đảo thứ tự.** Nếu việc số 2 phụ thuộc việc số 1 chưa xong, nói rõ:
+   *"#94 cần #93 xong trước"*. Đừng khuyên họ làm phần phụ thuộc ngược trước rồi phải sửa lại.
+3. **Không code thay họ khi hướng dẫn thành viên.** Họ phải nắm được để bảo vệ trước GV (đề bài: copy = 0 điểm).
+   Giải thích, chỉ file và viết cùng quy chuẩn để họ đọc hiểu từng dòng.
+4. **Nhắc điều kiện xong** ngắn gọn: `make check` xanh · mở PR (`Refs #<issue>`) · CI xanh (`Lint & format`, `Test`) ·
+   3 câu "Giải thích được" · tự Squash & Merge (đã bỏ bắt buộc approve theo ADR-014) · nghiệm thu trên `develop` rồi đóng Issue.
 5. **Không quên ảnh chụp** nếu việc của bạn là *hoàn thiện một màn hình* — ảnh là tư liệu báo cáo và để
    GV xem lúc bảo vệ. Việc backend/DB/CI thì **không** cần ảnh: dán log + link CI là đủ.
 

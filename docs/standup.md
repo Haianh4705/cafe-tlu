@@ -1,26 +1,10 @@
-# Nhật ký standup (tuỳ chọn)
+# Báo blocker
 
-> Dùng file này nếu nhóm muốn **lưu lại** standup để tra cứu "ai đang chặn việc gì".
-> Không dùng cũng được — (WORKFLOW.md mục 16.1). Chat chỉ để trao đổi nhanh; việc cần làm vẫn là Issue.
+Ghi trên Issue đang bị chặn theo [WORKFLOW.md mục 16.1](../WORKFLOW.md#161-khi-có-thay-đổi-hoặc-blocker).
+Nếu cần báo nhanh trong chat, gửi link Issue và thông tin sau.
 
-## Mẫu — 3 dòng, trước 10:00
+- Đang chờ việc gì?
+- Ai có thể gỡ và cần họ chốt gì?
+- Mốc nào bị ảnh hưởng?
 
-```
-### YYYY-MM-DD
-- **A:** hôm qua … / hôm nay … / chặn: …
-- **B:** hôm qua … / hôm nay … / chặn: …
-- **C:** hôm qua … / hôm nay … / chặn: …
-- **D:** hôm qua … / hôm nay … / chặn: …
-```
-
-Quy ước:
-
-- **Chặn: không** nếu không bị chặn — đừng để trống.
-- Bị chặn **> 2 giờ** phải báo, không chờ tới hôm sau.
-- Chỉ ghi việc, không ghi cảm xúc.
-
-## Nhật ký
-
-> Ngày đầu tiên bắt đầu ghi là ngày cả nhóm bắt tay vào code (cổng G2).
-
-_(chưa có — sẽ bắt đầu khi nhóm nhận vai)_
+Nếu bị chặn quá hai giờ, tag người xử lý và D trong Issue.

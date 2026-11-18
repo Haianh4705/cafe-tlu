@@ -20,10 +20,9 @@
 
 Nếu thiếu file nào ở trên → **báo lại**, đừng tự tạo phiên bản riêng.
 
-## 1.5. Kỹ năng (skill) — đọc theo vùng việc
+## 1.5. Kỹ năng (skill) — đọc theo các tầng Issue chạm tới
 
-Mỗi skill là một file hướng dẫn chi tiết cho một loại việc. **Đọc skill trước khi viết code**,
-không phải sau. Đường dẫn: `.claude/skills/<tên>/SKILL.md`.
+Mỗi skill là một file hướng dẫn chi tiết cho một loại việc. **Đọc tất cả skill tương ứng với các tầng chức năng trong Issue trước khi viết code**, không phải sau. Đường dẫn: `.claude/skills/<tên>/SKILL.md`.
 
 | Sắp làm gì | Đọc skill |
 |---|---|
@@ -45,8 +44,8 @@ Nếu một skill sai hoặc thiếu, sửa skill đó bằng PR — đừng lá
 
 ## 2. Mười một điều không được vi phạm
 
-1. **Không push** lên `main` / `develop`. Luôn tạo nhánh `feature/*` hoặc `fix/*`.
-2. **Không tự đổi** `db/schema.sql`, migration đã merge, `docs/api-contract.md` → phải hỏi.
+1. **Không push** lên `main` / `develop` (repo chặn cả admin). Mọi chức năng và sửa lỗi phải đi qua **Issue → Nhánh → Pull Request**.
+2. **Không sửa migration đã merge**; chỉ mở rộng `db/schema.sql` hoặc `docs/api-contract.md` khi thuộc yêu cầu của Issue và phải cập nhật đồng bộ migration Alembic mới, `docs/erd.md`, `db/verify_seed.sql` / `docs/api-contract.md`.
 3. **Không thêm dependency** vào `requirements.txt` khi chưa được duyệt.
 4. **Không commit** `.env`, secret, token, `dist/`, `build/`, `.venv/`, `*.db`.
 5. **Không `git add .`** — chỉ add path cụ thể, review `git status` trước khi commit.
@@ -54,9 +53,8 @@ Nếu một skill sai hoặc thiếu, sửa skill đó bằng PR — đừng lá
 7. **Không `print()`** trong code sản phẩm — dùng `logger`.
 8. **Không nói "đã test"** khi chưa thực sự chạy `make lint && make test` và dán kết quả.
 9. **Không làm ngoài phạm vi Issue** (không refactor tiện tay, không đổi format toàn file).
-10. **Không tự merge/approve** PR của mình.
-11. **Không kết thúc phiên mà không ghi** `docs/log/<vai>.md` (việc đã làm + AI đã làm gì + chỗ
-    người dùng còn chưa giải thích được).
+10. **Không merge PR khi CI chưa xanh hoặc chưa có lệnh của người dùng** (quy trình nhóm đã bỏ bắt buộc approve — thành viên tự Squash & merge khi CI xanh + đủ minh chứng).
+11. **Không kết thúc phiên mà không ghi** `docs/log/<vai>.md` của đúng thành viên bạn đang hỗ trợ (việc đã làm + AI đã làm gì + chỗ người dùng còn chưa giải thích được).
 
 ---
 
@@ -66,31 +64,27 @@ Nếu một skill sai hoặc thiếu, sửa skill đó bằng PR — đừng lá
 git switch develop && git pull --ff-only
 git switch -c feature/<scope>-<slug>-<ten>
 make lint && make test          # BASELINE — ghi lại kết quả TRƯỚC khi sửa
-# ... sửa code, thay đổi nhỏ nhất đủ đáp ứng Issue ...
+# ... sửa code trọn gói các tầng thuộc phạm vi Issue ...
 make lint && make test          # KIỂM CHỨNG — phải xanh
 # ghi 1–3 dòng vào docs/log/<vai>.md (mục 2 + 3) — trước khi commit
 git add <path-cụ-thể>
 git commit -m "feat(order): thêm endpoint gộp bàn"
 git push -u origin HEAD
+gh pr create --base develop --template .github/pull_request_template.md
 ```
 
-Sau đó mở PR theo template trong `WORKFLOW.md` mục 18.2 và gán reviewer là **owner vùng bị sửa**.
+Ghi `Refs #<issue>` và gắn nhãn theo các tầng chạm tới trong PR. Sau khi CI xanh và người dùng xác nhận (hoặc tự thao tác), **Squash & merge** vào `develop`, kiểm chứng kết quả trên `develop` rồi đóng Issue.
 
 Nếu **baseline đã đỏ** từ trước: báo ngay, không tự sửa ngoài phạm vi để dọn.
 
 ---
 
-## 4. Ranh giới sở hữu
+## 4. Giao việc theo chức năng & phạm vi sửa file (ADR-014)
 
-| Vùng | Owner | Được sửa khi |
-|---|---|---|
-| `api/` | A | Issue có label `api`/`auth`/`order` |
-| `db/`, `api/services/reports.py` | B | Issue có label `db`/`report` |
-| `gui/`, `assets/` | C | Issue có label `gui` |
-| `infra/`, `installer/`, `.github/`, `docs/`, `report/` | D | Issue có label `infra`/`ci`/`docs` |
-| `shared/` | Chung | Được sửa, nhưng phải nêu trong PR |
-
-Chạm file ngoài vùng mình > 10 dòng → **hỏi trước**.
+- Không khoá cứng thư mục theo vai `A/B/C/D`. Khi được gán Issue chức năng, được sửa trọn gói `db/` + `api/` + `gui/` + `shared/` + `tests/` + `docs/` thuộc phạm vi chức năng đó.
+- Nhãn trên Issue (`api`, `gui`, `db`, `report`, `infra`, `docs`) cho biết **các tầng kỹ thuật cần chạm và các skill phải đọc**, không giới hạn người làm.
+- Vẫn giữ phân tách thay đổi dùng chung: sửa `db/schema.sql`, `docs/api-contract.md`, `requirements.txt`, `.github/workflows/`, `installer/` phải nêu rõ trong Issue/PR và cập nhật đồng bộ tài liệu.
+- Nếu cần chỉnh phần nằm **ngoài phạm vi Issue** được giao → **hỏi người dùng trước**.
 
 ---
 
@@ -135,8 +129,7 @@ make doctor      # kiểm tra môi trường máy
       không viết được 3 câu đó thay cho người dùng, thì code chưa đủ rõ để họ bảo vệ
 - [ ] Commit message đúng Conventional Commits, có `Co-authored-by` nếu code do AI sinh
 - [ ] Đã ghi `docs/log/<vai>.md`: 1 dòng việc + 1 dòng AI, và mục 5 nếu còn chỗ chưa hiểu
-- [ ] Đã cập nhật bảng tiến độ 6 cổng trong `README.md` nếu Issue vừa đổi trạng thái
-      (⬜ → 🟡 khi mở PR · 🟡 → ✅ khi merge) — `WORKFLOW.md` mục 12.6
+- [ ] Trạng thái và blocker nằm trên GitHub Issue. Sau khi CI xanh và **Squash & merge** vào `develop` (không cần approve), xác nhận nghiệm thu rồi đóng Issue.
 
 ---
 

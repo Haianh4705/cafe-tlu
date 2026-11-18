@@ -1,16 +1,16 @@
 # `api/` — Backend FastAPI
 
-**Owner:** A · **Bắt đầu:** cổng G1 · **Trạng thái:** 🟡 khung trống, chờ code
+**Phạm vi:** sửa theo Issue chức năng được giao (`ADR-014`) — đọc skill `fastapi-endpoint` trước khi sửa, giữ kiến trúc một chiều `gui → api → db`.
 
-## Cấu trúc (tạo dần khi code)
+## Cấu trúc
 
 ```
 api/
 ├── main.py          # tạo app, mount router, exception handler
 ├── core/            # config, db (engine + get_db), security (JWT, require_role)
 ├── routers/         # MỎNG: validate + gọi service + trả response
-├── services/        # toàn bộ nghiệp vụ, transaction
-├── models/          # SQLAlchemy (B review mọi thay đổi)
+├── services/        # toàn bộ nghiệp vụ, transaction (`reports.py` cho thống kê & export)
+├── models/          # SQLAlchemy (nếu thêm bảng/cột phải đồng bộ `db/schema.sql` + migration)
 └── schemas/         # Pydantic request/response
 ```
 

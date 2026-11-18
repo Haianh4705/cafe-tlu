@@ -1,8 +1,8 @@
 # `gui/` — Giao diện desktop PySide6
 
-**Owner:** C · **Bắt đầu:** cổng G1 · **Trạng thái:** 🟡 khung trống, chờ code
+**Phạm vi:** sửa theo Issue chức năng được giao (`ADR-014`) — đọc skill `pyside6-screen` + `ui-design` trước khi sửa, giữ kiến trúc `gui → api → db`.
 
-## Cấu trúc (tạo dần khi code)
+## Cấu trúc
 
 ```
 gui/
