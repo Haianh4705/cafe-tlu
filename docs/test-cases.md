@@ -10,11 +10,11 @@
 
 | ID | Tiền điều kiện | Bước | Kết quả mong đợi | Người | Kết quả | Ghi chú |
 |---|---|---|---|---|---|---|
-| TC-AUTH-01 | Có user `admin` | Đăng nhập đúng mật khẩu | Vào được Dashboard, menu đầy đủ | C | ⬜ | |
-| TC-AUTH-02 | | Đăng nhập sai mật khẩu 3 lần | Báo lỗi rõ ràng, không lộ "sai user hay sai pass" | C | ⬜ | |
-| TC-AUTH-03 | | Đăng nhập role `staff` | Không thấy menu Quản lý nhân viên / Báo cáo doanh thu | C | ⬜ | |
+| TC-AUTH-01 | Có user `admin` | Đăng nhập đúng mật khẩu | Vào được Dashboard, menu đầy đủ | C | PASS | E2E 18-11: admin vào Dashboard, `/auth/me` trả 200 và menu đủ 5 mục. Nội dung Tổng quan báo lỗi riêng vì `GET /reports/revenue` trả 404; không thuộc màn đăng nhập. |
+| TC-AUTH-02 | Có user `admin` | Đăng nhập sai mật khẩu 3 lần | Báo lỗi rõ ràng, không lộ "sai user hay sai pass" | C | PASS | E2E 18-11: sai mật khẩu 3 lần và user không tồn tại đều hiện cùng lỗi inline `Tên đăng nhập hoặc mật khẩu không đúng`; không có messagebox. Ảnh `docs/screenshots/gui/login-20261118-02.png`. |
+| TC-AUTH-03 | Có user `thungan01` role `staff` | Đăng nhập role `staff` | Không thấy menu Quản lý thực đơn / Báo cáo doanh thu | C | PASS | E2E 18-11: `/auth/me` trả 200; staff chỉ thấy Tổng quan, Bán hàng / Order, Quản lý bàn. |
 | TC-AUTH-04 | Role `staff` | Gọi trực tiếp API admin bằng token staff | 403 `FORBIDDEN` (chặn ở server) | D | ⬜ | |
-| TC-AUTH-05 | | Đóng app, mở lại | Không còn phiên đăng nhập (hoặc còn, tuỳ thiết kế) | C | ⬜ | |
+| TC-AUTH-05 | Đã đăng nhập | Đóng app, mở lại | Quay về form đăng nhập; token chỉ lưu trong RAM | C | PASS | E2E 18-11: sau khi đóng và chạy lại `make gui`, app trở về form trống, không khôi phục phiên cũ. |
 
 ## 2. Quản lý món ăn / đồ uống (CRUD)
 

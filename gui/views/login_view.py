@@ -173,20 +173,47 @@ class LoginView(BaseView):
         self._username_input.setEnabled(not is_loading)
         self._password_input.setEnabled(not is_loading)
         if is_loading:
-            self._login_btn.setText("Đang đăng nhập...")
+            self._login_btn.setText(t("login_loading"))
         else:
             self._login_btn.setText(t("login_btn"))
 
-    def _on_login_success(self, data: Any) -> None:
-        """Xử lý khi backend trả về token và thông tin người dùng thành công."""
+    def _on_login_success(self, _login_response: Any) -> None:
+        """Lấy danh tính phiên từ /auth/me sau khi token được lưu trong ApiClient."""
+        self.start_worker(
+            self.api.get_me,
+            on_success=self._on_current_user_loaded,
+            on_error=self._on_current_user_failed,
+        )
+
+    def _on_current_user_loaded(self, user_info: Any) -> None:
+        """Chỉ hoàn tất đăng nhập bằng danh tính mới xác nhận qua /auth/me."""
+        if not isinstance(user_info, dict):
+            self.api.clear_tokens()
+            self._set_loading(False)
+            self._show_error(t("login_failed"))
+            return
+
         self._set_loading(False)
-        user_info = data.get("user", {}) if isinstance(data, dict) else {}
         logger.info(
             "Đăng nhập thành công tài khoản: %s (role: %s)",
             user_info.get("username"),
             user_info.get("role"),
         )
         self.login_success.emit(user_info)
+
+    def _on_current_user_failed(self, exc: Exception) -> None:
+        """Xoá token nếu không xác minh được phiên, đặc biệt khi API trả về 401."""
+        self.api.clear_tokens()
+        self._set_loading(False)
+        if isinstance(exc, ApiClientError) and exc.code == "UNAUTHENTICATED":
+            self._show_error(t("session_expired"))
+            return
+        if isinstance(exc, ApiClientError):
+            self._show_error(exc.message or t("login_failed"))
+        else:
+            self._show_error(t("login_failed"))
+        self._password_input.selectAll()
+        self._password_input.setFocus()
 
     def _on_login_failed(self, exc: Exception) -> None:
         """Xử lý khi backend trả về lỗi xác thực."""

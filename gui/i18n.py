@@ -33,8 +33,10 @@ STRINGS: Final[dict[str, str]] = {
     "username": "Tên đăng nhập",
     "password": "Mật khẩu",
     "login_btn": "Đăng nhập",
+    "login_loading": "Đang đăng nhập...",
     "logout_btn": "Đăng xuất",
     "login_failed": "Tên đăng nhập hoặc mật khẩu không chính xác.",
+    "session_expired": "Phiên đã hết hạn, vui lòng đăng nhập lại",
     # Menu điều hướng
     "nav_dashboard": "Tổng quan",
     "nav_orders": "Bán hàng / Order",
