@@ -74,7 +74,7 @@ def _resolve_kiosk_creator_id(db: Session) -> int:
     )
 
 
-def _generate_order_code(db: Session) -> str:
+def generate_order_code(db: Session) -> str:
     """Sinh mã đơn duy nhất theo ngày dạng ORD-YYYYMMDD-XXX."""
     prefix = f"ORD-{datetime.now().strftime('%Y%m%d')}-"
     existing_codes = db.scalars(
@@ -165,7 +165,7 @@ def create_public_order(
         prepared_items.append((order_item, product))
 
     creator_id = _resolve_kiosk_creator_id(db)
-    order_code = _generate_order_code(db)
+    order_code = generate_order_code(db)
     clean_order_note = payload.notes.strip() if payload.notes else ""
     order_notes = f"[Kiosk] {clean_order_note}" if clean_order_note else "[Kiosk khách tự gọi]"
 
