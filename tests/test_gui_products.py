@@ -161,6 +161,52 @@ def test_product_list_view_empty_state_on_search_not_found(qapp: Any) -> None:
 
     assert view._state_stack.currentWidget() == view._empty_widget
     assert "Không tìm thấy món ăn nào khớp với" in view._empty_label.text()
+    assert view._empty_action_btn.isHidden() is False
+    assert view._empty_action_btn.text() == "Xoá bộ lọc"
+
+
+def test_product_list_view_empty_filter_can_be_cleared(qapp: Any, monkeypatch: Any) -> None:
+    """Khi tìm kiếm rỗng, thao tác Xoá bộ lọc đưa về trang đầu và giữ được điều hướng."""
+    view = ProductListView(ApiClient())
+    loads: list[tuple[bool, str, Any]] = []
+    monkeypatch.setattr(
+        view,
+        "load_products",
+        lambda reset_page=False: loads.append(
+            (reset_page, view._search_input.text(), view._cat_combo.currentData())
+        ),
+    )
+    view._search_input.setText("không có món này")
+    view._cat_combo.blockSignals(True)
+    view._cat_combo.addItem("Trà", 2)
+    view._cat_combo.setCurrentIndex(1)
+    view._cat_combo.blockSignals(False)
+    view._page = 3
+    view._on_products_loaded({"data": [], "meta": {"page": 1, "total": 0, "total_pages": 1}})
+
+    assert view._empty_action_btn.text() == "Xoá bộ lọc"
+    view._empty_action_btn.click()
+
+    assert view._search_input.text() == ""
+    assert view._cat_combo.currentData() is None
+    assert loads == [(True, "", None)]
+
+
+def test_deleting_only_item_on_last_page_loads_previous_valid_page(
+    qapp: Any, monkeypatch: Any
+) -> None:
+    """Xoá món cuối trên trang cuối sẽ tải lại trang hợp lệ gần nhất."""
+    view = ProductListView(ApiClient())
+    view._page = 3
+    requested_pages: list[int] = []
+    monkeypatch.setattr(
+        view, "load_products", lambda reset_page=False: requested_pages.append(view._page)
+    )
+
+    view._on_products_loaded({"data": [], "meta": {"page": 3, "total": 40, "total_pages": 2}})
+
+    assert view._page == 2
+    assert requested_pages == [2]
 
 
 def test_product_role_permissions(qapp: Any) -> None:
