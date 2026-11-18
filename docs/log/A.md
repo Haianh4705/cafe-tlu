@@ -22,7 +22,7 @@
 | 2026-11-17 | #22 | #71 (merged) | `api/core/security.py`, `api/routers/auth.py`, `api/services/auth.py`, `api/models/refresh_token.py`, `tests/test_auth.py`, `tests/conftest.py` | Làm login/refresh/logout/me: bcrypt 12, JWT 30 phút, refresh token lưu hash + rotation, `require_role` kiểm quyền | Lưu hash thay token thô và thu hồi được khi logout (ADR-013); envelope `data`/`meta` theo hợp đồng |
 | 2026-11-17 | #22 (fix) | `fix/api-logout-optional-body` | `api/schemas/auth.py`, `api/services/auth.py`, `api/routers/auth.py`, `tests/test_auth.py` | Nới `/auth/logout` cho body tuỳ chọn; không gửi token thì thu hồi mọi phiên | GUI `api_client.logout()` gọi không body → giữ hành vi thu hồi thật thay vì bắt C sửa client |
 | 2026-11-17 | #29 | #73 (merged) | `api/routers/categories.py`, `api/routers/products.py`, `api/services/products.py`, `api/schemas/`, `tests/test_products.py` | CRUD thực đơn: list + search + lọc danh mục + phân trang, tạo/sửa/xoá mềm, chặn trùng tên | Router mỏng + service giữ nghiệp vụ; `deleted_at` cho phép tạo lại tên món đã xoá (cột sinh `active_name`) |
-| 2026-11-18 | #87 | `fix/order-products-pagination-bao` | `gui/views/order_view.py`, `tests/test_gui_order.py` | Tải đủ trang món theo `meta.total_pages`, tìm/lọc trên toàn danh mục và chặn thêm món ngừng bán | Chọn tải hết trang thay vì gọi search server mỗi lần gõ vì màn Order cần toàn bộ danh mục cho bộ lọc, seed chỉ 51 món và tránh request/race khi gõ |
+| 2026-11-18 | #87 | #121 | `gui/views/order_view.py`, `tests/test_gui_order.py` | Tải đủ trang món theo `meta.total_pages`, tìm/lọc trên toàn danh mục và chặn thêm món ngừng bán | Chọn tải hết trang thay vì gọi search server mỗi lần gõ vì màn Order cần toàn bộ danh mục cho bộ lọc, seed chỉ 51 món và tránh request/race khi gõ |
 
 ## 3. AI đã làm gì
 
@@ -65,4 +65,4 @@
 |---|---|---|---|
 | G1 | 2026-11-17 | #19/#20, #21, #22 đã merge; MySQL local bật + 67 test pass | `make doctor` 4/4 máy (D); rate limit login để G4 |
 | G2 | 2026-11-17 | #29 CRUD products/categories (chờ PR) | C nối màn danh sách món với API thật; D điền test case `TC-PRD` |
-| G3 | 2026-11-18 | #87 tải đủ trang món trong Order (PR đang mở) | #93 API bàn/đơn + nối OrderView; #94 checkout & hoá đơn PDF |
+| G3 | 2026-11-18 | #87 tải đủ trang món trong Order (#121) | #93 API bàn/đơn + nối OrderView; #94 checkout & hoá đơn PDF |
