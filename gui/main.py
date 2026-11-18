@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 from gui.api_client import ApiClient
 from gui.theme import COLOR, FONT, GLOBAL_QSS, RADIUS, SPACE
 from gui.views.base import BaseView
+from gui.views.dashboard_view import DashboardView
 from gui.views.login_view import LoginView
 from gui.views.order_view import OrderView
 from gui.views.product_list_view import ProductListView
@@ -36,35 +37,6 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger("gui.main")
-
-
-class DashboardPlaceholderView(BaseView):
-    """Màn hình Tổng quan / Dashboard chính sau khi đăng nhập."""
-
-    def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-        self._init_ui()
-
-    def _init_ui(self) -> None:
-        title = QLabel("Tổng quan hoạt động quán Café", self)
-        title.setStyleSheet(
-            f"color: {COLOR['navy']}; font-size: {FONT['h1']}px; font-weight: bold;"
-        )
-
-        subtitle = QLabel(
-            "Chào mừng bạn đến với hệ thống POS CafeTLU.\n"
-            "Chọn chức năng ở thanh menu bên trái để bắt đầu thao tác.",
-            self,
-        )
-        subtitle.setStyleSheet(
-            f"color: {COLOR['muted']}; font-size: {FONT['body']}px; line-height: 1.5;"
-        )
-
-        self._data_layout.addWidget(title)
-        self._data_layout.addWidget(subtitle)
-        self._data_layout.addStretch()
-
-        self._set_state(self.STATE_DATA)
 
 
 class MainWindow(QMainWindow):
@@ -123,7 +95,7 @@ class MainWindow(QMainWindow):
         self._content_stack.setStyleSheet(f"background-color: {COLOR['surface']};")
 
         # Đăng ký các màn hình
-        self._dashboard_view = DashboardPlaceholderView(self)
+        self._dashboard_view = DashboardView(self.api, self)
         self._content_stack.addWidget(self._dashboard_view)
 
         self._order_view = OrderView(self.api, self)

@@ -18,6 +18,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Cấu hình & kết nối MySQL (`api/core/config.py`, `api/core/db.py`): Đọc cấu hình từ `.env` bằng `pydantic-settings`, dependency `get_db` cấp Session SQLAlchemy, endpoint `/health` kiểm tra sống và trạng thái kết nối MySQL, trả phẳng `status`/`version`/`database` theo ADR-011 (#20)
 - Định nghĩa mã lỗi và exception dùng chung: `shared/error_codes.py` (hằng số `ErrorCode`) và `shared/errors.py` (`AppError`) (#19)
 - Models SQLAlchemy cho 9 bảng theo ERD v1 (`api/models/`): khoá ngoại `ON DELETE`, index, CHECK, cột sinh `active_name`/`open_table_id`; test metadata + compile DDL MySQL (`tests/test_models.py`) (#21)
+- CRUD thực đơn theo `docs/api-contract.md` #6-#12 (`api/routers/categories.py`, `api/routers/products.py`, `api/services/`): danh sách + tìm kiếm + lọc danh mục + phân trang, tạo/sửa món (admin), xoá mềm bằng `deleted_at`, chặn trùng tên `409 PRODUCT_NAME_DUPLICATED` (#29)
+- Schema request/response cho thực đơn (`api/schemas/category.py`, `api/schemas/product.py`): `ProductOut` trả `category` + `category_id` cho GUI, `ProductUpdate` cho PATCH từng phần (#29)
+- 13 test CRUD thực đơn trên MySQL test (`tests/test_products.py`): envelope + phân trang, search/lọc, 403 cho `staff`, 422, trùng tên, 404, xoá mềm và cho phép tạo lại tên cũ (#29)
 
 ### Added — xác thực (Auth)
 - Bảng thứ 10 `refresh_tokens` (`token_hash` SHA-256 UNIQUE, `expires_at`, `revoked_at`, `replaced_by_id`, 2 `CHECK`) để logout/rotate **thu hồi được** token; chỉ lưu hash, seed không tạo token (ADR-013, #22)
@@ -63,6 +66,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   `docs/setup-github.md` (milestone `G1`–`G6`), skill `next-task` và bảng điều khiển #33/#34
 
 ### Added — giao diện (GUI)
+- Màn hình Tổng quan (`DashboardView`): 4 thẻ KPI (doanh thu hôm nay, số đơn hôm nay, doanh thu 30 ngày, món bán chạy nhất) và 2 biểu đồ QtCharts (doanh thu theo ngày, top 5 món bán chạy); dựng bằng dữ liệu `MOCK_*` khi `APP_ENV=demo`, chờ endpoint `GET /reports/revenue` và `GET /reports/top-products`
 - Màn hình Bán hàng & Gọi món tại bàn (`OrderView`): giao diện POS 3 cột khoa học (sơ đồ bàn `TableCardWidget`, thực đơn món phân loại danh mục và tìm kiếm nhanh `Ctrl+F`/`F1`, giỏ hàng `OrderCartWidget` tính toán thành tiền tức thời, hộp thoại thanh toán `CheckoutDialog` tính tiền thối lại và hộp thoại in/xuất phiếu thanh toán K80 `ReceiptDialog` chuẩn nhận diện TLU)
 - Màn hình Quản lý thực đơn (`ProductListView`): bảng danh sách món, bộ lọc danh mục động, tìm kiếm nhanh `Ctrl+F`, phân trang, cùng bộ hộp thoại CRUD thêm/sửa/xoá món ăn chuẩn nhận diện TLU (#41, Closes #30)
 - Khung giao diện desktop PySide6: theme nhận diện TLU (palette navy `#000066` + swoosh đỏ `#F32409`), BaseView 4 trạng thái bắt buộc, ApiClient bọc 23 endpoint, màn hình Đăng nhập (`LoginView`) phân quyền vai trò (`admin`/`staff`/`barista`), nhúng font Manrope và tài liệu ảnh chụp (#40, Closes #23, #24, #25)

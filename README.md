@@ -98,16 +98,16 @@ Cập nhật bảng ngay khi có thay đổi (xem `WORKFLOW.md` mục 12.6).
 | | Khung GUI + theme + BaseView (#23) · `api_client`/i18n (#24) | **C** | ✅ #40 |
 | | Màn Đăng nhập (#25) | **C** | ⬜ #25 — API đã sẵn sàng |
 | | Installer CI + cài thử Windows sạch (#26, #27) | **D** | ✅ #59 |
-| | **Ra cổng:** 3/3 `make doctor` (A, C, D — ADR-012) · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **A + C + D** | 🔴 còn A, C (D xong) |
-| **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ⬜ |
+| | **Ra cổng:** 3/3 `make doctor` (A, C, D — ADR-012) · CI xanh · Swagger mở · 50 món · `Setup.exe` cài được | **A + C + D** | 🔴 còn **C** (A, D xong) |
+| **G2** Lát cắt dọc | CRUD products + categories (#29) | **A** | ✅ #73 |
 | | 120 đơn/30 ngày (#28) · thống kê doanh thu, top món (#31) | **B** | ✅ #55 |
 | | Màn Danh sách món (#30) | **C** | ✅ #41 |
 | | Màn Order + thanh toán (#49) | **C** | ✅ #44 |
 | | Khung báo cáo 10 file (#32) | **D** | ⬜ |
-| | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 · ≥12 endpoint có test | **A + C + D** | 🔴 |
+| | **Ra cổng:** login → CRUD chạy trên máy người khác · `staff` bị 403 ✅ · ≥12 endpoint có test ✅ (12/12 contract #1–#12) | **A + C + D** | 🔴 còn demo login → CRUD trên 3 máy |
 | **G3** MVP | API `orders` + `checkout` (transaction) · API báo cáo | **A** | ⬜ |
 | | Seed bàn · xuất Excel + PDF font tiếng Việt | **B** | ⬜ |
-| | Màn Order · Thanh toán + in bill · Dashboard 4 KPI | **C** | ⬜ |
+| | Màn Order · Thanh toán + in bill · Dashboard 4 KPI | **C** | ✅ #44 · ✅ #70 (Dashboard đang mock, chờ API `/reports/*`) |
 | | Test case `TC-ORD` · installer bản đầy đủ | **D** | ⬜ |
 | | **Ra cổng:** đủ 6 yêu cầu đề bài, demo full luồng | **cả nhóm** | 🔴 |
 | **G4** Deploy | Dockerfile prod + deploy URL công khai | **D** | ⬜ |
