@@ -7,12 +7,14 @@
 
 ## 1. Ai giữ file nào
 
-| File | Người giữ | Vùng |
+> Theo ADR-014 (giao việc theo chức năng), làm **Issue chức năng nào** (dù chạm `db/`, `api/`, `gui/` hay `infra/`) thì ghi dòng nhật ký của Issue đó vào **đúng file cá nhân của chính mình**.
+
+| File | Người giữ | Thế mạnh tham khảo |
 |---|---|---|
-| [`A.md`](A.md) | A — @bao20062005dh-creator | `api/`, `shared/` |
-| [`B.md`](B.md) | B — @trungdunxg | `db/`, `api/services/reports.py` |
-| [`C.md`](C.md) | C — @MeoCamGuitar | `gui/`, `assets/` |
-| [`D.md`](D.md) | D — @Haianh4705 | `infra/`, `installer/`, `.github/`, `docs/`, `report/` |
+| [`A.md`](A.md) | A — @bao20062005dh-creator | Backend / FastAPI / Auth / Test |
+| [`B.md`](B.md) | B — @trungdunxg | MySQL / Schema / Báo cáo Excel & PDF |
+| [`C.md`](C.md) | C — @MeoCamGuitar | Giao diện PySide6 / UX / Theme |
+| [`D.md`](D.md) | D — @Haianh4705 | Infra / CI-CD / Đóng gói / QA / Điều phối |
 
 **Luật:** chỉ **người đó** (hoặc AI làm việc cho người đó) được sửa file của mình. Người khác muốn
 nhắc → comment trong PR/Issue, không sửa hộ. `D.md` đã điền sẵn làm **mẫu** — xem trước rồi làm theo.

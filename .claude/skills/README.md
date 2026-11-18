@@ -8,18 +8,18 @@
 
 ## Danh sách
 
-| Skill | Đọc khi | Người phụ trách |
+| Skill | Đọc khi | Tầng áp dụng |
 |---|---|---|
 | [`next-task`](next-task/SKILL.md) | **"Tôi cần làm gì?"** — tra Issue, trả lời theo thứ tự | Cả nhóm |
 | [`minimal-change`](minimal-change/SKILL.md) | **Mọi việc code** — chọn cách nhỏ nhất đủ dùng | Cả nhóm |
-| [`fastapi-endpoint`](fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | A |
-| [`sqlalchemy-model`](sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | B |
-| [`pyside6-screen`](pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | C |
-| [`ui-design`](ui-design/SKILL.md) | Bố cục, màu, font, chống "AI slop" | C (+ cả nhóm review) |
-| [`pytest-db`](pytest-db/SKILL.md) | Fixture DB, test API, test hồi quy | A/B |
-| [`win-installer`](win-installer/SKILL.md) | Build `.exe`, lỗi đóng gói | D |
-| [`report-export`](report-export/SKILL.md) | Xuất Excel/PDF, in hoá đơn | B/C |
-| [`security`](security/SKILL.md) | Auth, phân quyền, review trước deploy | Cả nhóm (D review) |
+| [`fastapi-endpoint`](fastapi-endpoint/SKILL.md) | Thêm/sửa endpoint, test route | Khi chạm `api/` |
+| [`sqlalchemy-model`](sqlalchemy-model/SKILL.md) | Thêm bảng/cột, migration, seed | Khi chạm `db/` |
+| [`pyside6-screen`](pyside6-screen/SKILL.md) | Làm màn hình, form, trạng thái UI | Khi chạm `gui/` |
+| [`ui-design`](ui-design/SKILL.md) | Bố cục, màu, font, chống "AI slop" | Khi chạm `gui/` |
+| [`pytest-db`](pytest-db/SKILL.md) | Fixture DB, test API, test hồi quy | Khi viết test |
+| [`win-installer`](win-installer/SKILL.md) | Build `.exe`, lỗi đóng gói | Khi chạm `installer/` / CI |
+| [`report-export`](report-export/SKILL.md) | Xuất Excel/PDF, in hoá đơn | Khi xuất file / in bill |
+| [`security`](security/SKILL.md) | Auth, phân quyền, secret, review trước deploy | Auth / deploy |
 
 ## Quy ước viết skill mới
 

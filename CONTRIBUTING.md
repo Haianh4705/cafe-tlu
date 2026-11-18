@@ -6,10 +6,9 @@
 ## Đọc gì trước (theo thứ tự, ~15 phút)
 
 1. [`README.md`](README.md) — cài và chạy trong 4 lệnh
-2. [`WORKFLOW.md`](WORKFLOW.md) mục 0 (TL;DR) + mục 4 (ranh giới sở hữu)
+2. [`WORKFLOW.md`](WORKFLOW.md) mục 0 (TL;DR), mục 3 (gán theo chức năng & bỏ approve) và mục 4 (kiến trúc `gui → api → db`)
 3. [`docs/decisions.md`](docs/decisions.md) — những gì đã chốt, không mở lại
 4. [`docs/api-contract.md`](docs/api-contract.md) + [`docs/erd.md`](docs/erd.md)
-   (ERD **do B thiết kế** — có thể còn là khung khi bạn mới vào)
 
 ## Cài đặt
 
@@ -19,14 +18,14 @@ make up          # MySQL trong Docker
 make doctor      # phải thấy Python 3.12+ và MySQL sẵn sàng
 ```
 
-## Vòng lặp làm việc (1 việc)
+## Vòng lặp làm việc (1 chức năng / 1 việc)
 
 ```bash
-# 1. Có Issue trên GitHub đã đạt Definition of Ready
+# 1. Nhận Issue chức năng trên GitHub đã đạt Definition of Ready
 git switch develop && git pull --ff-only
 git switch -c feature/<scope>-<mô-tả>-<tên>
 
-# 2. Code + test
+# 2. Code trọn gói các tầng thuộc chức năng (giữ kiến trúc gui → api → db) + test
 make check                       # lint + test phải xanh
 
 # 3. Commit
@@ -35,17 +34,16 @@ git commit -m "feat(order): thêm chức năng gộp bàn"
 
 # 4. PR
 git push -u origin HEAD
-gh pr create --base develop --fill
+gh pr create --base develop --template .github/pull_request_template.md
 ```
 
-Sau đó: gán reviewer là **owner vùng bị sửa**, chờ **1 approval + CI xanh**, merge
-bằng **Squash**.
+Ghi `Refs #<issue>`, điền đủ 3 câu "Giải thích được" và chờ **CI xanh** (`Lint & format` + `Test`). Quy trình nhóm **không bắt buộc approve** — tác giả tự **Squash & merge** vào `develop` (mục 3.2), xác nhận nghiệm thu rồi đóng Issue.
 
 ## Năm điều dễ sai nhất
 
 | ❌ Sai | ✅ Đúng |
 |---|---|
-| Commit thẳng lên `develop` | Luôn qua PR (hook `no-commit-to-branch` sẽ chặn) |
+| Commit thẳng lên `develop` | Luôn qua Issue + PR (GitHub & hook đều chặn) |
 | `git add .` | `git add <file>` cụ thể, xem `git status` trước |
 | Sửa test cho pass | Sửa code; test sai thì nói rõ lý do trong PR |
 | GUI gọi thẳng MySQL | GUI → `api_client.py` → REST API |
@@ -61,11 +59,9 @@ bằng **Squash**.
 
 ## Cần giúp?
 
-- Bị chặn **> 2 giờ** → báo trong standup hoặc tag owner vùng đó trong Issue.
+- Bị chặn **> 2 giờ** → ghi blocker trong Issue và tag người liên quan cùng D.
 - Không rõ nghiệp vụ → hỏi trong Issue, đừng tự đoán rồi code.
 
 ## Nếu bạn dùng AI
 
-Đọc [`AGENTS.md`](AGENTS.md). Tóm tắt: AI được phép đọc mọi file, tạo nhánh, sửa file
-trong vùng được giao, chạy test; **phải hỏi** khi đổi schema/API/dependency; **bị cấm**
-push thẳng `main`/`develop`, commit `.env`, sửa test cho pass.
+Đọc [`AGENTS.md`](AGENTS.md). Tóm tắt: AI được phép đọc mọi file, tạo nhánh, sửa file thuộc phạm vi **Issue chức năng** được giao, chạy test; **phải hỏi** khi đổi schema/API ngoài Issue hoặc thêm dependency; **bị cấm** push thẳng `main`/`develop`, commit `.env`, sửa test cho pass.

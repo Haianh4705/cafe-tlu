@@ -1,159 +1,88 @@
-# Workflow bàn giao — ai làm gì, xong thì đến ai
+# Workflow thực hiện chức năng — từ Issue đến `develop`
 
-> Trả lời một câu hỏi duy nhất: **"Tôi xong việc này rồi, giờ ai làm tiếp?"**
-> Quy chuẩn đầy đủ (nhánh, commit, review, DoD): [`WORKFLOW.md`](../WORKFLOW.md).
-> Tài liệu này chỉ nói về **dòng chảy công việc giữa 4 người**.
+> Trả lời một câu hỏi duy nhất: **"Một chức năng đi từ Issue vào `develop` thế nào?"**
+> Quy chuẩn đầy đủ (kiến trúc, nhánh, commit, DoD): [`WORKFLOW.md`](../WORKFLOW.md).
+> Từ 2026-11-18, nhóm áp dụng **ADR-014**: **gán thành viên theo chức năng cần làm**, **bỏ bắt buộc approve**, và **100% thay đổi qua Issue + Pull Request**.
 
-## 0. Bốn nguyên tắc bàn giao
+## 0. Bốn nguyên tắc phối hợp
 
-1. **Mỗi hạng mục có đúng 1 người giữ bóng** tại một thời điểm. Không "cả hai cùng làm",
-   không "đang để đó".
-2. **Bàn giao bằng artifact, không bằng lời.** Phải có: nhánh đã push + PR + CI xanh +
-   1–3 dòng ghi chú "cần gì ở người nhận". Nói miệng trong nhóm chat **không tính là bàn giao**.
-3. **Không bàn giao "gần xong".** Bàn giao khi đã chạy được hoặc khi bị chặn thật sự (kèm mô tả lỗi).
-4. **Người nhận phản hồi trong 24h** — nhận, hoặc nói rõ khi nào nhận. Im lặng là lỗi quy trình.
+1. **Mỗi Issue chức năng có đúng 1 thành viên phụ trách chính** tại một thời điểm — được sửa trọn gói mọi tầng (`db/`, `api/`, `gui/`, `shared/`, `tests/`, `docs/`) trong phạm vi chức năng đó, giữ kiến trúc `gui → api → db`.
+2. **Bàn giao bằng artifact, không bằng lời.** Phải có: Issue + nhánh đã push + PR (`Refs #<issue>`) + CI xanh + chứng cứ chạy thật.
+3. **Không để nhánh treo dở.** Bị chặn **> 2 giờ** phải ghi rõ blocker ngay trong Issue và tag người liên quan cùng D (`@Haianh4705`).
+4. **Cần đồng đội phối hợp → chốt ngay trong Issue**, không tự đoán hợp đồng API hoặc schema khi ảnh hưởng chức năng khác.
 
-## 1. Sơ đồ tổng
+## 1. Luồng phụ thuộc các chức năng (G1 → G5)
 
 ```mermaid
 flowchart TD
-    B1["B — thiết kế ERD<br/>+ db/schema.sql"] -->|"schema chốt"| A1["A — models SQLAlchemy"]
-    B1 -->|"schema + seed"| D1["D — mount vào compose<br/>test make reset-db"]
-    B2["B — db/seed.sql<br/>50 món, 120 đơn"] --> A2
-    A1 --> A2["A — API: auth + CRUD"]
-    A2 -->|"Swagger chạy được"| C2["C — nối GUI vào API thật"]
-    C1["C — khung GUI + api_client<br/>(chạy song song, dùng contract)"] --> C2
-    A2 --> D2["D — cập nhật test case + smoke"]
-    C2 --> D3["D — QA + chụp ảnh + review"]
-    A2 --> D4["D — build installer lần 1"]
-    D2 --> G2(("Cổng G2<br/>demo thứ 6"))
-    D3 --> G2
-    D4 --> G2
-    G2 --> B3["B — query thống kê + xuất Excel/PDF"]
-    G2 --> C3["C — màn hình order, báo cáo"]
-    B3 --> D5["D — deploy backend + CI build .exe"]
-    C3 --> D5
-    D5 --> G4(("Cổng G4<br/>deploy + installer"))
+    F1["Nền móng: Schema 10 bảng + Seed 51 món/120 đơn<br/>Khung FastAPI /health + Khung GUI PySide6"] --> F2["Đăng nhập & Phân quyền JWT/RBAC<br/>(#22, #25, #79)"]
+    F1 --> F3["Quản lý Thực đơn & Danh mục CRUD<br/>(#29, #30, #82, #83, #84)"]
+    F2 --> F4["Gọi món & Quản lý bàn (#93, #87)<br/>API /tables, /orders + OrderView"]
+    F3 --> F4
+    F4 --> F5["Thanh toán & Hoá đơn PDF (#94)<br/>Transaction checkout + ReceiptDialog"]
+    F1 --> F6["Báo cáo Doanh thu, Top món & Xuất Excel/PDF (#95, #88)<br/>API /reports/* + DashboardView"]
+    F5 --> F7["Nhật ký thao tác quản trị (#96)<br/>Ghi audit_logs + GET /audit-logs"]
+    F4 --> F8["Smoke test toàn luồng, TC-ORD/TC-RPT & Bộ cài MVP (#97)"]
+    F5 --> F8
+    F6 --> F8
+    F7 --> F8
+    F8 --> F9["G4 Deploy & Phát hành: Prod Compose (#89),<br/>URL công khai (#98), About/Update (#99), Backup & Rate-limit (#100)"]
+    F9 --> F10["G5 QA hồi quy ≥95% (#101),<br/>Báo cáo 10 chương (#102) & Video Demo (#103)"]
 ```
 
-## 2. Bảng bàn giao chính
+## 2. Vòng đời một chức năng — ai giữ bóng ở từng bước
 
-| # | Từ | Sản phẩm bàn giao | Đến | Điều kiện "sẵn sàng nhận" |
-|---|---|---|---|---|
-| 1 | **B** | `db/schema.sql` + `db/seed.sql` | **A** | `make reset-db` chạy sạch 2 lần liên tiếp trên máy B |
-| 2 | **B** | 2 dòng mount trong `docker-compose.yml` | **D** | D test `make reset-db` trên máy mình (không phải máy B) |
-| 3 | **B** | Hàm trong `api/services/reports.py` | **A** | Có docstring + chạy được trên dữ liệu seed |
-| 4 | **A** | Endpoint mới chạy trên Swagger | **C** | Có trong `docs/api-contract.md`, có test, CI xanh |
-| 5 | **A** | Endpoint mới | **D** | Thêm dòng test case tương ứng |
-| 6 | **C** | Màn hình + ảnh chụp | **D** | Ảnh ở `docs/screenshots/`, test case đã điền |
-| 7 | **C** | Thiếu/sai API phát hiện khi nối | **A** | Ghi rõ endpoint, request, response mong đợi |
-| 8 | **A + B + C** | App chạy end-to-end trên `develop` | **D** | `make up && make api && make gui` chạy được trên máy người khác |
-| 9 | **D** | Installer + CI xanh | **Cả nhóm** | Cài được trên máy Windows sạch |
-| 10 | **Bất kỳ** | Pull request | **Owner vùng** | CI xanh, `make check` xanh, đúng template |
-| 11 | **Owner** | Review + merge | **Người viết** | Ghi rõ `[must]` / `[should]` / `[nit]` |
-| 12 | **Mỗi người** | `docs/log/<vai>.md` cập nhật (1–3 dòng/PR) | **Cả nhóm** | Trong PR đã merge, mục 2 + 3 có dòng mới |
-
-> **Owner vùng** (ai review cái gì): `api/` → A · `db/`, report → B · `gui/`, `assets/` → C ·
-> `infra/`, `installer/`, `.github/`, `docs/` → D. Chi tiết: `WORKFLOW.md` mục 3.
->
-> **Nhật ký cá nhân:** A → [`log/A.md`](log/A.md) · B → [`log/B.md`](log/B.md) · C → [`log/C.md`](log/C.md)
-> · D → [`log/D.md`](log/D.md). Quy tắc: [`log/README.md`](log/README.md), `WORKFLOW.md` mục 12.5.
-> File trống ở thời điểm cổng = cổng chưa xanh.
-
-## 3. Vòng đời một việc — ai giữ bóng ở từng bước
-
-| Bước | Người giữ bóng | Làm gì | Bàn giao khi |
+| Bước | Người giữ bóng | Làm gì | Hoàn tất khi |
 |---|---|---|---|
-| 1 | Người tạo / **D** | Viết Issue đạt Definition of Ready, gán assignee + milestone | Issue ở cột `Ready` |
-| 2 | **Assignee** | Tạo nhánh, code, `make check` | `make test` xanh + có test |
-| 3 | **Assignee** | Push + mở PR theo template | PR mở, CI xanh, reviewer được gán |
-| 4 | **Reviewer** (owner vùng) | Review theo checklist, trong 24h | Approve, hoặc comment `[must]` |
-| 5 | **Assignee** | Sửa `[must]`, trả lời `[question]` | CI xanh trở lại |
-| 6 | **Reviewer** | Squash merge, nhánh tự xoá | PR merged |
-| 7 | **D** | Kiểm chứng trên `develop`, cập nhật test case, ảnh chụp | Issue → `Done` |
+| 1 | Người điều phối (**D**) hoặc bất kỳ ai đề xuất | Viết Issue chức năng đạt Definition of Ready, gán **1 assignee**, **milestone**, **nhãn tầng chạm tới** | Issue sẵn sàng để nhận |
+| 2 | **Assignee** | Tạo nhánh từ `develop` mới nhất; đọc skill tương ứng các tầng chạm tới; code trọn gói `db/` → `api/` → `gui/` + viết test; chạy `make check` | `make lint && make test` xanh ở local |
+| 3 | **Assignee** | Cập nhật `CHANGELOG.md` (nếu đổi hành vi), `docs/log/<vai>.md` (mục 2 + 3), ảnh chụp (nếu đổi/xong màn hình); push + mở PR với `Refs #<issue>` và 3 câu "Giải thích được" | PR mở theo template |
+| 4 | GitHub Actions (`CI`) + **Assignee** | Chờ 2 check bắt buộc (`Lint & format`, `Test`) xanh; tự rà checklist ở mẫu PR (tag đồng đội góp ý nếu thay đổi phức tạp) | CI xanh, mọi comment đã resolve |
+| 5 | **Assignee** (hoặc **D** hỗ trợ) | Bấm **Squash and merge** vào `develop` (không cần approve), xoá nhánh đã merge | PR merged vào `develop` |
+| 6 | **Assignee** (hoặc **D**) | Kiểm chứng tiêu chí Issue chạy trên `develop`, dán link PR vào Issue rồi **đóng Issue** | Issue Closed, đạt DoD |
 
-**Luật:** người viết **không tự merge** PR của mình (repo cũng chặn bằng branch protection).
-
-## 4. "Xong thì đến ai" — cây quyết định
+## 3. Cây quyết định nhanh
 
 ```
-Xong schema / migration?      →  A (viết models)  +  D (test reset-db)
-Xong endpoint?                →  C (nối GUI)      +  D (test case)
-Xong màn hình?                →  D (QA, ảnh chụp) +  A nếu thiếu API
-Xong query thống kê?          →  A (bọc endpoint) →  C (hiển thị)
-App chạy end-to-end?          →  D (đóng gói installer)
-Xong PR?                      →  owner vùng review
-Bị chặn > 2 giờ?               →  người đang giữ blocker + D
-Không rõ nghiệp vụ?           →  hỏi trong Issue (không tự đoán), tag D
+Muốn bắt đầu việc mới?             →  chạy `make next` hoặc xem milestone cổng trên GitHub
+Issue chạm nhiều tầng (db/api/gui)? →  cùng 1 người làm trọn gói Issue đó, giữ kiến trúc gui → api → db
+Cần thêm/đổi endpoint hợp đồng?     →  cập nhật docs/api-contract.md trong PR và báo nhóm
+Cần thêm bảng/cột vào DB?           →  viết migration Alembic mới + cập nhật db/schema.sql + docs/erd.md
+PR đã xanh CI và đủ checklist?      →  tác giả tự Squash & Merge → kiểm chứng develop → đóng Issue
+Bị chặn > 2 giờ?                    →  ghi blocker trong Issue, tag người liên quan + D
 ```
 
-## 5. Đang chờ người khác thì làm gì (đừng ngồi không)
+## 4. Làm gì khi một Issue đang bị phụ thuộc?
 
-| Đang chờ | A làm | B làm | C làm | D làm |
-|---|---|---|---|---|
-| **Chờ B có schema** | `shared/error_codes.py`, config, khung FastAPI + `/health` | *đang làm chính* | khung GUI + `api_client.py` (dùng contract) | `make doctor` mở rộng, Dockerfile |
-| **Chờ A có API** | *đang làm chính* | seed 120 đơn, query thống kê | theme, `i18n.py`, mock data để dựng layout | build installer thử lần 1 |
-| **Chờ C có màn hình** | test API, tối ưu query | test query thống kê | *đang làm chính* | test case, khung báo cáo |
-| **Chờ D có installer** | review PR | viết chương báo cáo | chụp ảnh màn hình | *đang làm chính* |
+Không ngồi chờ. Chọn một trong các việc độc lập sau:
 
-**Chốt:** `docs/api-contract.md` đã có 23 endpoint → **C không phải chờ A** để bắt đầu.
+- Nhận một Issue chức năng không bị chặn ở cùng cổng hoặc cổng tiếp theo (xem [`docs/plan.md`](plan.md)).
+- Triển khai trước phần tầng dưới/tầng trên dựa theo hợp đồng đã chốt trong [`docs/api-contract.md`](api-contract.md) (kèm test đơn vị hoặc chế độ mock để kiểm tra).
+- Bổ sung test hồi quy, dọn lỗi mở, viết nội dung chương tương ứng trong `report/` theo dữ liệu/code thật đã có.
 
-## 6. SLA & escalation
+## 5. Nhịp kiểm tra & xử lý trễ
 
-| Việc | Hạn | Quá hạn thì |
+| Hoạt động | Nhịp / Ngưỡng | Cách xử lý |
 |---|---|---|
-| Review PR | 24h | Nhắn trong PR, D chuyển reviewer khác |
-| Trả lời câu hỏi trong Issue | trong ngày | D nhắc trực tiếp |
-| Báo khi bị chặn | 2h | — (im lặng là lỗi quy trình) |
-| Cập nhật board | ngay khi đổi trạng thái | D rà board mỗi tối |
-| Cứu scope | trễ ≥ 2 ngày | Nhóm họp **cắt tính năng phụ**, giữ luồng chính chạy được |
+| Cập nhật tiến độ Issue | Khi nhận việc, mở PR hoặc gặp blocker | Ghi trực tiếp trên Issue / PR GitHub |
+| Báo bị chặn (blocker) | Quá 2 giờ | Tag người liên quan + D trong Issue |
+| Demo tích hợp & hỏi chéo | Thứ Sáu hằng tuần | Chạy thật trên `develop`, rà tiêu chí cổng và 3 câu bảo vệ |
+| Cứu scope khi trễ | Trễ ≥ 2 ngày | D cùng nhóm cắt từ dưới lên theo bảng mục 9 trong `docs/plan.md` |
 
-## 7. Theo giai đoạn: ai làm gì, xong bàn giao gì
+## 6. Theo giai đoạn — mục tiêu từng cổng
 
-> **Chi tiết theo từng cổng, giao theo thứ tự nào:** [`docs/plan.md`](plan.md).
-> Điều kiện "xanh" của từng cổng nằm ở **`WORKFLOW.md` mục 16.3** — mục này chỉ nói **ai làm gì**
-> trong mỗi giai đoạn, không định nghĩa lại cổng.
+> Chi tiết danh sách Issue và thứ tự phụ thuộc nằm ở [`docs/plan.md`](plan.md). Tiêu chí xanh của từng cổng nằm ở `WORKFLOW.md` mục 16.3.
 
-### G1 — Nền móng
-
-| Người | Làm | Bàn giao |
+| Cổng | Trọng tâm chức năng | Đầu ra nghiệm thu |
 |---|---|---|
-| B | `db/schema.sql` | → A, D |
-| A | khung `api/` + `/health` + config | → C |
-| C | khung `gui/` + `theme.py` + `api_client.py` | → D |
-| D | build installer thử lần 1, `make doctor` + MySQL | → cả nhóm |
+| **G1 — Nền móng** | Hạ tầng Docker/MySQL, schema 10 bảng, 51 món mẫu, khung FastAPI `/health`, khung GUI, màn Đăng nhập, build thử `.exe` | 3/3 máy A/C/D `make doctor` xanh (ADR-012), CI xanh, Swagger mở, bộ cài chạy Windows sạch |
+| **G2 — Lát cắt dọc** | Auth JWT + CRUD thực đơn & danh mục chạy end-to-end GUI ↔ API ↔ MySQL, khung báo cáo 10 chương | Login → tìm/thêm/sửa/xoá món trên máy khác, `staff` nhận 403, ≥ 12 endpoint có test |
+| **G3 — MVP** | Bàn & Order tại bàn (`#93`), Checkout & in bill PDF (`#94`), Báo cáo & Excel/PDF (`#95`), Audit log (`#96`), Smoke test & installer MVP (`#97`) | Đủ 6 yêu cầu đề bài chạy end-to-end, bộ cài MVP cài được trên Windows sạch |
+| **G4 — Deploy** | Compose prod + migration (`#89`), Deploy URL công khai & client trỏ URL (`#98`), About/Auto-update (`#99`), Backup & Rate-limit (`#100`), hardening (`#76`, `#80`, `#86`) | Backend có URL HTTPS công khai, tag `v*` build `.exe` và verify sạch trên Windows |
+| **G5 — QA & Báo cáo** | Chạy hết `docs/test-cases.md` + bộ ảnh (`#101`), Hoàn thiện báo cáo 10 chương (`#102`), Quay video demo 3–5 phút & tập bảo vệ (`#103`) | ≥ 95% test case PASS, báo cáo ≥ 80%, đủ 4 file `docs/log/<vai>.md`, có video demo |
+| **G6 — Đóng băng** | Trước hạn 3 ngày: đóng băng tính năng (chỉ `hotfix`), diễn tập demo trên máy khác, rà toàn bộ sổ bảo vệ | Sẵn sàng nộp source + `.exe` + báo cáo PDF + video |
 
-**Cổng:** 3 máy **A, C, D** chạy được bằng README (ADR-012; B chỉ cần `db/verify_seed.sql`), CI xanh, có 1 bản cài cài được.
+## 7. Nhật ký & Bàn giao bảo vệ cuối kỳ
 
-### G2 — Lát cắt dọc
-
-| Người | Làm | Bàn giao |
-|---|---|---|
-| B | `seed.sql` + 120 đơn 30 ngày | → A (test), D (demo data) |
-| A | auth JWT + CRUD món | → C (nối), D (test case) |
-| C | màn Đăng nhập + Danh sách món | → D (QA + ảnh) |
-| D | QA smoke test, ảnh chụp | → cả nhóm |
-
-**Cổng:** login + phân quyền + CRUD món chạy end-to-end trên máy người khác.
-
-### G3–G6
-
-| Giai đoạn | Trọng tâm | Bàn giao cuối |
-|---|---|---|
-| **G3** MVP | Order, hoá đơn, tìm kiếm, thống kê | D đóng gói installer cài được |
-| **G4** Deploy | Docker + deploy backend, CI build `.exe` | URL công khai → cả nhóm test |
-| **G5** QA | Test case pass ≥ 95%, báo cáo 80%, video | D biên tập báo cáo |
-| **G6** Đóng băng | Trước hạn 3 ngày, chỉ hotfix | D nộp bài |
-
-## 8. Bàn giao cuối kỳ (G6) — ai nộp gì
-
-| Người | Nộp cho D | Hạn |
-|---|---|---|
-| A | Chương Backend + API + ảnh Swagger, sơ đồ kiến trúc | trước hạn 5 ngày |
-| B | Chương CSDL + ERD + thống kê + ảnh biểu đồ | trước hạn 5 ngày |
-| C | Chương GUI + ảnh từng màn hình + mô tả luồng | trước hạn 5 ngày |
-| D | Biên tập báo cáo, video demo, đóng gói nộp | hạn nộp |
-| **Cả 4** | `docs/log/<vai>.md` đã rà xong: mục 2 đủ PR, mục 4 trả lời được, mục 5 ghi rõ phần chưa làm | hạn nộp |
-
-**Điều kiện nộp:** mỗi người thuyết trình được **toàn bộ** hệ thống trong 5 phút,
-không chỉ phần mình (GV có thể hỏi bất kỳ phần nào).
+- **Mỗi Issue/PR hoàn thành:** tác giả tự thêm 1 dòng vào mục 2 + mục 3 trong file nhật ký cá nhân của mình ([`log/A.md`](log/A.md) · [`log/B.md`](log/B.md) · [`log/C.md`](log/C.md) · [`log/D.md`](log/D.md)) dù Issue đó chạm bất kỳ tầng nào.
+- **Trước buổi bảo vệ (G6):** mỗi thành viên rà lại mục 4 (câu hỏi bảo vệ) trong file log của mình, nắm tổng quan toàn bộ luồng `gui → api → db` (mỗi người thuyết trình được toàn hệ thống trong 5 phút theo [`defense.md`](defense.md)).

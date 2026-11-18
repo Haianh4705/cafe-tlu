@@ -91,23 +91,10 @@
 
 ## ADR-009: Phân công vai trò A/B/C/D
 
-- **Ngày:** 2026-11-06 · **Người quyết định:** cả nhóm · **Trạng thái:** ✅ Chấp nhận
-- **Bối cảnh:** nhóm 4 người, cần chia theo **tầng kiến trúc** (không chia theo màn hình) để bốn
-  người code song song mà không giẫm chân.
-- **Quyết định:**
-
-  | Vai | Người | Vùng sở hữu |
-  |---|---|---|
-  | A — Backend/API | @bao20062005dh-creator | `api/`, `shared/` |
-  | B — Data & Reports | @trungdunxg | `db/`, `api/services/reports.py`, seed |
-  | C — GUI/UX | @MeoCamGuitar | `gui/`, `assets/` |
-  | D — Infra + QA + Docs | @Haianh4705 | `infra/`, `installer/`, `.github/`, `docs/`, `report/` |
-
-- **Đã cân nhắc:** chia theo màn hình (form Món / form Bàn…) → conflict liên tục, code trùng;
-  chia 2 frontend – 2 backend → không ai lo đóng gói, báo cáo, QA.
-- **Hệ quả:** **không** bật "Require review from Code Owners" — mỗi người là owner duy nhất vùng
-  mình, GitHub không cho tự approve nên PR sẽ kẹt. Dùng 1 approval bất kỳ + gán reviewer theo
-  `CODEOWNERS`. Thứ tự giao việc theo cổng: `docs/plan.md`.
+- **Ngày:** 2026-11-06 · **Người quyết định:** cả nhóm · **Trạng thái:** 🔄 Chấp nhận một phần (quy tắc khoá vùng thư mục và bắt buộc 1 approval được thay thế bởi [ADR-014](#adr-014-giao-thành-viên-theo-chức-năng-qua-issuepr-và-bỏ-bắt-buộc-approve))
+- **Bối cảnh:** nhóm 4 người, ban đầu thử chia theo **tầng kiến trúc** để bốn người code song song.
+- **Quyết định ban đầu:** A (`api/`, `shared/`), B (`db/`, `api/services/reports.py`), C (`gui/`, `assets/`), D (`infra/`, `installer/`, `.github/`, `docs/`, `report/`).
+- **Hệ quả cập nhật (2026-11-18):** khi bước vào G2/G3 và có thành viên vắng/lệch tiến độ, việc khoá cứng thư mục + bắt buộc 1 approval làm nghẽn toàn bộ luồng. Nhóm giữ danh nghĩa vai A/B/C/D cho nhật ký cá nhân (`docs/log/<vai>.md`) và thế mạnh tham khảo, còn phân công thực tế chuyển sang **giao theo chức năng trên Issue** và **bỏ bắt buộc approve** theo **ADR-014**.
 
 ---
 
@@ -186,6 +173,36 @@
 - **Hệ quả:** ERD thành **10 bảng** (`docs/erd.md` + từ điển + bất biến §3.3 mục 6); A thêm
   `api/models/refresh_token.py` trong #22 và dùng bảng này cho `/auth/refresh` + `/auth/logout`;
   `db/verify_seed.sql` có thêm 2 phép kiểm (bảng tồn tại, rỗng sau seed); `report/03` cập nhật số bảng.
+
+---
+
+## ADR-014: Giao thành viên theo chức năng qua Issue/PR và bỏ bắt buộc approve
+
+- **Ngày:** 2026-11-18 · **Người quyết định:** D (@Haianh4705) · **Trạng thái:** ✅ Chấp nhận
+- **Bối cảnh:** quy trình cũ (ADR-009) khoá cứng thư mục theo vai A/B/C/D (`> 10 dòng` ngoài vùng
+  phải hỏi) và bắt buộc PR phải chờ ≥ 1–2 approval của owner khác trước khi merge. Thực tế ở G1–G2,
+  khi thành viên bận hoặc vắng (B vắng từ 11-11), các PR sửa lỗi hoặc nối xuyên tầng (`db/` → `api/`
+  → `gui/`) bị kẹt hàng chờ duyệt dù CI đã xanh, trong khi nhiều chức năng G3–G5 cần một người làm
+  trọn vẹn end-to-end mới nhanh khớp hợp đồng.
+- **Quyết định:**
+  1. **Giao thành viên theo chức năng cần làm:** mở khoá ranh giới thư mục cứng. Công việc được chia
+     theo từng chức năng trên GitHub Issue; người nhận Issue chức năng được sửa trọn gói `db/` +
+     `api/` + `gui/` + `shared/` + `tests/` + `docs/` để chức năng chạy end-to-end, **nhưng bắt
+     buộc giữ nguyên kiến trúc một chiều `gui → api → db`** (ADR-006).
+  2. **Bỏ bắt buộc approve:** cấu hình GitHub Branch Protection trên `develop` và `main` với
+     `required_approving_review_count = 0` và không bật Code Owner review; tác giả **được tự Squash
+     & Merge** ngay khi CI xanh (`Lint & format`, `Test` với `strict: true`) và hoàn thành đủ
+     checklist (test, 3 câu bảo vệ, nhật ký cá nhân `docs/log/<vai>.md`), rồi nghiệm thu trên
+     `develop` và đóng Issue.
+  3. **100% chức năng đi qua Issue & PR:** bật `enforce_admins: true` và giữ `required_pull_request_reviews`
+     trên cả `develop` và `main` để cấm tuyệt đối push trực tiếp (kể cả admin).
+- **Đã cân nhắc:** giữ nguyên 1 approval + để D dùng `--admin` lách khi kẹt (tạo lỗ hổng quy trình
+  như đã nêu ở `docs/defense-D.md`, dễ làm thành viên lệ thuộc D bấm giúp); giữ khoá thư mục và tách
+  mọi chức năng nhỏ thành 3 PR rời A/B/C (chậm tích hợp, dễ lệch schema DTO giữa GUI và API).
+- **Hệ quả:** `WORKFLOW.md` v2.0, `AGENTS.md`, `CONTRIBUTING.md`, `README.md`, `docs/workflow.md`,
+  `docs/plan.md`, `scripts/next_task.sh`, `.github/*` và README các thư mục con đồng bộ theo hướng dẫn
+  theo tầng kỹ thuật thay vì khoá quyền sở hữu. Review đồng đội vẫn được khuyến khích ở thay đổi
+  lớn nhưng không chặn merge.
 
 ---
 

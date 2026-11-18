@@ -1,14 +1,14 @@
 # `scripts/` — Script tiện ích
 
-**Owner:** D · **Bắt đầu:** cổng G1 (build script) / G3 (smoke test) · **Trạng thái:** 🟡 khung trống
+**Phạm vi:** sửa theo Issue chức năng được giao (`ADR-014`) — giữ kiến trúc `gui → api → db`, mỗi script có docstring 2 dòng ở đầu.
 
 ## Đặt gì ở đây
 
 | File | Việc |
 |---|---|
 | `next_task.sh` | In việc tiếp theo của bạn từ Issue được gán (`make next`). Không cần cài gì thêm ngoài `gh` |
-| `smoke_test.py` | Chạy luồng chính end-to-end: login → tạo đơn → thanh toán → xem báo cáo. Không có test nào đỏ thì chạy cái này trước khi demo |
-| `seed_data.py` | Sinh ~120 đơn trải 30 ngày để biểu đồ có dữ liệu (B dùng) |
+| `smoke_test.py` | Chạy luồng chính end-to-end: login → tạo đơn → thanh toán → xem báo cáo |
+| `seed_data.py` | Sinh ~120 đơn trải 30 ngày để biểu đồ có dữ liệu |
 | `build_installer.sh` | Gọi PyInstaller + Inno Setup (CI cũng dùng) |
 | `make_icon.py` | Sinh lại `installer/app.ico` từ palette TLU (Pillow) |
 | `backup_db.sh` | Backup `.sql.gz` ra ngoài repo (G4) |
