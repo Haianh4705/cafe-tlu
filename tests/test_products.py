@@ -1,5 +1,7 @@
 """Test CRUD products + categories (Issue #29), chạy trên MySQL test."""
 
+import pytest
+
 from api.core.security import create_access_token
 from api.models.category import Category
 from api.models.product import Product
@@ -239,3 +241,117 @@ def test_list_products_requires_authentication(client) -> None:
     response = client.get(PRODUCTS_URL)
     assert response.status_code == 401
     assert response.json()["error"]["code"] == ErrorCode.UNAUTHENTICATED
+
+
+def test_patch_omitted_fields_preserves_existing_values(client, db_session, admin_user) -> None:
+    category = _make_category(db_session, "Cà phê")
+    product = _make_product(
+        db_session,
+        category,
+        name="Bạc xỉu",
+        price=42000,
+        unit="ly",
+        is_available=False,
+    )
+    product.image_url = "https://example.test/bac-xiu.png"
+    db_session.flush()
+
+    response = client.patch(
+        f"{PRODUCTS_URL}/{product.id}",
+        json={"unit": "cốc"},
+        headers=_auth(admin_user),
+    )
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["name"] == "Bạc xỉu"
+    assert data["category_id"] == category.id
+    assert data["price"] == 42000
+    assert data["unit"] == "cốc"
+    assert data["image_url"] == "https://example.test/bac-xiu.png"
+    assert data["is_available"] is False
+
+
+@pytest.mark.parametrize("field", ["name", "category_id", "price", "unit", "is_available"])
+def test_patch_null_non_nullable_field_returns_422_without_mutation(
+    client, db_session, admin_user, field: str
+) -> None:
+    category = _make_category(db_session, "Cà phê")
+    product = _make_product(db_session, category, name="Bạc xỉu", price=42000)
+
+    response = client.patch(
+        f"{PRODUCTS_URL}/{product.id}",
+        json={field: None},
+        headers=_auth(admin_user),
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == ErrorCode.VALIDATION_ERROR
+    db_session.refresh(product)
+    assert product.name == "Bạc xỉu"
+    assert product.category_id == category.id
+    assert product.price == 42000
+    assert product.unit == "ly"
+    assert product.is_available is True
+
+
+def test_patch_image_url_null_removes_existing_image(client, db_session, admin_user) -> None:
+    category = _make_category(db_session, "Cà phê")
+    product = _make_product(db_session, category, name="Bạc xỉu")
+    product.image_url = "https://example.test/bac-xiu.png"
+    db_session.flush()
+
+    response = client.patch(
+        f"{PRODUCTS_URL}/{product.id}", json={"image_url": None}, headers=_auth(admin_user)
+    )
+
+    assert response.status_code == 200
+    assert response.json()["data"]["image_url"] is None
+    db_session.refresh(product)
+    assert product.image_url is None
+
+
+def test_product_price_above_decimal_limit_returns_422_for_create_and_patch(
+    client, db_session, admin_user
+) -> None:
+    category = _make_category(db_session, "Cà phê")
+    product = _make_product(db_session, category, name="Bạc xỉu", price=42000)
+    over_limit = 1_000_000_000_000
+
+    created = client.post(
+        PRODUCTS_URL,
+        json={"name": "Món giá quá lớn", "category_id": category.id, "price": over_limit},
+        headers=_auth(admin_user),
+    )
+    updated = client.patch(
+        f"{PRODUCTS_URL}/{product.id}",
+        json={"price": over_limit},
+        headers=_auth(admin_user),
+    )
+
+    assert created.status_code == 422
+    assert created.json()["error"]["code"] == ErrorCode.VALIDATION_ERROR
+    assert updated.status_code == 422
+    assert updated.json()["error"]["code"] == ErrorCode.VALIDATION_ERROR
+    db_session.refresh(product)
+    assert product.price == 42000
+    assert db_session.query(Product).filter_by(name="Món giá quá lớn").first() is None
+
+
+def test_duplicate_product_name_returns_409_without_mutation(
+    client, db_session, admin_user
+) -> None:
+    category = _make_category(db_session, "Cà phê")
+    product = _make_product(db_session, category, name="Bạc xỉu", price=42000)
+    other = _make_product(db_session, category, name="Cà phê sữa", price=30000)
+
+    response = client.patch(
+        f"{PRODUCTS_URL}/{product.id}",
+        json={"name": other.name},
+        headers=_auth(admin_user),
+    )
+
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == ErrorCode.PRODUCT_NAME_DUPLICATED
+    db_session.refresh(product)
+    assert product.name == "Bạc xỉu"
