@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -64,50 +65,59 @@ class ProductListView(BaseView):
 
     def _init_data_ui(self) -> None:
         """Khởi tạo giao diện thanh công cụ và bảng danh sách món."""
+        self._header_widget = QWidget(self)
+        header_layout = QVBoxLayout(self._header_widget)
+        header_layout.setContentsMargins(SPACE["md"], SPACE["md"], SPACE["md"], 0)
+        header_layout.setSpacing(SPACE["sm"])
+
         top_bar = QHBoxLayout()
         top_bar.setSpacing(SPACE["md"])
 
-        title = QLabel(t("nav_products"), self)
+        title = QLabel(t("nav_products"), self._header_widget)
         title.setStyleSheet(
             f"color: {COLOR['navy']}; font-size: {FONT['h1']}px; font-weight: bold;"
         )
         top_bar.addWidget(title)
         top_bar.addStretch()
 
-        self._add_btn = QPushButton("+ " + t("add_new"), self)
+        self._add_btn = QPushButton("+ " + t("add_new"), self._header_widget)
         self._add_btn.setFixedHeight(36)
         self._add_btn.clicked.connect(self._open_add_dialog)
         top_bar.addWidget(self._add_btn)
-        self._data_layout.addLayout(top_bar)
+        header_layout.addLayout(top_bar)
 
         filter_bar = QHBoxLayout()
         filter_bar.setSpacing(SPACE["sm"])
 
-        self._search_input = QLineEdit(self)
+        self._search_input = QLineEdit(self._header_widget)
         self._search_input.setPlaceholderText(t("product_search_placeholder"))
         self._search_input.setFixedHeight(36)
         self._search_input.returnPressed.connect(lambda: self.load_products(reset_page=True))
         filter_bar.addWidget(self._search_input, stretch=3)
 
-        self._cat_combo = QComboBox(self)
+        self._cat_combo = QComboBox(self._header_widget)
         self._cat_combo.setFixedHeight(36)
         self._cat_combo.addItem(t("product_all_categories"), None)
         self._cat_combo.currentIndexChanged.connect(lambda _: self.load_products(reset_page=True))
         filter_bar.addWidget(self._cat_combo, stretch=2)
 
-        search_btn = QPushButton(t("search"), self)
+        search_btn = QPushButton(t("search"), self._header_widget)
         search_btn.setProperty("variant", "secondary")
         search_btn.setFixedHeight(36)
         search_btn.clicked.connect(lambda: self.load_products(reset_page=True))
         filter_bar.addWidget(search_btn)
 
-        refresh_btn = QPushButton(t("refresh"), self)
+        refresh_btn = QPushButton(t("refresh"), self._header_widget)
         refresh_btn.setProperty("variant", "secondary")
         refresh_btn.setFixedHeight(36)
         refresh_btn.clicked.connect(self.refresh)
         filter_bar.addWidget(refresh_btn)
 
-        self._data_layout.addLayout(filter_bar)
+        header_layout.addLayout(filter_bar)
+        self._root_layout.insertWidget(0, self._header_widget)
+
+        self._data_layout.setContentsMargins(SPACE["md"], SPACE["sm"], SPACE["md"], SPACE["md"])
+        self._data_layout.setSpacing(SPACE["sm"])
 
         self._table = QTableWidget(self)
         self._table.setColumnCount(6)
@@ -255,7 +265,7 @@ class ProductListView(BaseView):
             self._total_pages = 1
 
         if not self._products and self._page > 1 and self._total_count > 0:
-            self._page = min(self._page - 1, self._total_pages)
+            self._page = max(1, min(self._page - 1, self._total_pages))
             self.load_products()
             return
 
@@ -443,9 +453,16 @@ class ProductListView(BaseView):
                 prod_id = product.get("id")
                 if prod_id is not None:
                     self._set_state(self.STATE_LOADING)
+
+                    def on_delete_success(_: Any) -> None:
+                        # Nếu vừa xoá món duy nhất của trang cuối/trang hiện tại, lùi về trang hợp lệ trước đó
+                        if len(self._products) <= 1 and self._page > 1:
+                            self._page -= 1
+                        self.load_products()
+
                     self.start_worker(
                         self.api.delete_product,
-                        on_success=lambda _: self.load_products(),
+                        on_success=on_delete_success,
                         on_error=self._on_action_error,
                         product_id=prod_id,
                     )

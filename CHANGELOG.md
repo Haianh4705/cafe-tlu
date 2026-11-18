@@ -8,6 +8,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Fixed — giao diện thực đơn
+- Giữ thanh tìm kiếm và bộ lọc danh mục cố định bên ngoài vùng rỗng trong `ProductListView`, cho phép người dùng sửa hoặc xóa bộ lọc khi không có kết quả; tự động lùi về trang hợp lệ trước đó khi xóa món duy nhất của trang cuối (#82)
+
 ### Fixed — vòng đời phiên
 - Refresh token rotation khoá row khi đổi token và logout khoá token trước khi thu hồi, bảo đảm hai request refresh đồng thời chỉ một thành công; lỗi 422 chỉ trả `loc`/`msg`/`type`, không echo `input` (tránh lộ mật khẩu) (#86)
 
