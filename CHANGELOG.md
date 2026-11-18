@@ -8,6 +8,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Fixed — điều hướng và hiển thị sau đăng nhập
+- Màn hình Tổng quan (`DashboardView`) xử lý fallback an toàn khi API báo cáo chưa sẵn sàng: hiển thị thông báo quyền hạn và nút chuyển sang Bán hàng cho tài khoản nhân viên; hiển thị trạng thái chờ tích hợp kèm nút xem dữ liệu mẫu (Demo) cho quản trị viên (#81)
+
 ### Fixed — vòng đời phiên
 - Refresh token rotation khoá row khi đổi token và logout khoá token trước khi thu hồi, bảo đảm hai request refresh đồng thời chỉ một thành công; lỗi 422 chỉ trả `loc`/`msg`/`type`, không echo `input` (tránh lộ mật khẩu) (#86)
 

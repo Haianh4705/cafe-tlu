@@ -22,7 +22,7 @@ from PySide6.QtCharts import (
     QLineSeries,
     QValueAxis,
 )
-from PySide6.QtCore import QMargins, Qt
+from PySide6.QtCore import QMargins, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import (
     QFrame,
@@ -33,7 +33,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.api_client import ApiClient
+from gui.api_client import ApiClient, ApiClientError
 from gui.i18n import format_currency, t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
 from gui.views.base import BaseView
@@ -138,6 +138,8 @@ def _short_date(value: Any) -> str:
 class DashboardView(BaseView):
     """Màn hình Tổng quan: 4 thẻ KPI + biểu đồ doanh thu và top món."""
 
+    navigate_requested = Signal(str)
+
     def __init__(
         self,
         api_client: ApiClient,
@@ -146,12 +148,17 @@ class DashboardView(BaseView):
         use_mock: bool | None = None,
     ) -> None:
         self.api = api_client
+        self._user_role: str = "admin"
         # shortcut: mock báo cáo chỉ bật khi APP_ENV=demo hoặc use_mock=True, bỏ khi #20/#21 xong
         self._use_mock = (
             use_mock if use_mock is not None else os.getenv("APP_ENV", "").strip().lower() == "demo"
         )
         super().__init__(parent)
         self._init_dashboard_ui()
+
+    def set_user_role(self, role: str) -> None:
+        """Cập nhật vai trò người dùng để điều chỉnh giao diện phù hợp quyền hạn."""
+        self._user_role = role
 
     # ------------------------------------------------------------------
     # Dựng giao diện
@@ -271,12 +278,18 @@ class DashboardView(BaseView):
         self._set_state(self.STATE_LOADING)
         if self._use_mock:
             self.start_worker(self._collect_mock_data, self._on_data)
+        elif self._user_role != "admin":
+            self.start_worker(self._collect_staff_notice, self._on_data)
         else:
             self.start_worker(self._collect_api_data, self._on_data)
+
+    def _collect_staff_notice(self) -> dict[str, Any]:
+        return {"status": "staff_notice"}
 
     def _collect_mock_data(self) -> dict[str, Any]:
         daily, total, orders = normalize_revenue(build_mock_daily())
         return {
+            "status": "ok",
             "daily": daily,
             "top": normalize_top_products(MOCK_TOP_PRODUCTS),
             "total_revenue": total,
@@ -286,20 +299,49 @@ class DashboardView(BaseView):
     def _collect_api_data(self) -> dict[str, Any]:
         end = date.today()
         start = end - timedelta(days=PERIOD_DAYS - 1)
-        revenue_raw = self.api.get_revenue_report(start.isoformat(), end.isoformat())
-        top_raw = self.api.get_top_products_report(limit=TOP_PRODUCT_LIMIT)
+        try:
+            revenue_raw = self.api.get_revenue_report(start.isoformat(), end.isoformat())
+            top_raw = self.api.get_top_products_report(limit=TOP_PRODUCT_LIMIT)
+            daily, total, orders = normalize_revenue(revenue_raw)
+            return {
+                "status": "ok",
+                "daily": daily,
+                "top": normalize_top_products(top_raw),
+                "total_revenue": total,
+                "total_orders": orders,
+            }
+        except ApiClientError as exc:
+            if exc.code in ("HTTP_404", "NOT_FOUND", "HTTP_405", "HTTP_501"):
+                logger.info("API báo cáo chưa đăng ký trên backend: %s", exc)
+                return {"status": "pending_api"}
+            raise
 
-        daily, total, orders = normalize_revenue(revenue_raw)
-        return {
-            "daily": daily,
-            "top": normalize_top_products(top_raw),
-            "total_revenue": total,
-            "total_orders": orders,
-        }
+    def _enable_mock_and_reload(self) -> None:
+        self._use_mock = True
+        self.load()
 
     def _on_data(self, payload: Any) -> None:
         if not isinstance(payload, dict):
-            self._set_state(self.STATE_ERROR, t("dashboard_empty"))
+            self._set_state(self.STATE_EMPTY, t("dashboard_empty"))
+            return
+
+        status = payload.get("status")
+        if status == "staff_notice":
+            self._set_state(
+                self.STATE_EMPTY,
+                message=t("dashboard_staff_notice"),
+                action_text=t("nav_orders"),
+                on_action=lambda: self.navigate_requested.emit("orders"),
+            )
+            return
+
+        if status == "pending_api":
+            self._set_state(
+                self.STATE_EMPTY,
+                message=t("dashboard_pending_api"),
+                action_text=t("dashboard_btn_demo"),
+                on_action=self._enable_mock_and_reload,
+            )
             return
 
         daily: list[dict[str, Any]] = payload.get("daily") or []

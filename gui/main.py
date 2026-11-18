@@ -116,6 +116,7 @@ class MainWindow(QMainWindow):
         self._content_stack.setStyleSheet(f"background-color: {COLOR['surface']};")
 
         self._dashboard_view = DashboardView(self.api, self)
+        self._dashboard_view.navigate_requested.connect(self._switch_menu)
         self._content_stack.addWidget(self._dashboard_view)
 
         self._order_view = OrderView(self.api, self)
@@ -269,6 +270,7 @@ class MainWindow(QMainWindow):
         self._user_label.setText(f"{full_name} ({role_display})")
         self._update_sidebar_permissions(role)
         self._product_list_view.set_user_role(role)
+        self._dashboard_view.set_user_role(role)
         if hasattr(self, "_order_view"):
             self._order_view.cashier_name = full_name
 
