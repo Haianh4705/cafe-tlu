@@ -13,6 +13,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Changed — Quy trình nhóm
 - Chuyển quy trình sang gán thành viên theo chức năng (`ADR-014`), bỏ bắt buộc approve trên GitHub (`required_approving_review_count = 0`) và bật `enforce_admins: true` để mọi chức năng đi qua Issue & PR (#90)
+- Nâng cấp skill `ui-design` và `pyside6-screen`: bổ sung luật Floor chặn rò QSS `QFrame#objectName`/hardcode màu, ngân sách chiều ngang `1280×720`, chuẩn microcopy tiếng Việt, quy trình Polish Pass 5 lượt, giữ dữ liệu form khi lỗi API và lệnh kiểm nhanh trước PR (#105)
 
 ### Fixed — CI
 - Buộc CI fail khi mất kết nối MySQL test (không skip ngầm) và bổ sung smoke test nạp `db/schema.sql`, `db/seed.sql` (2 lần idempotent), `db/verify_seed.sql` 23/23 PASS (#85)
