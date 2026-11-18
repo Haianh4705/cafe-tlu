@@ -48,8 +48,8 @@ STRINGS: Final[dict[str, str]] = {
     "logout_btn": "Đăng xuất",
     "login_failed": "Tên đăng nhập hoặc mật khẩu không chính xác.",
     "session_expired": "Phiên đã hết hạn, vui lòng đăng nhập lại",
-    "login_err_username_required": "Vui lòng nhập tên đăng nhập",
-    "login_err_password_required": "Vui lòng nhập mật khẩu",
+    "login_err_username_required": "Vui lòng nhập tên đăng nhập.",
+    "login_err_password_required": "Vui lòng nhập mật khẩu.",
     "login_footer": "Đồ án học phần Python — ĐH Thăng Long",
     # Menu điều hướng
     "nav_dashboard": "Tổng quan",
