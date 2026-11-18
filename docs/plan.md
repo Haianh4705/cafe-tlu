@@ -38,6 +38,19 @@ nào phải đọc · đang chờ Issue nào.
 6. **Làm Issue nào, ghi nhật ký vào `docs/log/<vai>.md` của chính mình** — 1–3 dòng/PR, ghi cả phần
    AI hỗ trợ. File trống ở thời điểm cổng = cổng chưa xanh (`WORKFLOW.md` mục 12.5).
 
+## 0.2 Phân công cụm chức năng cho 4 thành viên
+
+Toàn bộ **26 Issue chức năng đang mở (G1–G5)** được gom thành **4 cụm chức năng trọn gói** để mỗi thành viên làm xuyên tầng (`db/` → `api/` → `gui/` → `tests/`) mà không xung đột file lẫn nhau:
+
+| Thành viên | Cụm chức năng phụ trách | Danh sách Issue đang mở |
+|---|---|---|
+| **A** (`@bao20062005dh-creator`) | Bàn, gọi món tại bàn (`OrderView`), thanh toán/hoá đơn PDF & vòng đời phiên nâng cao | **4 Issues:** `#93`, `#87`, `#94` (G3) · `#86` (G4) *(+ PR #74 chờ merge)* |
+| **B** (`@trungdunxg`) | Thống kê doanh thu (`DashboardView`), xuất Excel/PDF, nhật ký `audit_logs` & sao lưu/rate-limit | **4 Issues:** `#95`, `#88`, `#96` (G3) · `#100` (G4) |
+| **C** (`@MeoCamGuitar`) | Đăng nhập/Đăng xuất, Quản lý Thực đơn trọn gói (GUI + `PATCH` API) & màn About/Auto-update | **7 Issues:** `#25` (G1) · `#79`, `#81`, `#82`, `#83`, `#84` (G2) · `#99` (G4) |
+| **D** (`@Haianh4705`) | Migration/CI, bộ cài `.exe`, deploy công khai, smoke/QA hồi quy & báo cáo/video demo | **11 Issues:** `#32` (PR #92), `#78`, `#85` (G2 — đã code xong) · `#97` (G3) · `#76`, `#80`, `#89`, `#98` (G4) · `#101`, `#102`, `#103` (G5) |
+
+> **Quy tắc dự phòng:** nếu một Issue bị đứng im **> 2 ngày** không có cập nhật hoặc thành viên bị chặn không tự gỡ được, **D chủ động điều chuyển assignee ngay trên GitHub** để không làm kẹt đường găng của cổng.
+
 ## 1. Toàn cảnh
 
 | Cổng | Mục tiêu | Điều kiện ra cổng | Đường găng chính |
@@ -129,15 +142,15 @@ mỗi PR có "Giải thích được" 3 câu.
 
 > Các hạng mục dưới đây đều đã có Issue trên GitHub để D gán linh hoạt cho thành viên theo chức năng (không khoá cứng theo vai thư mục). Giao diện `OrderView`/`DashboardView` đã có khung từ #44, #70 — cần hoàn thiện nối API thật, sửa bug phát sinh và nghiệm thu.
 
-| # | Chức năng / Đầu việc | Issue | Tầng chạm | Phụ thuộc | Trạng thái / Gán |
+| # | Chức năng / Đầu việc | Issue | Tầng chạm | Phụ thuộc | Phụ trách (cụm chức năng) |
 |---|---|---|---|---|---|
-| 1 | Quản lý bàn & gọi món tại bàn end-to-end (`GET /tables`, CRUD `orders` + nối `OrderView`) | #93 | `api`, `gui` | #29 ✅ | Gán theo Issue |
-| 2 | Tải đầy đủ món đang bán trong màn Order (không cắt ở 20 món trang đầu) | #87 | `gui` | #93 / #70 ✅ | Đang gán C |
-| 3 | Thanh toán đơn hàng & xuất/in hoá đơn PDF (`POST /orders/{id}/checkout` + `ReceiptDialog`) | #94 | `api`, `gui`, `report` | #93 | Gán theo Issue |
-| 4 | Báo cáo doanh thu, Top món & xuất Excel/PDF (`GET /reports/*` + nối `DashboardView`) | #95 | `api`, `gui`, `report` | #28 ✅, #31 ✅ | Gán theo Issue |
-| 5 | Hiện đúng KPI hôm nay khi không có giao dịch | #88 | `gui` | #70 ✅, #95 | Đang gán C |
-| 6 | Nhật ký thao tác quản trị (ghi `audit_logs` + `GET /audit-logs`) | #96 | `api`, `db` | #29 ✅, #94 | Gán theo Issue |
-| 7 | Kịch bản `scripts/smoke_test.py`, điền `TC-ORD`/`TC-RPT`, ảnh chụp & kiểm bộ cài MVP | #97 | `infra`, `docs` | #93, #94, #95, #96 | Gán theo Issue |
+| 1 | Quản lý bàn & gọi món tại bàn end-to-end (`GET /tables`, CRUD `orders` + nối `OrderView`) | #93 | `api`, `gui` | #29 ✅ | **A** (`@bao20062005dh-creator`) |
+| 2 | Tải đầy đủ món đang bán trong màn Order (không cắt ở 20 món trang đầu) | #87 | `gui` | #93 / #70 ✅ | **A** (gộp từ C theo cụm Order) |
+| 3 | Thanh toán đơn hàng & xuất/in hoá đơn PDF (`POST /orders/{id}/checkout` + `ReceiptDialog`) | #94 | `api`, `gui`, `report` | #93 | **A** (`@bao20062005dh-creator`) |
+| 4 | Báo cáo doanh thu, Top món & xuất Excel/PDF (`GET /reports/*` + nối `DashboardView`) | #95 | `api`, `gui`, `report` | #28 ✅, #31 ✅ | **B** (`@trungdunxg`) |
+| 5 | Hiện đúng KPI hôm nay khi không có giao dịch | #88 | `gui` | #70 ✅, #95 | **B** (gộp từ C theo cụm Dashboard) |
+| 6 | Nhật ký thao tác quản trị (ghi `audit_logs` + `GET /audit-logs`) | #96 | `api`, `db` | #29 ✅, #94 | **B** (`@trungdunxg`) |
+| 7 | Kịch bản `scripts/smoke_test.py`, điền `TC-ORD`/`TC-RPT`, ảnh chụp & kiểm bộ cài MVP | #97 | `infra`, `docs` | #93, #94, #95, #96 | **D** (`@Haianh4705`) |
 
 > **Rủi ro lớn nhất của G3:** transaction của `checkout` (#94). Bắt buộc giữ các bất biến đã ghi ở mục 3.3 của `docs/erd.md` (1 bàn tối đa 1 đơn mở, lưu snapshot `unit_price`, cập nhật `orders.status` + `invoices` + `tables.status` trong 1 transaction).
 
@@ -164,15 +177,15 @@ G3 xong, không cần chờ cổng nào.
 
 **Mục tiêu:** backend có URL công khai · tag → CI tự build `.exe` · `pip-audit` sạch · các việc hạ tầng/bảo mật hoàn tất.
 
-| # | Chức năng / Đầu việc | Issue | Tầng chạm | Phụ thuộc |
-|---|---|---|---|---|
-| 1 | `make doctor` chạy chuẩn trên Windows không cần override `SHELL`/`PY` | #76 | `infra` | – (đang gán D) |
-| 2 | Chặn publish bộ cài trên Release workflow khi kiểm tra Windows thất bại | #80 | `infra` | #26 ✅ (đang gán D) |
-| 3 | Củng cố vòng đời phiên (`/auth/refresh` khi khoá tài khoản) & dữ liệu phản hồi xác thực | #86 | `api` | #22 ✅ (đang gán A) |
-| 4 | Nối `docker-compose.prod.yml` với MySQL & nâng cấp schema bằng Alembic | #89 | `infra`, `db` | #78 (đang gán D) |
-| 5 | Triển khai Backend lên URL công khai, cấu hình `API_BASE_URL` cho GUI & kiểm `pip-audit` | #98 | `infra`, `gui`, `docs` | #89 |
-| 6 | Màn giới thiệu (About) & kiểm tra cập nhật phiên bản từ GitHub Releases | #99 | `gui`, `infra` | #26 ✅ |
-| 7 | Kịch bản sao lưu MySQL (`scripts/backup_db.sh`) & rate-limit `/auth/login` + rà `security` | #100 | `api`, `db`, `infra` | #86, #89 |
+| # | Chức năng / Đầu việc | Issue | Tầng chạm | Phụ thuộc | Phụ trách (cụm chức năng) |
+|---|---|---|---|---|---|
+| 1 | `make doctor` chạy chuẩn trên Windows không cần override `SHELL`/`PY` | #76 | `infra` | – | **D** (`@Haianh4705`) |
+| 2 | Chặn publish bộ cài trên Release workflow khi kiểm tra Windows thất bại | #80 | `infra` | #26 ✅ | **D** (`@Haianh4705`) |
+| 3 | Củng cố vòng đời phiên (`/auth/refresh` khi khoá tài khoản) & dữ liệu phản hồi xác thực | #86 | `api` | #22 ✅ | **A** (`@bao20062005dh-creator`) |
+| 4 | Nối `docker-compose.prod.yml` với MySQL & nâng cấp schema bằng Alembic | #89 | `infra`, `db` | #78 | **D** (`@Haianh4705`) |
+| 5 | Triển khai Backend lên URL công khai, cấu hình `API_BASE_URL` cho GUI & kiểm `pip-audit` | #98 | `infra`, `gui`, `docs` | #89 | **D** (`@Haianh4705`) |
+| 6 | Màn giới thiệu (About) & kiểm tra cập nhật phiên bản từ GitHub Releases | #99 | `gui`, `infra` | #26 ✅ | **C** (`@MeoCamGuitar`) |
+| 7 | Kịch bản sao lưu MySQL (`scripts/backup_db.sh`) & rate-limit `/auth/login` + rà `security` | #100 | `api`, `db`, `infra` | #86, #89 | **B** (`@trungdunxg`) |
 
 ---
 
@@ -180,12 +193,12 @@ G3 xong, không cần chờ cổng nào.
 
 **Ra cổng khi:** test case pass ≥ 95% · báo cáo đủ 80% · có video demo.
 
-| # | Chức năng / Đầu việc | Issue | Tầng chạm | Phụ thuộc |
-|---|---|---|---|---|
-| 1 | Kiểm thử hồi quy toàn bộ `docs/test-cases.md` (≥95% PASS) + bộ ảnh chụp màn hình | #101 | `docs`, `gui` | G3 (#97) + G4 |
-| 2 | Sửa các lỗi `[bug]` chặn demo phát hiện trong quá trình QA | (tạo Issue `[bug]` theo ca FAIL) | tuỳ lỗi | #101 |
-| 3 | Hoàn thiện Báo cáo BTL 10 chương (`report/00..09`) từ dữ liệu thật và xuất PDF | #102 | `docs` | #32 + #101 |
-| 4 | Quay Video Demo 3–5 phút & diễn tập bảo vệ chéo (`docs/defense.md` + `docs/log/*.md`) | #103 | `docs` | #101 + #102 |
+| # | Chức năng / Đầu việc | Issue | Tầng chạm | Phụ thuộc | Phụ trách (cụm chức năng) |
+|---|---|---|---|---|---|
+| 1 | Kiểm thử hồi quy toàn bộ `docs/test-cases.md` (≥95% PASS) + bộ ảnh chụp màn hình | #101 | `docs`, `gui` | G3 (#97) + G4 | **D** (`@Haianh4705`) |
+| 2 | Sửa các lỗi `[bug]` chặn demo phát hiện trong quá trình QA | (tạo Issue `[bug]` theo ca FAIL) | tuỳ lỗi | #101 | Theo người phụ trách cụm chức năng |
+| 3 | Hoàn thiện Báo cáo BTL 10 chương (`report/00..09`) từ dữ liệu thật và xuất PDF | #102 | `docs` | #32 + #101 | **D** (`@Haianh4705`) |
+| 4 | Quay Video Demo 3–5 phút & diễn tập bảo vệ chéo (`docs/defense.md` + `docs/log/*.md`) | #103 | `docs` | #101 + #102 | **D** (`@Haianh4705`) |
 
 ---
 
