@@ -16,6 +16,7 @@
 make install     # venv + thư viện + pre-commit hook + .env
 make up          # MySQL trong Docker
 make doctor      # phải thấy Python 3.12+ và MySQL sẵn sàng
+make start       # chạy MySQL + API + giao diện bằng một lệnh
 ```
 
 ## Vòng lặp làm việc (1 chức năng / 1 việc)

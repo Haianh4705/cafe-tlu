@@ -1,5 +1,6 @@
 # ============================================================
-# Makefile — một lệnh chuẩn cho cả nhóm. Xem WORKFLOW.md mục 18.5.
+# Makefile — lệnh chuẩn cho cả nhóm. Dùng `make start` để chạy ứng dụng local.
+# Xem WORKFLOW.md mục 18.5.
 # Chạy `make` để xem danh sách lệnh.
 #
 # Windows: dùng Git Bash / WSL để có `make`.
@@ -19,7 +20,7 @@ DOCKER_BIN := $(dir $(shell command -v docker 2>/dev/null || echo $(HOME)/.docke
 export PATH := $(DOCKER_BIN):$(PATH)
 DOCKER := $(DOCKER_BIN)docker
 
-.PHONY: help next doctor install up down reset-db logs tools api gui test lint fmt check build-installer clean
+.PHONY: help next doctor install up down reset-db logs tools api gui start test lint fmt check build-installer clean
 
 # ------------------------------------------------------------
 # Trợ giúp
@@ -108,6 +109,43 @@ api: ## Chạy backend FastAPI (cổng 8000)
 gui: ## Chạy giao diện desktop
 	@test -f gui/main.py || { echo "⏳ Chưa có gui/main.py — sẽ được tạo ở tuần 1 (cổng G2)."; exit 1; }
 	@$(PY) -m gui.main
+
+start: up ## Khởi động MySQL, API và giao diện bằng một lệnh
+	@test -f api/main.py || { echo "❌ Thiếu api/main.py."; exit 1; }
+	@test -f gui/main.py || { echo "❌ Thiếu gui/main.py."; exit 1; }
+	@set -eu; \
+		$(PY) -m uvicorn api.main:app --host 127.0.0.1 --port 8000 & \
+		api_pid=$$!; \
+		gui_pid=""; \
+		cleanup() { \
+			if [ -n "$$gui_pid" ]; then kill "$$gui_pid" 2>/dev/null || true; wait "$$gui_pid" 2>/dev/null || true; fi; \
+			kill "$$api_pid" 2>/dev/null || true; wait "$$api_pid" 2>/dev/null || true; \
+		}; \
+		trap cleanup EXIT; \
+		trap 'exit 130' INT; \
+		trap 'exit 143' TERM; \
+		echo "⏳ Đang chờ API sẵn sàng..."; \
+		sleep 1; \
+		if ! kill -0 "$$api_pid" 2>/dev/null; then \
+			echo "❌ API không khởi động được; xem lỗi phía trên."; exit 1; \
+		fi; \
+		ready=0; \
+		for ((attempt=1; attempt<=30; attempt++)); do \
+			if $(PY) -c 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8000/health", timeout=1)' >/dev/null 2>&1; then \
+				if kill -0 "$$api_pid" 2>/dev/null; then ready=1; break; fi; \
+			fi; \
+			if ! kill -0 "$$api_pid" 2>/dev/null; then \
+				echo "❌ API đã dừng khi khởi động; xem lỗi phía trên."; exit 1; \
+			fi; \
+			sleep 1; \
+		done; \
+		if [ "$$ready" -ne 1 ]; then \
+			echo "❌ API không sẵn sàng sau 30 giây."; exit 1; \
+		fi; \
+		echo "✅ API sẵn sàng. Đóng GUI hoặc nhấn Ctrl+C để dừng API."; \
+		$(PY) -m gui.main & \
+		gui_pid=$$!; \
+		wait "$$gui_pid"
 
 # ------------------------------------------------------------
 # Chất lượng

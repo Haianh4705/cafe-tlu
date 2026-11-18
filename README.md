@@ -33,6 +33,7 @@ git clone https://github.com/Haianh4705/cafe-tlu.git && cd cafe-tlu
 make install     # .venv Python 3.12 + thư viện + pre-commit hook + .env
 make up          # MySQL 8.0 trong Docker (cổng 3307)
 make doctor      # phải xanh 8/8 mục
+make start       # MySQL + API + giao diện (Docker Desktop phải đang mở)
 ```
 
 Cần: **Python 3.12** · **Docker Desktop** · **Git ≥ 2.40** · **make** (Windows: Git Bash/WSL).
@@ -46,10 +47,11 @@ Không cần cài MySQL, không cần Inno Setup (bộ cài `.exe` build trên G
 | `make` | Danh sách toàn bộ lệnh |
 | `make install` | Cài lần đầu (venv + thư viện + hooks + `.env`) |
 | `make doctor` | Kiểm tra môi trường máy |
+| `make start` | Chạy MySQL, API và giao diện; đóng GUI sẽ dừng API |
 | `make up` / `make down` | Bật / tắt MySQL |
 | `make tools` | Adminer xem DB tại <http://localhost:8081> |
 | `make reset-db` | **Xoá sạch** dữ liệu MySQL local rồi bật lại |
-| `make api` / `make gui` | Chạy backend / giao diện |
+| `make api` / `make gui` | Chạy riêng backend / giao diện (dùng khi debug) |
 | `make check` | lint + test — **bắt buộc trước khi mở PR** |
 | `make lint` / `make fmt` | Kiểm tra / tự sửa format |
 | `make build-installer` | Build bộ cài Windows (bật ở cổng G4) |
