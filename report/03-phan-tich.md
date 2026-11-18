@@ -3,6 +3,7 @@
 > **Người thực hiện:** B (@trungdunxg) — Data & Reports Lead  
 > **Dự án:** Ứng dụng Desktop quản lý quán café TLU (BTL học phần Python 2026 — Đề tài 5)  
 > **Mục tiêu:** Trình bày chi tiết quá trình phân tích nghiệp vụ, mô hình hóa dữ liệu (ERD), chuẩn hóa quan hệ (3NF), từ điển dữ liệu và các bất biến toàn vẹn số liệu của hệ thống CafeTLU.
+> **Cổng gắn kết & Hạn hoàn thành:** G2 (bản thảo v1 — đã có) → G3 (đồng bộ bảng thứ 10 `refresh_tokens` và cột xoá mềm `deleted_at`) → G5 (chốt trước hạn nộp 5 ngày)
 
 ---
 
@@ -277,3 +278,12 @@ $$\text{Nguy cơ:} \quad \text{Khi quản lý tăng giá món Bạc xỉu từ 2
 CSDL CafeTLU được thiết kế chặt chẽ, chuẩn mực, bám sát các yêu cầu khắt khe của một phần mềm bán hàng thực tế. Bản thiết kế giải quyết triệt để các bài toán khó về toàn vẹn dữ liệu: tránh sai số nhị phân bằng `DECIMAL(12,0)`, bảo toàn giá bán lịch sử bằng snapshot pricing, bảo vệ dữ liệu bằng xóa mềm và tối ưu hóa hiệu năng thông qua chiến lược đánh chỉ mục thông minh.
 
 Đây là cơ sở vững chắc để tầng Backend (FastAPI / SQLAlchemy) triển khai các model và tầng Giao diện (PySide6) vận hành các chức năng quản lý, bán hàng và báo cáo một cách ổn định, tin cậy.
+
+---
+
+## 3.8 Danh sách hình ảnh & minh chứng
+
+- Sơ đồ thực thể liên kết (ERD): giữ trực tiếp dạng Mermaid ở mục `3.3` và đồng bộ 10 bảng theo `docs/erd.md` (bổ sung `refresh_tokens`, `deleted_at`, `open_table_id` từ `#55`, `#69`).
+- Ảnh cần chụp bổ sung (`docs/screenshots/`):
+  - `docs/screenshots/db/erd-<YYYYMMDD>-01.png` — ảnh xuất sơ đồ ERD 10 bảng rõ nét (Adminer/Mermaid) để chèn bản in PDF.
+  - `docs/screenshots/db/verify-seed-<YYYYMMDD>-01.png` — kết quả chạy `db/verify_seed.sql` (23/23 phép kiểm `PASS`, 51 món, 120 đơn).

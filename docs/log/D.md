@@ -54,6 +54,7 @@
 | 11-18 | #78–#89 | `4221dc0` | GitHub Issues, `WORKFLOW.md` | gán 12 phát hiện review cho A/B/C/D, ghi hướng sửa và nghiệm thu, đề xuất rút gọn quy trình | giao theo vùng sở hữu và mốc để thấy rõ người chịu trách nhiệm và phụ thuộc |
 | 11-18 | #90 | #91 | `WORKFLOW.md` v2.0, `docs/decisions.md` (ADR-014), `AGENTS.md`, `docs/plan.md`, `scripts/next_task.sh`, `.github/*`, GitHub settings | mở khoá ranh giới thư mục để gán theo chức năng, tắt bắt buộc approve (`required_approving_review_count = 0`), bật `enforce_admins: true`, bổ sung 11 Issue G3–G5 (#93–#103) và đồng bộ toàn bộ tài liệu | quy trình khoá vùng + chờ approve làm kẹt PR dù CI xanh; chuyển sang Issue theo chức năng + CI bắt buộc + tự merge giúp nhóm tăng tốc mà vẫn giữ lịch sử kiểm soát qua Issue/PR |
 | 11-18 | #90, #93–#103 | `docs/plan-phan-cong-4-nguoi-d` | `docs/plan.md`, GitHub Issues (`#25`, `#34`, `#84`, `#87`, `#88`, `#93`–`#103`) | gom 26 Issue mở (cũ + mới) thành 4 cụm chức năng và gán đủ cho cả 4 thành viên (`A`, `B`, `C`, `D`) | gom `#87` → A (cùng `OrderView`), `#88` → B (cùng `DashboardView`), `#84` → C (trọn gói Thực đơn) để mỗi thành viên làm xuyên tầng mà không xung đột file lẫn nhau |
+| 11-18 | #32 | #92 | `report/00-bia.md`..`09-huong-phat-trien.md`, `report/README.md` | dựng khung 10 chương báo cáo BTL, phân công A/B/C/D theo cổng G2–G5 và danh mục ảnh khớp `docs/screenshots/` | chỉ dựng mục lục dự kiến + danh sách minh chứng (giữ nguyên `03-phan-tich.md` của B) để tránh viết hộ/đạo văn và bảo đảm PR < 400 dòng |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.
@@ -72,6 +73,7 @@
 | 11-18 | Codex + Sol | đối chiếu SHA trên GitHub, chạy lint và test local (50 pass, 23 skip do cấu hình DB), kiểm Qt offscreen, đọc CI cùng SHA (73 pass) và soạn nháp #78–#89 | rà lại 12 phát hiện theo vùng sở hữu A/B/C/D, chốt gắn mốc G2–G4 trên GitHub Issues |
 | 11-18 | Codex + Sol, Antigravity | rà liên kết/cấu hình GitHub, gộp xung đột nhật ký `docs/log/D.md` giữa `develop` và PR #91; cập nhật đồng bộ quy trình mới v2.0 (ADR-014), sửa `scripts/next_task.sh`, bật `enforce_admins: true` & `approvals=0`, tạo 11 Issue G3–G5 (#93–#103) | kiểm chứng cấu hình `gh api` thật trên `develop`/`main`, rà toàn bộ liên kết nội bộ, chạy `make lint && DB_NAME=cafe_tlu_test make test` và trực tiếp kiểm thử tự Squash & merge PR #91 |
 | 11-18 | Antigravity | tái phân công 26 Issue mở theo 4 cụm chức năng cho A/B/C/D (`#84`→C, `#87`→A, `#88`→B, `#93`–`#103`), đồng bộ `docs/plan.md` mục 0.2 & bảng G3–G5 | rà kiểm toàn bộ 26 Issue bằng `gh issue list` + `scripts/next_task.sh` cho cả 4 thành viên, chạy `make lint && DB_NAME=cafe_tlu_test make test` |
+| 11-18 | Antigravity | soạn khung 9 file `report/` và bảng phân công theo cổng cho `#32`, đối chiếu đường dẫn `docs/screenshots/` | rà tổng diff dưới 400 dòng, kiểm tra tồn tại các file ảnh đã có và giữ nguyên nội dung `report/03-phan-tich.md` của B |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)
 
