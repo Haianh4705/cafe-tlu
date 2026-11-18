@@ -50,6 +50,8 @@
 | TC-RPT-01 | 30 ngày dữ liệu | Mở Dashboard | Doanh thu khớp với tổng hoá đơn tính tay | D | ⬜ | |
 | TC-RPT-02 | | Xem top món bán chạy | Sắp xếp đúng giảm dần | D | ⬜ | |
 | TC-RPT-03 | | Xuất Excel | File mở được, số liệu khớp màn hình | C | ⬜ | |
+| TC-RPT-04 | Có giao dịch hôm qua, không có dòng hôm nay | Mở Dashboard | KPI hôm nay bằng 0; tổng kỳ và biểu đồ vẫn gồm dữ liệu hôm qua | B | ⬜ | GUI fixture test xanh; chờ API #95 để nghiệm thu E2E |
+| TC-RPT-05 | Có giao dịch hôm qua và hôm nay | Mở Dashboard | KPI hôm nay khớp dòng ngày quán; tổng kỳ và biểu đồ gồm cả hai ngày | B | ⬜ | GUI fixture test xanh; chờ API #95 để nghiệm thu E2E |
 
 ## 6. Đóng gói & môi trường
 

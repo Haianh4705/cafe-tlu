@@ -5,12 +5,15 @@ Tuân thủ:
 - docs/test-cases.md: TC-RPT-01, TC-RPT-02.
 """
 
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
+
+import pytest
 
 from gui.api_client import ApiClient
 from gui.i18n import format_currency, t
 from gui.main import MainWindow
+from gui.views import dashboard_view
 from gui.views.dashboard_view import (
     MOCK_TOP_PRODUCTS,
     DashboardView,
@@ -18,6 +21,14 @@ from gui.views.dashboard_view import (
     normalize_revenue,
     normalize_top_products,
 )
+
+
+@pytest.fixture
+def cafe_today(monkeypatch: Any) -> date:
+    """Cố định ngày quán trong fixture để KPI không phụ thuộc ngày chạy test."""
+    today = date(2026, 11, 19)
+    monkeypatch.setattr(dashboard_view, "_cafe_today", lambda: today)
+    return today
 
 
 def test_mock_daily_has_30_increasing_days() -> None:
@@ -213,3 +224,62 @@ def test_logout_resets_dashboard_demo_for_next_session(qapp: Any) -> None:
     win._handle_session_expired()
     assert win._dashboard_view._use_mock is False
     win.close()
+
+
+def test_dashboard_today_kpi_is_zero_when_only_yesterday_has_sales(
+    qapp: Any, cafe_today: date
+) -> None:
+    """Giao dịch hôm qua không bị dùng nhầm làm KPI hôm nay; tổng kỳ và chart vẫn đủ."""
+    daily = [
+        {
+            "date": (cafe_today - timedelta(days=1)).isoformat(),
+            "revenue": 52000,
+            "order_count": 3,
+        }
+    ]
+    view = DashboardView(ApiClient(), use_mock=False)
+    view._on_data({"daily": daily, "top": [], "total_revenue": 52000, "total_orders": 3})
+
+    assert view._kpi_values["revenue_today"].text() == format_currency(0)
+    assert view._kpi_values["orders_today"].text() == "0"
+    assert view._kpi_values["revenue_period"].text() == format_currency(52000)
+    assert view._kpi_hints["revenue_period"].text() == "3 đơn"
+    assert view._revenue_chart.series()[0].count() == 1
+    assert view._revenue_chart.series()[0].points()[0].y() == pytest.approx(0.052)
+
+
+def test_dashboard_today_kpi_uses_today_row_and_preserves_period_chart(
+    qapp: Any, cafe_today: date
+) -> None:
+    """Dùng đúng row hôm nay, đồng thời giữ tổng và các điểm chart của toàn kỳ."""
+    daily = [
+        {
+            "date": (cafe_today - timedelta(days=1)).isoformat(),
+            "revenue": 30000,
+            "order_count": 2,
+        },
+        {"date": cafe_today.isoformat(), "revenue": 45000, "order_count": 3},
+    ]
+    view = DashboardView(ApiClient(), use_mock=False)
+    view._on_data({"daily": daily, "top": [], "total_revenue": 75000, "total_orders": 5})
+
+    assert view._kpi_values["revenue_today"].text() == format_currency(45000)
+    assert view._kpi_values["orders_today"].text() == "3"
+    assert view._kpi_values["revenue_period"].text() == format_currency(75000)
+    series = view._revenue_chart.series()[0]
+    assert series.count() == 2
+    assert [point.y() for point in series.points()] == pytest.approx([0.03, 0.045])
+
+
+def test_cafe_today_uses_vietnam_timezone(monkeypatch: Any) -> None:
+    """Gần nửa đêm UTC, ngày quán vẫn lấy theo Asia/Ho_Chi_Minh."""
+
+    class FixedDateTime(datetime):
+        @classmethod
+        def now(cls, tz: Any = None) -> datetime:
+            utc_now = datetime(2026, 11, 18, 17, 30, tzinfo=UTC)
+            return utc_now.astimezone(tz) if tz else utc_now.replace(tzinfo=None)
+
+    monkeypatch.setattr(dashboard_view, "datetime", FixedDateTime)
+
+    assert dashboard_view._cafe_today() == date(2026, 11, 19)
