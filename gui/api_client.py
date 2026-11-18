@@ -8,6 +8,7 @@ Tuân thủ:
 
 import logging
 import os
+from collections.abc import Callable
 from typing import Any
 
 import requests
@@ -34,6 +35,7 @@ class ApiClient:
         ).rstrip("/")
         self.access_token: str | None = None
         self.refresh_token: str | None = None
+        self.on_unauthenticated: Callable[[], None] | None = None
         self._session = requests.Session()
 
     def set_tokens(self, access_token: str, refresh_token: str | None = None) -> None:
@@ -88,6 +90,16 @@ class ApiClient:
             code = error_data.get("code", f"HTTP_{response.status_code}")
             message = error_data.get("message", "Đã có lỗi xảy ra từ máy chủ.")
             details = error_data.get("details", {})
+            if (
+                (response.status_code == 401 or code == "UNAUTHENTICATED")
+                and not path.endswith("/auth/login")
+                and not path.endswith("/auth/logout")
+                and self.on_unauthenticated is not None
+            ):
+                try:
+                    self.on_unauthenticated()
+                except Exception:
+                    logger.exception("Lỗi khi thực thi on_unauthenticated callback")
             raise ApiClientError(code=code, message=message, details=details)
 
         if return_envelope:

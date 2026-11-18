@@ -9,6 +9,7 @@ import os
 import sys
 from typing import Any
 
+from PySide6.QtCore import Signal
 from PySide6.QtGui import QFont, QFontDatabase, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -22,7 +23,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.api_client import ApiClient
+from gui.api_client import ApiClient, ApiClientError
 from gui.i18n import t
 from gui.theme import COLOR, FONT, GLOBAL_QSS, RADIUS, SPACE
 from gui.views.base import ApiWorker, BaseView
@@ -55,16 +56,20 @@ def _header_btn_qss() -> str:
 class MainWindow(QMainWindow):
     """Cửa sổ chính của ứng dụng hỗ trợ phân quyền người dùng và chuyển đổi màn hình."""
 
-    def __init__(self) -> None:
+    session_expired = Signal()
+
+    def __init__(self, api_client: ApiClient | None = None) -> None:
         super().__init__()
         self.setWindowTitle(t("app_title"))
         self.resize(1280, 720)
         self.setMinimumSize(1024, 600)
 
-        self.api = ApiClient()
+        self.api = api_client or ApiClient()
+        self.api.on_unauthenticated = self.session_expired.emit
         self.current_user: dict[str, Any] | None = None
         self._logout_worker: ApiWorker | None = None
 
+        self.session_expired.connect(self._handle_session_expired)
         self._init_ui()
         self._setup_shortcuts()
 
@@ -275,17 +280,39 @@ class MainWindow(QMainWindow):
         if self._logout_worker is not None and self._logout_worker.isRunning():
             return
         self._logout_btn.setEnabled(False)
+        self._logout_btn.setText(t("logout_loading"))
         worker = ApiWorker(self.api.logout, parent=self)
         worker.succeeded.connect(self._finish_logout)
         worker.failed.connect(self._finish_logout)
         self._logout_worker = worker
         worker.start()
 
-    def _finish_logout(self, _result: object = None) -> None:
+    def _finish_logout(self, result: object = None) -> None:
         self._logout_btn.setEnabled(True)
+        self._logout_btn.setText(t("logout_btn"))
         self.api.clear_tokens()
         self.current_user = None
+        self._login_view._password_input.clear()
         self._root_stack.setCurrentWidget(self._login_view)
+        if isinstance(result, Exception):
+            logger.warning("Đăng xuất gặp lỗi hoặc mất kết nối: %s", result)
+            if isinstance(result, ApiClientError) and result.code == "NETWORK_ERROR":
+                self._login_view._show_error(t("logout_server_unreachable"))
+            elif isinstance(result, ApiClientError) and result.code == "UNAUTHENTICATED":
+                self._login_view._show_error(t("session_expired"))
+        else:
+            self._login_view._clear_error()
+
+    def _handle_session_expired(self) -> None:
+        """Đưa người dùng về màn đăng nhập khi phiên hết hạn trong lúc làm việc."""
+        if self._root_stack.currentWidget() is self._login_view:
+            return
+        self.api.clear_tokens()
+        self.current_user = None
+        self._login_view._password_input.clear()
+        self._root_stack.setCurrentWidget(self._login_view)
+        self._login_view._show_error(t("session_expired"))
+        self._login_view._password_input.setFocus()
 
     def _open_kiosk(self) -> None:
         self._root_stack.setCurrentWidget(self._kiosk_view)

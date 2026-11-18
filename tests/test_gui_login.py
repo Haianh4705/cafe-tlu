@@ -5,6 +5,8 @@ from typing import Any
 import pytest
 
 from gui.api_client import ApiClient, ApiClientError
+from gui.i18n import t
+from gui.main import MainWindow
 from gui.views.login_view import LoginView
 
 
@@ -156,3 +158,178 @@ def test_expired_session_returns_to_login_form(qapp: Any, monkeypatch: Any) -> N
     assert view._login_btn.isEnabled()
     assert view._error_banner.text() == "Phiên đã hết hạn, vui lòng đăng nhập lại"
     assert not view._error_banner.isHidden()
+
+
+def test_logout_success_sends_refresh_token_and_resets_state(qapp: Any, monkeypatch: Any) -> None:
+    """Đăng xuất thành công gửi đúng refresh_token trong body, xoá phiên và trở về form đăng nhập."""
+    api = ApiClient()
+    api.set_tokens(access_token="test-access", refresh_token="test-refresh")
+
+    captured_requests: list[dict[str, Any]] = []
+
+    def fake_request(method: str, path: str, **kwargs: Any) -> Any:
+        captured_requests.append({"method": method, "path": path, "kwargs": kwargs})
+        return {"message": "Đã đăng xuất"}
+
+    monkeypatch.setattr(api, "_request", fake_request)
+
+    win = MainWindow(api)
+    monkeypatch.setattr(win._kiosk_view, "load", lambda: None)
+    monkeypatch.setattr(win._dashboard_view, "load", lambda: None)
+    win._on_login_success({"id": 1, "username": "admin", "full_name": "Admin", "role": "admin"})
+
+    assert win._root_stack.currentWidget() is win._app_shell
+    assert win.current_user is not None
+    win._login_view._password_input.setText("secret")
+
+    win._handle_logout()
+    assert win._logout_worker is not None
+    win._logout_worker.wait(3000)
+    qapp.processEvents()
+
+    assert len(captured_requests) == 1
+    req = captured_requests[0]
+    assert req["method"] == "POST"
+    assert req["path"] == "/auth/logout"
+    assert req["kwargs"].get("json_data") == {"refresh_token": "test-refresh"}
+
+    assert api.access_token is None
+    assert api.refresh_token is None
+    assert win.current_user is None
+    assert win._root_stack.currentWidget() is win._login_view
+    assert win._login_view._password_input.text() == ""
+    assert win._logout_btn.isEnabled()
+    assert win._logout_btn.text() == t("logout_btn")
+    assert not win._login_view._error_banner.isVisible()
+    win.close()
+
+
+def test_logout_network_error_still_clears_session_and_navigates(
+    qapp: Any, monkeypatch: Any
+) -> None:
+    """Khi mất kết nối, đăng xuất vẫn giải phóng phiên cục bộ, đưa về form và báo trạng thái."""
+    api = ApiClient()
+    api.set_tokens(access_token="test-access", refresh_token="test-refresh")
+
+    def fake_logout() -> None:
+        api.clear_tokens()
+        raise ApiClientError("NETWORK_ERROR", "Không thể kết nối đến máy chủ API.")
+
+    monkeypatch.setattr(api, "logout", fake_logout)
+
+    win = MainWindow(api)
+    monkeypatch.setattr(win._kiosk_view, "load", lambda: None)
+    monkeypatch.setattr(win._dashboard_view, "load", lambda: None)
+    win._on_login_success(
+        {"id": 1, "username": "staff01", "full_name": "Thu ngân", "role": "staff"}
+    )
+
+    win._handle_logout()
+    assert win._logout_worker is not None
+    win._logout_worker.wait(3000)
+    qapp.processEvents()
+
+    assert api.access_token is None
+    assert api.refresh_token is None
+    assert win.current_user is None
+    assert win._root_stack.currentWidget() is win._login_view
+    assert not win._login_view._error_banner.isHidden()
+    assert win._login_view._error_banner.text() == t("logout_server_unreachable")
+    assert win._logout_btn.isEnabled()
+    assert win._logout_btn.text() == t("logout_btn")
+    win.close()
+
+
+def test_logout_unauthenticated_error_clears_session_and_shows_expired(
+    qapp: Any, monkeypatch: Any
+) -> None:
+    """Khi access token đã hết hạn lúc đăng xuất, vẫn trở về form và thông báo phiên hết hạn."""
+    api = ApiClient()
+    api.set_tokens(access_token="expired-access", refresh_token="test-refresh")
+
+    def fake_logout() -> None:
+        api.clear_tokens()
+        raise ApiClientError("UNAUTHENTICATED", "Token đã hết hạn hoặc không hợp lệ")
+
+    monkeypatch.setattr(api, "logout", fake_logout)
+
+    win = MainWindow(api)
+    monkeypatch.setattr(win._kiosk_view, "load", lambda: None)
+    monkeypatch.setattr(win._dashboard_view, "load", lambda: None)
+    win._on_login_success(
+        {"id": 1, "username": "staff01", "full_name": "Thu ngân", "role": "staff"}
+    )
+
+    win._handle_logout()
+    assert win._logout_worker is not None
+    win._logout_worker.wait(3000)
+    qapp.processEvents()
+
+    assert api.access_token is None
+    assert api.refresh_token is None
+    assert win.current_user is None
+    assert win._root_stack.currentWidget() is win._login_view
+    assert not win._login_view._error_banner.isHidden()
+    assert win._login_view._error_banner.text() == t("session_expired")
+    win.close()
+
+
+def test_session_expired_in_app_redirects_to_login_and_allows_relogin(
+    qapp: Any, monkeypatch: Any
+) -> None:
+    """Khi phiên hết hạn trong màn nghiệp vụ, ứng dụng tự đưa về login và cho phép đăng nhập lại."""
+    api = ApiClient()
+    api.set_tokens(access_token="valid-access", refresh_token="valid-refresh")
+
+    win = MainWindow(api)
+    monkeypatch.setattr(win._kiosk_view, "load", lambda: None)
+    monkeypatch.setattr(win._dashboard_view, "load", lambda: None)
+    win._on_login_success(
+        {"id": 1, "username": "admin", "full_name": "Quản trị viên", "role": "admin"}
+    )
+
+    assert win._root_stack.currentWidget() is win._app_shell
+
+    # Mô phỏng nhận 401 qua on_unauthenticated
+    assert api.on_unauthenticated is not None
+    api.on_unauthenticated()
+    qapp.processEvents()
+
+    assert win._root_stack.currentWidget() is win._login_view
+    assert api.access_token is None
+    assert api.refresh_token is None
+    assert win.current_user is None
+    assert not win._login_view._error_banner.isHidden()
+    assert win._login_view._error_banner.text() == t("session_expired")
+
+    # Người dùng có thể đăng nhập lại bình thường
+    workers = _capture_workers(monkeypatch, win._login_view)
+    win._login_view._username_input.setText("admin")
+    win._login_view._password_input.setText("123456")
+
+    def fake_login(username: str, password: str) -> dict[str, Any]:
+        api.set_tokens("new-access", "new-refresh")
+        return {"access_token": "new-access", "refresh_token": "new-refresh"}
+
+    def fake_get_me() -> dict[str, Any]:
+        return {"id": 1, "username": "admin", "full_name": "Quản trị viên", "role": "admin"}
+
+    monkeypatch.setattr(api, "login", fake_login)
+    monkeypatch.setattr(api, "get_me", fake_get_me)
+
+    win._login_view._handle_login()
+    assert len(workers) == 1
+    login_w = workers.pop()
+    login_res = login_w["func"](*login_w["args"], **login_w["kwargs"])
+    login_w["on_success"](login_res)
+
+    assert len(workers) == 1
+    me_w = workers.pop()
+    me_res = me_w["func"]()
+    me_w["on_success"](me_res)
+    qapp.processEvents()
+
+    assert win._root_stack.currentWidget() is win._app_shell
+    assert win.current_user["username"] == "admin"
+    assert api.access_token == "new-access"
+    win.close()
