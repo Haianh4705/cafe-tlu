@@ -63,11 +63,11 @@ def refresh(
 
 @router.post("/logout", response_model=Envelope[MessageData])
 def logout(
-    payload: LogoutRequest,
+    payload: LogoutRequest | None = None,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> Envelope[MessageData]:
-    auth_service.logout(db, user, payload.refresh_token)
+    auth_service.logout(db, user, payload.refresh_token if payload else None)
     return Envelope(data=MessageData(message="Đã đăng xuất"))
 
 

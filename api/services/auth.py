@@ -77,8 +77,23 @@ def refresh(db: Session, raw_token: str, user_agent: str | None) -> tuple[User, 
     return user, access_token, new_raw_token
 
 
-def logout(db: Session, user: User, raw_token: str) -> None:
-    """Thu hồi refresh token hiện tại; gọi lại (idempotent) không lỗi."""
+def logout(db: Session, user: User, raw_token: str | None) -> None:
+    """Thu hồi refresh token hiện tại; không gửi token thì thu hồi mọi phiên của user."""
+    now = _utcnow()
+
+    if raw_token is None:
+        active_tokens = db.scalars(
+            select(RefreshToken).where(
+                RefreshToken.user_id == user.id,
+                RefreshToken.revoked_at.is_(None),
+            )
+        ).all()
+        if active_tokens:
+            for token in active_tokens:
+                token.revoked_at = now
+            db.commit()
+        return
+
     token = db.scalar(
         select(RefreshToken).where(
             RefreshToken.token_hash == hash_refresh_token(raw_token),
@@ -86,7 +101,7 @@ def logout(db: Session, user: User, raw_token: str) -> None:
         )
     )
     if token is not None and token.revoked_at is None:
-        token.revoked_at = _utcnow()
+        token.revoked_at = now
         db.commit()
 
 

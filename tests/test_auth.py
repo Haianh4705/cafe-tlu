@@ -193,6 +193,18 @@ def test_logout_revokes_refresh_token(client, staff_user) -> None:
     assert reused.status_code == 401
 
 
+def test_logout_without_body_revokes_all_sessions(client, staff_user) -> None:
+    first = _login(client).json()["data"]
+    second = _login(client).json()["data"]
+
+    response = client.post(LOGOUT_URL, headers=_auth_header(first["access_token"]))
+    assert response.status_code == 200
+
+    for tokens in (first, second):
+        reused = client.post(REFRESH_URL, json={"refresh_token": tokens["refresh_token"]})
+        assert reused.status_code == 401
+
+
 def test_logout_requires_access_token(client, staff_user) -> None:
     tokens = _login(client).json()["data"]
 
