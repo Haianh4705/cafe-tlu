@@ -40,7 +40,7 @@
 ## Nguồn tham khảo khi viết
 
 - Chuẩn `SKILL.md` + ví dụ chính thức: [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official)
-- Chống "AI slop" trong thiết kế: [anti-ai-slop rules](https://github.com/freekmurze/dotfiles/blob/fe89482ce432f76e750885c4cdb29f88155c4cb7/config/claude/skills/swiftui-design/references/anti-ai-slop.md), [The Tells](https://labs.iovstudio.kr/papers/ai-design-tells.pdf)
+- Chống "AI slop" trong thiết kế: [anti-ai-slop rules](https://github.com/freekmurze/dotfiles/blob/fe89482ce432f76e750885c4cdb29f88155c4cb7/config/claude/skills/swiftui-design/references/anti-ai-slop.md), [The Tells](https://labs.iovstudio.kr/papers/ai-design-tells.pdf), [unslop](https://github.com/heydamir/unslop) (CC BY 4.0 — Damir Sokolovsky), [Hallmark](https://github.com/nutlope/hallmark) (MIT — Together AI)
 
 > ⚠️ Kho skill công khai (awesome-skills, claudeskills…) chất lượng rất không đồng đều và phần
 > lớn viết cho stack web/JS. Dùng để **đọc ý tưởng**, rồi tự viết bản khớp dự án. Dán nguyên
