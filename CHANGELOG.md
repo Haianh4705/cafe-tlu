@@ -8,6 +8,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Fixed — giao diện đăng nhập
+- Sau khi nhận token, GUI xác nhận tài khoản qua `GET /auth/me`; phiên 401 được xoá token và đưa người dùng về form đăng nhập (#25)
+
 ### Changed — Quy trình nhóm
 - Chuyển quy trình sang gán thành viên theo chức năng (`ADR-014`), bỏ bắt buộc approve trên GitHub (`required_approving_review_count = 0`) và bật `enforce_admins: true` để mọi chức năng đi qua Issue & PR (#90)
 
