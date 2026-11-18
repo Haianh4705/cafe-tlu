@@ -25,6 +25,7 @@
 | 2026-11-18 | #87 | #121 | `gui/views/order_view.py`, `tests/test_gui_order.py` | Tải đủ trang món theo `meta.total_pages`, tìm/lọc trên toàn danh mục và chặn thêm món ngừng bán | Chọn tải hết trang thay vì gọi search server mỗi lần gõ vì màn Order cần toàn bộ danh mục cho bộ lọc, seed chỉ 51 món và tránh request/race khi gõ |
 | 2026-11-18 | #93 | #122 | `api/routers/orders.py`, `api/services/orders.py`, `api/schemas/order.py`, `gui/views/order_view.py`, `tests/test_orders.py`, `tests/test_gui_order.py` | 6 endpoint bàn/đơn (#13–#18), khoá đơn theo bàn, giá snapshot và tổng tiền tính lại ở server; nối OrderView thêm/sửa/xoá món qua API | Router mỏng + service giữ transaction; trả `open_order_id` trong `/tables` để GUI mở lại đơn thay vì đoán, và guard `ORDER_ALREADY_PAID` chặn sửa đơn đã đóng |
 | 2026-11-18 | #94 | #123 | `api/routers/orders.py`, `api/services/orders.py`, `api/schemas/order.py`, `gui/api_client.py`, `gui/views/order_view.py`, `tests/test_orders.py`, `tests/test_gui_order.py` | Endpoint #19 checkout nguyên tử, tạo `invoices`, đóng đơn/trả bàn; nối CheckoutDialog → API → ReceiptDialog | Server là nguồn tính tiền và giữ transaction để không lệch hoá đơn; QR map sang `transfer` đúng CHECK của bảng `invoices` |
+| 2026-11-18 | #86 | `fix/auth-session-lifecycle-bao` | `api/services/auth.py`, `api/main.py`, `tests/test_auth.py` | Khoá row refresh token khi rotate/logout; 422 chỉ trả loc/msg/type, bỏ input | Khoá row để hai request đồng thời chỉ một thắng; không echo input để tránh lộ mật khẩu trong phản hồi/log |
 
 ## 3. AI đã làm gì
 
@@ -37,6 +38,7 @@
 | 2026-11-18 | Command Code | Viết `_fetch_all_products` theo `meta.total_pages` và 2 test phân trang/món ngừng bán cho #87 | Đối chiếu `GET /products` (`page_size` ≤ 100, meta `total_pages`) và chạy `tests/test_gui_order.py`: 11 passed; kiểm tra không đổi API/contract |
 | 2026-11-18 | Command Code | Viết 6 endpoint bàn/đơn #13–#18 + 7 test, nối `OrderView` thêm/sửa/xoá món qua API và 2 test GUI | Đối chiếu bất biến ERD (1 đơn mở/bàn, snapshot `unit_price`, total server), chạy 107 test trên MySQL; tự kiểm mã 400/401/404/409 |
 | 2026-11-18 | Command Code | Viết checkout #19 + 3 test API, nối CheckoutDialog/ReceiptDialog và test GUI hoá đơn server | Kiểm transaction/CHECK `invoices`, thanh toán kép 409, underpaid 400; chạy lại toàn bộ test trên MySQL |
+| 2026-11-18 | Command Code | Viết test refresh đồng thời bằng 2 session MySQL, sanitize lỗi 422 cho #86 | Kiểm `with_for_update` thật trên MySQL: 1 thành công/1 nhận 401, không echo `987654321` trong body |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng A)
 
@@ -71,3 +73,4 @@
 | G1 | 2026-11-17 | #19/#20, #21, #22 đã merge; MySQL local bật + 67 test pass | `make doctor` 4/4 máy (D); rate limit login để G4 |
 | G2 | 2026-11-17 | #29 CRUD products/categories (chờ PR) | C nối màn danh sách món với API thật; D điền test case `TC-PRD` |
 | G3 | 2026-11-18 | #87 tải đủ trang món (#121); #93 API bàn/đơn (#122); #94 checkout & hoá đơn | #95/#96 (B); #97 smoke (D); huỷ cả đơn cần endpoint riêng |
+| G4 | 2026-11-18 | #86 vòng đời phiên + sanitize lỗi 422 | #89/#98 deploy (D), #100 backup/rate-limit (B) |

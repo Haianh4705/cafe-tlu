@@ -1,6 +1,7 @@
 """Test xác thực: bcrypt/JWT/require_role (không cần DB) và endpoint (cần MySQL)."""
 
 import hashlib
+import threading
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
@@ -8,11 +9,13 @@ import pytest
 from fastapi import Depends
 from jose import jwt
 from sqlalchemy import select
+from sqlalchemy.orm import sessionmaker
 
 from api.core.config import settings
 from api.core.security import (
     create_access_token,
     decode_access_token,
+    generate_refresh_token,
     hash_password,
     require_role,
     verify_password,
@@ -20,7 +23,9 @@ from api.core.security import (
 from api.main import app
 from api.models.audit_log import AuditLog
 from api.models.refresh_token import RefreshToken
+from api.models.role import Role
 from api.models.user import User
+from api.services import auth as auth_service
 from shared.error_codes import ErrorCode
 from shared.errors import AppError
 
@@ -177,6 +182,109 @@ def test_refresh_rotates_tokens_and_revokes_old(client, staff_user, db_session) 
     )
     assert old_row.revoked_at is not None
     assert old_row.replaced_by_id is not None
+
+
+def test_refresh_concurrent_only_one_succeeds(engine) -> None:
+    """Hai request refresh đồng thời chỉ một thành công; row được khoá khi rotate (#86)."""
+    testing_session = sessionmaker(bind=engine, expire_on_commit=False)
+    setup = testing_session()
+    role = Role(name="staff_concurrent")
+    setup.add(role)
+    setup.flush()
+    user = User(
+        username="refresh_concurrent",
+        password_hash=hash_password("123456"),
+        full_name="Refresh Concurrent",
+        role_id=role.id,
+    )
+    setup.add(user)
+    setup.flush()
+    raw_token, token_hash = generate_refresh_token()
+    issued_at = datetime.now(UTC).replace(tzinfo=None)
+    token = RefreshToken(
+        user_id=user.id,
+        token_hash=token_hash,
+        created_at=issued_at,
+        expires_at=issued_at + timedelta(days=1),
+        user_agent="pytest",
+    )
+    setup.add(token)
+    setup.commit()
+    user_id, role_id = user.id, role.id
+    setup.close()
+
+    barrier = threading.Barrier(2)
+    results: list[tuple[str, object]] = []
+    lock = threading.Lock()
+
+    def worker() -> None:
+        session = testing_session()
+        try:
+            barrier.wait(timeout=5)
+            _, _, new_raw = auth_service.refresh(session, raw_token, "pytest")
+            with lock:
+                results.append(("ok", new_raw))
+        except AppError as exc:
+            with lock:
+                results.append(("err", exc.status_code))
+        except Exception as exc:  # pragma: no cover - lỗi hạ tầng bất ngờ
+            with lock:
+                results.append(("crash", repr(exc)))
+        finally:
+            session.close()
+
+    threads = [threading.Thread(target=worker) for _ in range(2)]
+    try:
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=15)
+
+        assert [kind for kind, _ in results].count("ok") == 1, results
+        assert ("err", 401) in results
+        assert all(kind != "crash" for kind, _ in results)
+        assert all(not thread.is_alive() for thread in threads)
+
+        check = testing_session()
+        rows = check.scalars(
+            select(RefreshToken).where(RefreshToken.user_id == user_id).order_by(RefreshToken.id)
+        ).all()
+        assert len(rows) == 2
+        assert sum(1 for row in rows if row.revoked_at is None) == 1
+        assert sum(1 for row in rows if row.revoked_at is not None) == 1
+        check.close()
+    finally:
+        cleanup = testing_session()
+        for row in cleanup.scalars(
+            select(RefreshToken).where(RefreshToken.user_id == user_id)
+        ).all():
+            cleanup.delete(row)
+        cleanup.flush()
+        user_row = cleanup.get(User, user_id)
+        if user_row is not None:
+            cleanup.delete(user_row)
+        cleanup.flush()
+        role_row = cleanup.get(Role, role_id)
+        if role_row is not None:
+            cleanup.delete(role_row)
+        cleanup.commit()
+        cleanup.close()
+
+
+def test_validation_error_does_not_echo_sensitive_input(client) -> None:
+    """422 chỉ trả loc/msg/type, không echo mật khẩu người dùng gửi lên (#86)."""
+    secret = "987654321"
+    response = client.post(
+        LOGIN_URL,
+        json={"username": "thungan01", "password": int(secret)},
+    )
+
+    assert response.status_code == 422
+    assert secret not in response.text
+    errors = response.json()["error"]["details"]["errors"]
+    assert errors
+    assert errors[0]["loc"] == ["body", "password"]
+    assert all("input" not in error for error in errors)
 
 
 def test_logout_revokes_refresh_token(client, staff_user) -> None:

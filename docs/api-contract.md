@@ -53,6 +53,9 @@
 
 **Trạng thái:** ⬜ chưa làm · 🟡 đang làm · ✅ xong + có test
 
+> Lỗi `422 VALIDATION_ERROR` chỉ trả `details.errors[{loc, msg, type}]`, không echo `input`/`ctx`
+> để không lộ mật khẩu hoặc dữ liệu nhạy cảm trong phản hồi/log.
+
 > `GET /tables` trả thêm `open_order_id` (`null` nếu bàn trống) để GUI mở lại đơn đang phục vụ.
 > `POST /orders/{id}/items` gộp số lượng nếu món đã có trong đơn; mọi thay đổi món đều tính lại
 > `orders.total_amount` ở server trong cùng transaction.
