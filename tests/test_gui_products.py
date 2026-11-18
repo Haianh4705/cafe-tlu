@@ -2,8 +2,11 @@
 
 from typing import Any
 
-from gui.api_client import ApiClient
+import pytest
+
+from gui.api_client import ApiClient, ApiClientError
 from gui.views.product_list_view import ProductListView, format_currency
+from gui.widgets.product_dialog import ConfirmDeleteDialog, ProductFormDialog
 
 SAMPLE_PRODUCTS: list[dict[str, Any]] = [
     {
@@ -242,3 +245,143 @@ def test_product_find_category_name(qapp: Any) -> None:
     assert view._find_category_name(2) == "Trà trái cây"
     assert view._find_category_name(99) == "—"
     assert view._find_category_name(None) == "—"
+
+
+@pytest.mark.parametrize("edit_mode", [False, True], ids=["create", "edit"])
+@pytest.mark.parametrize(
+    "error",
+    [
+        ApiClientError("PRODUCT_NAME_DUPLICATED", "Tên món đã tồn tại"),
+        ApiClientError("NETWORK_ERROR", "Không thể kết nối đến máy chủ API"),
+    ],
+    ids=["duplicate-name", "network-error"],
+)
+def test_product_form_keeps_input_when_save_fails(
+    qapp: Any,
+    monkeypatch: Any,
+    edit_mode: bool,
+    error: ApiClientError,
+) -> None:
+    """Lỗi thêm/sửa bật lại form, hiện lỗi và giữ nguyên nội dung người dùng nhập."""
+    view = ProductListView(ApiClient())
+    view.set_user_role("admin")
+    view._categories = [{"id": 2, "name": "Trà"}]
+    view._cat_combo.addItem("Trà", 2)
+    workers: list[dict[str, Any]] = []
+    monkeypatch.setattr(
+        view,
+        "start_worker",
+        lambda func, on_success, on_error=None, *args, **kwargs: workers.append(
+            {"func": func, "on_success": on_success, "on_error": on_error, **kwargs}
+        ),
+    )
+    dialogs: list[ProductFormDialog] = []
+
+    def submit_form(dialog: ProductFormDialog) -> int:
+        dialog._name_input.setText("Trà đào mới")
+        dialog._cat_combo.setCurrentIndex(dialog._cat_combo.findData(2))
+        dialog._price_spin.setValue(42000)
+        dialog._unit_input.setText("ly")
+        dialog._validate_and_accept()
+        dialogs.append(dialog)
+        return dialog.result()
+
+    monkeypatch.setattr(ProductFormDialog, "exec", submit_form)
+    if edit_mode:
+        view._open_edit_dialog(
+            {"id": 17, "name": "Trà đào cũ", "category_id": 2, "price": 35000, "unit": "ly"}
+        )
+    else:
+        view._open_add_dialog()
+
+    dialog = dialogs[0]
+    assert len(workers) == 1
+    assert dialog._save_btn.isEnabled() is False
+    workers[0]["on_error"](error)
+
+    assert dialog.result() != ProductFormDialog.DialogCode.Accepted
+    assert dialog._name_input.text() == "Trà đào mới"
+    assert dialog._cat_combo.currentData() == 2
+    assert dialog._price_spin.value() == 42000
+    assert dialog._unit_input.text() == "ly"
+    assert dialog._error_label.text() == error.message
+    assert dialog._save_btn.isEnabled() is True
+
+
+def test_product_form_closes_and_reloads_only_after_save_success(
+    qapp: Any, monkeypatch: Any
+) -> None:
+    """Thêm món chỉ đóng form và tải danh sách sau phản hồi thành công."""
+    view = ProductListView(ApiClient())
+    view.set_user_role("admin")
+    workers: list[dict[str, Any]] = []
+    loads: list[bool] = []
+    monkeypatch.setattr(
+        view,
+        "start_worker",
+        lambda func, on_success, on_error=None, *args, **kwargs: workers.append(
+            {"on_success": on_success, "on_error": on_error, **kwargs}
+        ),
+    )
+    monkeypatch.setattr(view, "load_products", lambda: loads.append(True))
+    dialogs: list[ProductFormDialog] = []
+
+    def submit_form(dialog: ProductFormDialog) -> int:
+        dialog._name_input.setText("Latte")
+        dialog._price_spin.setValue(40000)
+        dialog._validate_and_accept()
+        dialogs.append(dialog)
+        return dialog.result()
+
+    monkeypatch.setattr(ProductFormDialog, "exec", submit_form)
+    view._open_add_dialog()
+    dialog = dialogs[0]
+    assert dialog.result() != ProductFormDialog.DialogCode.Accepted
+    assert loads == []
+
+    workers[0]["on_success"]({"id": 1})
+
+    assert dialog.result() == ProductFormDialog.DialogCode.Accepted
+    assert loads == [True]
+
+
+@pytest.mark.parametrize("succeeds", [False, True], ids=["failure", "success"])
+def test_delete_result_is_reported_and_only_success_reloads(
+    qapp: Any, monkeypatch: Any, succeeds: bool
+) -> None:
+    """Xoá thành công thì tải lại; thất bại hiện lỗi và không xoá danh sách cục bộ."""
+    view = ProductListView(ApiClient())
+    view.set_user_role("admin")
+    view._on_products_loaded(
+        {"data": [SAMPLE_PRODUCTS[0]], "meta": {"page": 1, "total": 1, "total_pages": 1}}
+    )
+    view._table.selectRow(0)
+    monkeypatch.setattr(
+        ConfirmDeleteDialog,
+        "exec",
+        lambda _dialog: ConfirmDeleteDialog.DialogCode.Accepted,
+    )
+    workers: list[dict[str, Any]] = []
+    loads: list[bool] = []
+    monkeypatch.setattr(
+        view,
+        "start_worker",
+        lambda func, on_success, on_error=None, *args, **kwargs: workers.append(
+            {"func": func, "on_success": on_success, "on_error": on_error, **kwargs}
+        ),
+    )
+    monkeypatch.setattr(view, "load_products", lambda: loads.append(True))
+
+    view._handle_delete_selected()
+    assert workers[0]["product_id"] == SAMPLE_PRODUCTS[0]["id"]
+    if succeeds:
+        workers[0]["on_success"]({"id": SAMPLE_PRODUCTS[0]["id"]})
+        assert loads == [True]
+        assert view._products == [SAMPLE_PRODUCTS[0]]
+    else:
+        error = ApiClientError("NETWORK_ERROR", "Không thể xoá món do mất kết nối")
+        workers[0]["on_error"](error)
+        assert loads == []
+        assert view._products == [SAMPLE_PRODUCTS[0]]
+        assert view._state_stack.currentWidget() == view._error_widget
+        assert view._error_label.text() == error.message
