@@ -14,7 +14,7 @@
 
 ## Nội dung dự kiến
 
-- Container MySQL 8.0 ánh xạ cổng `3307` (ADR-004) và lệnh kiểm tra môi trường `make doctor` bắt buộc trên 3/3 máy A, C, D (ADR-012).
+- Container MySQL 8.0 ánh xạ cổng `3307` (ADR-004) và lệnh kiểm tra môi trường `make doctor`; riêng cổng G1 cần kết quả xanh trên máy A và D (ADR-015).
 - Phân tầng kiểm thử `pytest` (unit, API, DB `_test`, GUI offscreen) trên `.github/workflows/ci.yml` kết hợp 24 ca kiểm thử ở `docs/test-cases.md`.
 - Đóng gói `--onedir` qua `installer/cafetlu.spec` + `installer/cafetlu.iss` trên runner `windows-latest` (ADR-005) và kiểm thử cài/gỡ sạch bằng `scripts/verify_installer.ps1`.
 - Triển khai `infra/Dockerfile` (user non-root, `HEALTHCHECK /health`), HTTPS, biến môi trường tách khỏi mã nguồn và sao lưu DB định kỳ ở G4.

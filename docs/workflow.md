@@ -75,7 +75,7 @@ Không ngồi chờ. Chọn một trong các việc độc lập sau:
 
 | Cổng | Trọng tâm chức năng | Đầu ra nghiệm thu |
 |---|---|---|
-| **G1 — Nền móng** | Hạ tầng Docker/MySQL, schema 10 bảng, 51 món mẫu, khung FastAPI `/health`, khung GUI, màn Đăng nhập, build thử `.exe` | 3/3 máy A/C/D `make doctor` xanh (ADR-012), CI xanh, Swagger mở, bộ cài chạy Windows sạch |
+| **G1 — Nền móng** | Hạ tầng Docker/MySQL, schema 10 bảng, 51 món mẫu, khung FastAPI `/health`, khung GUI, màn Đăng nhập, build thử `.exe` | Máy A và D `make doctor` xanh (C miễn riêng ở G1 theo ADR-015), CI xanh, Swagger mở, bộ cài chạy Windows sạch |
 | **G2 — Lát cắt dọc** | Auth JWT + CRUD thực đơn & danh mục chạy end-to-end GUI ↔ API ↔ MySQL, khung báo cáo 10 chương | Login → tìm/thêm/sửa/xoá món trên máy khác, `staff` nhận 403, ≥ 12 endpoint có test |
 | **G3 — MVP** | Bàn & Order tại bàn (`#93`), Checkout & in bill PDF (`#94`), Báo cáo & Excel/PDF (`#95`), Audit log (`#96`), Smoke test & installer MVP (`#97`) | Đủ 6 yêu cầu đề bài chạy end-to-end, bộ cài MVP cài được trên Windows sạch |
 | **G4 — Deploy** | Compose prod + migration (`#89`), Deploy URL công khai & client trỏ URL (`#98`), About/Auto-update (`#99`), Backup & Rate-limit (`#100`), hardening (`#76`, `#80`, `#86`) | Backend có URL HTTPS công khai, tag `v*` build `.exe` và verify sạch trên Windows |
