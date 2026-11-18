@@ -10,11 +10,11 @@
 
 | ID | Tiền điều kiện | Bước | Kết quả mong đợi | Người | Kết quả | Ghi chú |
 |---|---|---|---|---|---|---|
-| TC-AUTH-01 | Có user `admin` | Đăng nhập đúng mật khẩu | Vào được Dashboard, menu đầy đủ | C | BLOCKED | #25: Docker/MySQL chưa chạy; Qt dừng khi nạp (`Incompatible processor: neon`), chưa có E2E. |
-| TC-AUTH-02 | Có user `admin` | Đăng nhập sai mật khẩu 3 lần | Báo lỗi rõ ràng, không lộ "sai user hay sai pass" | C | BLOCKED | #25: Docker/MySQL chưa chạy; Qt dừng khi nạp (`Incompatible processor: neon`), chưa có E2E. |
-| TC-AUTH-03 | Có user `thungan01` role `staff` | Đăng nhập role `staff` | Không thấy menu Quản lý thực đơn / Báo cáo doanh thu | C | BLOCKED | #25: Docker/MySQL chưa chạy; Qt dừng khi nạp (`Incompatible processor: neon`), chưa có E2E. |
+| TC-AUTH-01 | Có user `admin` | Đăng nhập đúng mật khẩu | Vào được Dashboard, menu đầy đủ | C | BLOCKED | #25: API login + `/me` trả admin 200; chưa xác minh Dashboard/menu hoặc chụp ảnh GUI vì CUA không được phép điều khiển cửa sổ Python. |
+| TC-AUTH-02 | Có user `admin` | Đăng nhập sai mật khẩu 3 lần | Báo lỗi rõ ràng, không lộ "sai user hay sai pass" | C | BLOCKED | #25: API trả cùng mã/thông báo 401 cho sai mật khẩu và user không tồn tại; GUI inline đã có unit test, chưa chạy thử 3 lần trên cửa sổ thật. |
+| TC-AUTH-03 | Có user `thungan01` role `staff` | Đăng nhập role `staff` | Không thấy menu Quản lý thực đơn / Báo cáo doanh thu | C | BLOCKED | #25: API login + `/me` trả role staff 200; chưa xác minh menu GUI hoặc chụp ảnh vì CUA không được phép điều khiển cửa sổ Python. |
 | TC-AUTH-04 | Role `staff` | Gọi trực tiếp API admin bằng token staff | 403 `FORBIDDEN` (chặn ở server) | D | ⬜ | |
-| TC-AUTH-05 | Đã đăng nhập | Đóng app, mở lại | Quay về form đăng nhập; token chỉ lưu trong RAM | C | BLOCKED | #25: Docker/MySQL chưa chạy; Qt dừng khi nạp (`Incompatible processor: neon`), chưa có E2E. |
+| TC-AUTH-05 | Đã đăng nhập | Đóng app, mở lại | Quay về form đăng nhập; token chỉ lưu trong RAM | C | BLOCKED | #25: token chỉ được lưu trong RAM theo thiết kế; chưa đóng/mở lại GUI để xác minh trực tiếp vì CUA không được phép điều khiển cửa sổ Python. |
 
 ## 2. Quản lý món ăn / đồ uống (CRUD)
 

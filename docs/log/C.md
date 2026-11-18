@@ -21,7 +21,7 @@
 | 11-09 | #30 | #41 / `e462185` | `gui/views/product_list_view.py`, `gui/widgets/product_dialog.py`, `tests/test_gui_products.py` | xây dựng màn Quản lý thực đơn: tìm kiếm `Ctrl+F`, lọc danh mục, phân trang và dialog CRUD + xác nhận xoá | tải qua `ApiWorker` trên `QThread` và đọc envelope `data`/`meta` để không treo UI khi gọi backend |
 | 11-11 | #49 | #44 | `gui/views/order_view.py`, `gui/widgets/order_cart.py`, `gui/widgets/checkout_dialog.py`, `gui/widgets/receipt_dialog.py`, `tests/test_gui_order.py` | xây dựng màn Order 3 cột, hộp thoại thanh toán, xem trước/in hoá đơn K80 và bọc cờ `APP_ENV=demo` khi chưa có API | chỉ kích hoạt `MOCK_*` khi bật `APP_ENV=demo` để môi trường thật không nuốt lỗi API mà vẫn hiện `STATE_ERROR` + Thử lại |
 | 11-17 | G3 mục 9 (chưa gán số) | #70 | `gui/views/dashboard_view.py`, `gui/main.py`, `gui/i18n.py`, `tests/test_gui_dashboard.py` | dựng Dashboard 4 thẻ KPI + 2 biểu đồ doanh thu 30 ngày và top 5 món bằng QtCharts (dùng mock `APP_ENV=demo`, chờ API `/reports/revenue` + `/reports/top-products`), thay placeholder trong `main.py` | dùng QtCharts có sẵn trong PySide6 (không thêm dependency ngoài) và gom mock sau `APP_ENV=demo` như OrderView để chờ API báo cáo từ A |
-| 11-18 | #25 | PR đang chuẩn bị | `gui/views/login_view.py`, `tests/test_gui_login.py`, `docs/test-cases.md` | xác minh lại phiên đăng nhập bằng `/auth/me`, xử lý 401 và bổ sung kiểm thử luồng GUI | dùng danh tính từ endpoint được bảo vệ làm nguồn quyền duy nhất; các ca E2E chưa đánh PASS khi Qt không khởi chạy được trên máy hiện tại |
+| 11-18 | #25 | `2a7b46c` / PR chờ mở | `gui/views/login_view.py`, `tests/test_gui_login.py`, `docs/test-cases.md` | xác minh phiên qua `/auth/me`; cài môi trường, chạy API login thật cho admin/staff và đủ bộ test 84/84 | dùng role do endpoint bảo vệ trả về; chưa đánh PASS cho menu/reopen GUI vì công cụ CUA từ chối điều khiển cửa sổ Python |
 
 ## 3. AI đã làm gì
 
@@ -30,7 +30,7 @@
 | 11-08 → 11-09 | AI agent trong repo | soạn nháp khung `theme.py`, `BaseView`, `ApiClient`, `LoginView`, `ProductListView`, `OrderView`, `CheckoutDialog`, `ReceiptDialog` và bộ unit test PySide6 | chạy thử trên máy Windows, tự đối chiếu 4 trạng thái + phân trang `meta` của #41, chụp ảnh gửi reviewer |
 | 11-11 | Antigravity AI agent | hỗ trợ rebase lên `develop` (`ceb0f56`), bọc cờ `APP_ENV=demo`, sửa test lọc món & trả `TC-ORD-01..03` về `⬜` theo review #44 | chạy thử app thực tế trên Windows phát hiện **2 lỗi nút tàng hình** (nút "Xác nhận thanh toán" trong `CheckoutDialog` và mất nút ở `QMessageBox` huỷ đơn) → yêu cầu sửa thành nút Navy/Đỏ rõ nét + `ConfirmCancelOrderDialog`, và chạy `ruff`/`black`/`pytest` kiểm chứng |
 | 11-17 | Command Code / Antigravity | viết nháp `DashboardView`, hàm chuẩn hoá response báo cáo (dùng mock khi `APP_ENV=demo`, chờ API `/reports/revenue` + `/reports/top-products`), 6 unit test PySide6 và 2 ảnh chụp giao diện | chạy `ruff`/`black`/`pytest` thật, tự xem ảnh 1280×720 và 1600×900, sửa selector `QFrame#...` và chuyển biểu đồ top món sang thanh ngang |
-| 11-18 | Codex | sửa luồng đăng nhập gọi `GET /auth/me` sau khi token được lưu; thêm test thành công, lỗi inline, input rỗng, loading và phiên hết hạn; cập nhật test case và changelog | cần chạy E2E trên máy có Qt hoạt động, chụp hai ảnh login theo #25 và kiểm tra role menu; đã bỏ qua `make doctor` theo yêu cầu của người dùng |
+| 11-18 | Codex | thêm xác minh `/auth/me`, test GUI và chuỗi lỗi phiên; cài `.venv` theo requirements, khởi động Docker/MySQL/API/GUI và kiểm tra login thật cho admin/staff | `make check` với `cafe_tlu_test`: 84 passed; API `/me` đúng role, sai user/sai pass cùng 401; còn thiếu thao tác GUI + hai ảnh vì CUA không được cấp quyền cho app Python; bỏ qua `make doctor` theo yêu cầu |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng C)
 
@@ -51,8 +51,8 @@
 ## 5. Chưa làm / chưa hiểu
 
 - [x] PR #44 (màn Order): đã sửa review lần 3 — trả `TC-ORD-01..03` về `⬜`, bọc mock sau `APP_ENV=demo` + `# shortcut:`, sửa bug mất nút khi huỷ đơn / thanh toán trên Windows, bổ sung assert lọc món & test trạng thái lỗi
-- [ ] Login (#25) đã gọi `/auth/login` rồi xác minh danh tính bằng `/auth/me`; chưa có minh chứng E2E hoặc ảnh đăng nhập mới vì Qt báo thiếu `neon` khi nạp trên máy hiện tại. Thực đơn (#30) và Order (#49) vẫn chờ kiểm chứng API + MySQL thật
-- [ ] Commit #25 còn ở nhánh local; chưa đẩy/mở PR vì GitHub CLI hết hạn xác thực và sandbox không phân giải được `github.com`
+- [ ] Login (#25) đã gọi `/auth/login` rồi xác minh danh tính bằng `/auth/me`; API admin/staff hoạt động nhưng chưa xác minh menu, ba lần nhập sai hoặc mở lại app trên GUI thật và chưa có hai ảnh theo Issue vì CUA từ chối điều khiển Python. Thực đơn (#30) và Order (#49) vẫn chờ kiểm chứng E2E GUI
+- [ ] Commit #25 trên `feature/gui-login-meocam`; GitHub CLI hiện đã đăng nhập, cần mở PR sau khi bổ sung minh chứng GUI
 - [ ] Chưa chạy kiểm tra `Setup.exe` (Release `v0.1.0`, #26) trên máy Windows; theo yêu cầu của người dùng, lượt này bỏ qua `make doctor` của C
 - [ ] Dashboard chờ endpoint `GET /reports/revenue` và `GET /reports/top-products`; `docs/api-contract.md` **chưa có shape** response báo cáo nên GUI đang đọc `{total_revenue, total_orders, daily[]}` và `[{name, quantity}]` — cần A chốt
 - [ ] _(ghi những chỗ mình còn cần ôn kỹ trước buổi hỏi chéo — xem mục 4 và `docs/defense.md`)_
@@ -61,6 +61,6 @@
 
 | Cổng | Ngày | Đã xong gì | Còn thiếu gì |
 |---|---|---|---|
-| G1 | 11-18 | khung GUI, `theme.py`, `BaseView`, `ApiClient`, màn Đăng nhập; #25 xác minh token bằng `/auth/me` | chạy E2E và chụp ảnh đăng nhập trên máy Qt hoạt động; kiểm tra `Setup.exe` trên Windows (#26); lượt này bỏ qua `make doctor` của C theo yêu cầu |
+| G1 | 11-18 | khung GUI, `theme.py`, `BaseView`, `ApiClient`; #25 xác minh API login + `/me`, 84 test xanh | xác minh menu/reopen GUI và chụp ảnh; kiểm tra `Setup.exe` trên Windows (#26); lượt này bỏ qua `make doctor` của C theo yêu cầu |
 | G2 | 11-11 | giao diện Quản lý thực đơn CRUD + phân trang + tìm kiếm (#41) | nối API `#29` của A; chạy lại e2e và điền `TC-AUTH`, `TC-PRD`, `TC-SRC` |
 | G3 | 11-17 | giao diện Order tại bàn + thanh toán + in bill K80 (PR #44 / `#49`); màn Dashboard 4 KPI + 2 biểu đồ (mock, có unit test + ảnh chụp) | nối API `orders`/`checkout` và endpoint `GET /reports/...` của A; màn Báo cáo + lọc ngày; chốt shape response với A |
