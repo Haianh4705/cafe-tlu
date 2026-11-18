@@ -397,7 +397,7 @@ cách trả lời) · "phần này em không biết" (thay bằng: "phần này 
 | `dist/CafeTLU` | 134 MB (Windows CI) / 116 MB (macOS) | log build |
 | Image backend | **1,37 GB** (chưa tối ưu) | `docker images` |
 | Bản cài bắt buộc | Inno Setup 6, PyInstaller **6.11.1** | `release.yml:55` |
-| Cổng hiện tại | **G1** (đạt theo ADR-015 khi PR #33 cập nhật tracker) | `docs/plan.md` |
+| Cổng hiện tại | **G1** (đạt theo ADR-015; tracker cập nhật qua PR #115) | `docs/plan.md` |
 
 ---
 
