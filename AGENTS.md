@@ -105,6 +105,7 @@ gui/  ──HTTP──►  api/routers  ──►  api/services  ──►  api/
 
 ```bash
 make up          # docker compose up -d mysql  (cổng 3307)
+make start       # MySQL + API + GUI; đóng GUI hoặc Ctrl+C sẽ dừng API
 make api         # uvicorn api.main:app --reload   → http://127.0.0.1:8000/docs
 make gui         # python -m gui.main
 make lint        # ruff check . && black --check .

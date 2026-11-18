@@ -58,6 +58,7 @@
 | 11-18 | #32 | #92 | `report/00-bia.md`..`09-huong-phat-trien.md`, `report/README.md` | dựng khung 10 chương báo cáo BTL, phân công A/B/C/D theo cổng G2–G5 và danh mục ảnh khớp `docs/screenshots/` | chỉ dựng mục lục dự kiến + danh sách minh chứng (giữ nguyên `03-phan-tich.md` của B) để tránh viết hộ/đạo văn và bảo đảm PR < 400 dòng |
 | 11-18 | #78 | — | `alembic.ini`, `db/migrations/`, `tests/test_migrations.py`, `db/README.md` | **D làm thay B:** cấu hình Alembic và migration `0001`/`0002` bổ sung bảng `refresh_tokens` cho volume MySQL cũ trước `#69`, bảo toàn dữ liệu và smoke Auth | kiểm bảng tồn tại trước khi `CREATE TABLE` để nâng cấp an toàn cả DB cũ lẫn DB mới từ `schema.sql` thay vì ép `make reset-db` |
 | 11-18 | #85 | — | `.github/workflows/ci.yml`, `tests/conftest.py`, `tests/test_db_seed_smoke.py` | ép CI kiểm kết nối MySQL và fail thay vì skip khi thiếu DB test, thêm smoke nạp `schema.sql`/`seed.sql` + `verify_seed.sql` | giữ cơ chế skip trên máy dev khi không bật Docker, còn trên CI thì bắt buộc fail ngay và kiểm trực tiếp SQL thuần thay vì chỉ `create_all` |
+| 11-18 | #116 | `feature/infra-start-command-d` | `Makefile`, `README.md`, `WORKFLOW.md`, `AGENTS.md`, `CONTRIBUTING.md` | thêm `make start` để bật MySQL, chờ API `/health`, mở GUI và dọn tiến trình khi thoát | một lệnh khởi chạy đúng thứ tự; giữ `make api` và `make gui` riêng để debug |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.
@@ -80,6 +81,7 @@
 | 11-18 | Antigravity | cấu hình `alembic.ini` + `db/migrations/` (`0001`/`0002`) và test mô phỏng volume cũ trước `#69` (`tests/test_migrations.py`) | đối chiếu DDL từng cột/CHECK với `db/schema.sql`, sửa `qualname` trong `alembic.ini`, chạy thật `alembic upgrade head`, `verify_seed.sql` 23/23 PASS và đủ 75 test MySQL |
 | 11-18 | Codex | cập nhật ADR-015 và tài liệu G1 theo quyết định D: chỉ cần `make doctor` xanh trên A và D; chuẩn bị đồng bộ Issue #33 | đối chiếu output A/D trên #33, giữ nguyên các điều kiện G1 còn lại; không chạy `make doctor` trên máy C theo yêu cầu |
 | 11-18 | Antigravity | thêm `skip_or_fail_db` trong `tests/conftest.py`, kiểm kết nối MySQL ở `.github/workflows/ci.yml` và `tests/test_db_seed_smoke.py` (#85) | chạy thật `CI=true DB_NAME=cafe_tlu_test make test` (0 skip), thử tắt/lệch cổng DB để chứng minh CI đỏ thay vì skip và kiểm đảo chiều `verify_seed.sql` |
+| 11-18 | Codex | triển khai `make start` cho Issue #116 và đồng bộ hướng dẫn chạy local | chạy `make lint`; khởi động MySQL → API `/health` → GUI thật, Ctrl+C dừng sạch GUI/API; phát hiện và sửa lỗi cửa sổ Qt còn sống sau Ctrl+C |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)
 

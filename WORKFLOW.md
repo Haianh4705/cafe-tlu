@@ -220,7 +220,7 @@ cafe-tlu/
 ├── report/                 # báo cáo BTL (10 file theo chương)
 ├── .github/workflows/      # CI/CD (ci.yml, release.yml)
 ├── .env.example            # BẮT BUỘC có, commit
-├── Makefile                # make next / doctor / up / api / gui / test / lint / build-installer
+├── Makefile                # make next / doctor / up / start / api / gui / test / lint / build-installer
 ├── requirements.txt
 ├── CHANGELOG.md
 └── README.md
@@ -918,7 +918,10 @@ make install     # tạo .venv + thư viện + pre-commit + .env
 make up          # MySQL 8.0 trong Docker (cổng 3307)
 make doctor      # kiểm tra môi trường
 
-# Hằng ngày
+# Hằng ngày (Docker Desktop đang chạy)
+make start       # MySQL + API + giao diện; đóng GUI sẽ dừng API
+
+# Debug riêng từng tiến trình
 make api         # backend  → http://127.0.0.1:8000/docs
 make gui         # giao diện desktop
 make check       # lint + test — BẮT BUỘC trước khi mở PR
