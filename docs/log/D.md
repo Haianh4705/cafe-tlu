@@ -50,7 +50,9 @@
 | 11-18 | #22 | #71 (merge) | `README.md` | review #71: bắt lỗi `User-Agent` > 255 ký tự làm login **500** (MySQL 1406), yêu cầu A cắt 255 + test; kiểm lại trên MySQL thật (54 test pass, UA 300/400 ký tự → 200, hash 64 ký tự, logout → refresh 401), duyệt + merge, đóng #22 và 8 issue đã xong | review bằng cách chạy thật mới thấy lỗi 500 chỉ xảy ra khi header dài — đọc diff thì thấy code đúng; sau khi sửa phải kiểm lại cả luồng chứ không chỉ test mới |
 | 11-18 | #29 | #73 (merge) | `README.md` | duyệt #73 bằng cách chạy 7 endpoint thật trên MySQL (phân trang, `autoescape` khi search `%`, 409 trùng tên kể cả khác hoa/thường, 403 staff, 204 xoá mềm, tạo lại tên cũ 201); merge, đóng #29, tick bảng cổng G2 | test của A chạy trên DB tạo từ metadata, còn DB thật dùng `db/schema.sql` — chỉ gọi API trên schema thật mới chắc `active_name`/`deleted_at` hoạt động đúng |
 | 11-18 | #33, G3 | #70 (merge) | `README.md` | duyệt #70 sau khi C điền body + đổi tiêu đề; kiểm 50 passed (GUI offscreen), 58 file sạch, merge thử 0 conflict, rebase giữ đủ key i18n; merge + tick G3, ghi rõ Dashboard còn mock | trước đó tôi đã trả PR lại vì body template và tiêu đề sai quy ước — squash merge sẽ biến tiêu đề PR thành commit message nên phải sửa trước, không phải sau |
-| 11-18 | #90 | — | `WORKFLOW.md`, mẫu Issue/PR | thống nhất review chéo, nguồn trạng thái và bước đóng Issue | giảm cập nhật lặp mà vẫn giữ minh chứng và cổng kiểm tra |
+| 11-18 | — | `4221dc0` | `gui/`, `api/`, `db/`, `.github/workflows/` | rà soát `develop`, ưu tiên lỗi đăng xuất, nâng cấp MySQL và thứ tự kiểm bộ cài trước phát hành | đối chiếu luồng gọi với hợp đồng và log CI để tìm lỗi tích hợp còn ngoài phạm vi bộ test |
+| 11-18 | #78–#89 | `4221dc0` | GitHub Issues, `WORKFLOW.md` | gán 12 phát hiện review cho A/B/C/D, ghi hướng sửa và nghiệm thu, đề xuất rút gọn quy trình | giao theo vùng sở hữu và mốc để thấy rõ người chịu trách nhiệm và phụ thuộc |
+| 11-18 | #90 | #91 | `WORKFLOW.md`, `docs/log/D.md`, mẫu Issue/PR | thống nhất review chéo, nguồn trạng thái, bước đóng Issue và đồng bộ nhật ký D | giảm cập nhật lặp, tránh xung đột nhật ký trên `develop` mà vẫn giữ minh chứng cổng kiểm tra |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.
@@ -66,7 +68,8 @@
 | 11-09 | AI agent | soạn nháp `docs/plan.md` theo cổng, `docs/workflow.md` | tự viết lại phần điều kiện ra cổng cho đo được; bỏ toàn bộ mốc tuần |
 | 11-11 | AI agent | đề xuất `timeout-minutes` + apt `Acquire::*`, viết bản sửa workflow | tự chọn ngưỡng (lint 10', test 15', release 45') dựa trên thời gian chạy thật 15–60s và 6–10 phút; tự kiểm YAML bằng `yaml.safe_load` |
 | 11-11 | AI agent | soạn `docs/defense-D.md` + khung `docs/log/README.md` + 4 file A–D, nối quy tắc vào `WORKFLOW.md`/`AGENTS.md`/PR template | đối chiếu từng câu trả lời với code thật, sửa 4 số liệu sai (số ca kiểm thử, số dòng file, cổng compose); tự chốt 6 mục nhật ký, **không** thêm check CI tự động vì dễ chặn nhầm |
-| 11-18 | Codex + Sol | soạn quy trình, rà liên kết và đối chiếu cấu hình review GitHub | Chờ nhóm review PR gắn Issue #90 |
+| 11-18 | Codex + Sol | đối chiếu SHA trên GitHub, chạy lint và test local (50 pass, 23 skip do cấu hình DB), kiểm Qt offscreen, đọc CI cùng SHA (73 pass) và soạn nháp #78–#89 | rà lại 12 phát hiện theo vùng sở hữu A/B/C/D, chốt gắn mốc G2–G4 trên GitHub Issues |
+| 11-18 | Codex + Sol, Antigravity | soạn quy trình tinh gọn cho #90, rà liên kết/cấu hình GitHub; phát hiện và gộp xung đột nhật ký `docs/log/D.md` giữa `develop` và PR #91 | chọn phương án gộp nhật ký vào PR #91, làm sạch `develop` local, chạy lại `make lint && make test` trước khi push |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)
 
