@@ -4,6 +4,9 @@ Chỉ chạy trên database có tên kết thúc bằng `_test` để tránh xo�
 MySQL không khả dụng (máy chưa bật Docker) thì test cần DB tự skip; CI luôn có MySQL.
 """
 
+import os
+from typing import NoReturn
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
@@ -18,17 +21,29 @@ from api.models.role import Role
 from api.models.user import User
 
 
+def is_ci_env() -> bool:
+    """Trả về True khi đang chạy trong môi trường CI."""
+    return os.getenv("CI", "").strip().lower() in {"1", "true", "yes"}
+
+
+def skip_or_fail_db(reason: str) -> NoReturn:
+    """Fail ngay trên CI nếu thiếu DB test; máy local giữ skip để dev không cần Docker."""
+    if is_ci_env():
+        pytest.fail(reason)
+    pytest.skip(reason)
+
+
 @pytest.fixture(scope="session")
 def engine():
     if not settings.DB_NAME.endswith("_test"):
-        pytest.skip("DB_NAME phải kết thúc bằng _test để chạy test DB")
+        skip_or_fail_db("DB_NAME phải kết thúc bằng _test để chạy test DB")
 
     test_engine = create_engine(settings.database_url, pool_pre_ping=True)
     try:
         with test_engine.connect() as connection:
             connection.execute(text("SELECT 1"))
-    except Exception:
-        pytest.skip("MySQL không khả dụng — chạy `make up` để bật")
+    except Exception as exc:
+        skip_or_fail_db(f"MySQL không khả dụng — chạy `make up` để bật ({exc})")
 
     Base.metadata.drop_all(test_engine)
     Base.metadata.create_all(test_engine)

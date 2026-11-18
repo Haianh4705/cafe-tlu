@@ -12,6 +12,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Chuyển quy trình sang gán thành viên theo chức năng (`ADR-014`), bỏ bắt buộc approve trên GitHub (`required_approving_review_count = 0`) và bật `enforce_admins: true` để mọi chức năng đi qua Issue & PR (#90)
 
 ### Fixed — CI
+- Buộc CI fail khi mất kết nối MySQL test (không skip ngầm) và bổ sung smoke test nạp `db/schema.sql`, `db/seed.sql` (2 lần idempotent), `db/verify_seed.sql` 23/23 PASS (#85)
 - Cập nhật thư viện: `fastapi` 0.162.5 (sửa dọn dependency khi cancel), `pymysql` 1.2.4, `ruff` 0.17.5 — thay PR dependabot #57 bị conflict sau khi #45 được squash (#57)
 - `Test` job không còn treo vô hạn khi `apt-get` gặp mirror chậm: `timeout-minutes` cho job
   (lint 10', test 15', release 45') + `Acquire::Retries/Timeout/ForceIPv4` và `timeout` cho apt (#52)

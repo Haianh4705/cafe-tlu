@@ -14,6 +14,7 @@ from api.core.config import settings
 from api.core.db import get_db
 from api.core.security import hash_password
 from api.main import app
+from tests.conftest import skip_or_fail_db
 
 UPGRADE_DB = "cafe_tlu_upgrade_test"
 SCHEMA_SQL = Path(__file__).resolve().parent.parent / "db" / "schema.sql"
@@ -43,7 +44,7 @@ def _alembic_cfg() -> Config:
 @pytest.fixture
 def upgrade_db():
     if not settings.DB_NAME.endswith("_test"):
-        pytest.skip("DB_NAME phải kết thúc bằng _test để chạy test nâng cấp DB")
+        skip_or_fail_db("DB_NAME phải kết thúc bằng _test để chạy test nâng cấp DB")
     try:
         conn = pymysql.connect(
             host=settings.DB_HOST,
@@ -55,7 +56,7 @@ def upgrade_db():
             client_flag=pymysql.constants.CLIENT.MULTI_STATEMENTS,
         )
     except Exception:
-        pytest.skip("MySQL không khả dụng — chạy `make up` để bật")
+        skip_or_fail_db("MySQL không khả dụng — chạy `make up` để bật")
     try:
         _exec(
             conn,

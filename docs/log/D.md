@@ -56,6 +56,7 @@
 | 11-18 | #90, #93–#103 | `docs/plan-phan-cong-4-nguoi-d` | `docs/plan.md`, GitHub Issues (`#25`, `#34`, `#84`, `#87`, `#88`, `#93`–`#103`) | gom 26 Issue mở (cũ + mới) thành 4 cụm chức năng và gán đủ cho cả 4 thành viên (`A`, `B`, `C`, `D`) | gom `#87` → A (cùng `OrderView`), `#88` → B (cùng `DashboardView`), `#84` → C (trọn gói Thực đơn) để mỗi thành viên làm xuyên tầng mà không xung đột file lẫn nhau |
 | 11-18 | #32 | #92 | `report/00-bia.md`..`09-huong-phat-trien.md`, `report/README.md` | dựng khung 10 chương báo cáo BTL, phân công A/B/C/D theo cổng G2–G5 và danh mục ảnh khớp `docs/screenshots/` | chỉ dựng mục lục dự kiến + danh sách minh chứng (giữ nguyên `03-phan-tich.md` của B) để tránh viết hộ/đạo văn và bảo đảm PR < 400 dòng |
 | 11-18 | #78 | — | `alembic.ini`, `db/migrations/`, `tests/test_migrations.py`, `db/README.md` | **D làm thay B:** cấu hình Alembic và migration `0001`/`0002` bổ sung bảng `refresh_tokens` cho volume MySQL cũ trước `#69`, bảo toàn dữ liệu và smoke Auth | kiểm bảng tồn tại trước khi `CREATE TABLE` để nâng cấp an toàn cả DB cũ lẫn DB mới từ `schema.sql` thay vì ép `make reset-db` |
+| 11-18 | #85 | — | `.github/workflows/ci.yml`, `tests/conftest.py`, `tests/test_db_seed_smoke.py` | ép CI kiểm kết nối MySQL và fail thay vì skip khi thiếu DB test, thêm smoke nạp `schema.sql`/`seed.sql` + `verify_seed.sql` | giữ cơ chế skip trên máy dev khi không bật Docker, còn trên CI thì bắt buộc fail ngay và kiểm trực tiếp SQL thuần thay vì chỉ `create_all` |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.
@@ -76,6 +77,7 @@
 | 11-18 | Antigravity | tái phân công 26 Issue mở theo 4 cụm chức năng cho A/B/C/D (`#84`→C, `#87`→A, `#88`→B, `#93`–`#103`), đồng bộ `docs/plan.md` mục 0.2 & bảng G3–G5 | rà kiểm toàn bộ 26 Issue bằng `gh issue list` + `scripts/next_task.sh` cho cả 4 thành viên, chạy `make lint && DB_NAME=cafe_tlu_test make test` |
 | 11-18 | Antigravity | soạn khung 9 file `report/` và bảng phân công theo cổng cho `#32`, đối chiếu đường dẫn `docs/screenshots/` | rà tổng diff dưới 400 dòng, kiểm tra tồn tại các file ảnh đã có và giữ nguyên nội dung `report/03-phan-tich.md` của B |
 | 11-18 | Antigravity | cấu hình `alembic.ini` + `db/migrations/` (`0001`/`0002`) và test mô phỏng volume cũ trước `#69` (`tests/test_migrations.py`) | đối chiếu DDL từng cột/CHECK với `db/schema.sql`, sửa `qualname` trong `alembic.ini`, chạy thật `alembic upgrade head`, `verify_seed.sql` 23/23 PASS và đủ 75 test MySQL |
+| 11-18 | Antigravity | thêm `skip_or_fail_db` trong `tests/conftest.py`, kiểm kết nối MySQL ở `.github/workflows/ci.yml` và `tests/test_db_seed_smoke.py` (#85) | chạy thật `CI=true DB_NAME=cafe_tlu_test make test` (0 skip), thử tắt/lệch cổng DB để chứng minh CI đỏ thay vì skip và kiểm đảo chiều `verify_seed.sql` |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)
 

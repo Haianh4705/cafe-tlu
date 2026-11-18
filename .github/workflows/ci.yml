@@ -132,17 +132,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements-dev.txt
 
-      - name: Chạy test
-        # Giai đoạn setup chưa có test: pytest trả mã 5 (no tests collected)
-        # => coi là đạt để đường ống CI thông. Khi có test thật, mã 5 không
-        # còn xảy ra và job sẽ chặn merge như bình thường.
-        shell: bash
+      - name: Kiểm tra kết nối MySQL test
         run: |
-          set +e
-          pytest -q --cov --cov-report=term-missing
-          code=$?
-          if [ "$code" -eq 5 ]; then
-            echo "::notice title=Chưa có test::Repo chưa có test nào (giai đoạn setup) — bỏ qua."
-            exit 0
-          fi
-          exit "$code"
+          python -c '
+          from sqlalchemy import create_engine, text
+          from api.core.config import settings
+          assert settings.DB_NAME.endswith("_test"), f"DB_NAME sai: {settings.DB_NAME}"
+          with create_engine(settings.database_url).connect() as conn:
+              conn.execute(text("SELECT 1"))
+          print("MySQL test OK:", settings.DB_NAME)
+          '
+
+      - name: Chạy test
+        run: pytest -q -rs --cov --cov-report=term-missing
