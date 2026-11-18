@@ -55,7 +55,7 @@ Toàn bộ **26 Issue chức năng đang mở (G1–G5)** được gom thành **
 
 | Cổng | Mục tiêu | Điều kiện ra cổng | Đường găng chính |
 |---|---|---|---|
-| **G1 — Nền móng** | Dữ liệu + khung 2 đầu chạy được | 3/3 máy A/C/D `make doctor` xanh (ADR-012) · CI xanh · installer cài được · DB có 51 món · Swagger mở được | `#17` → `#21` → `#22` → `#25` |
+| **G1 — Nền móng** | Dữ liệu + khung 2 đầu chạy được | Máy A và D `make doctor` xanh (ADR-015) · CI xanh · installer cài được · DB có 51 món · Swagger mở được | `#17` → `#21` → `#22` → `#25` |
 | **G2 — Lát cắt dọc** | Login → CRUD món chạy end-to-end | Chạy trên máy người khác · `staff` bị 403 · ≥ 12 endpoint có test | `#29`, `#30`, `#78`, `#79`, `#81`–`#85` |
 | **G3 — MVP** | Đủ 6 yêu cầu đề bài | Order + hoá đơn + thống kê + báo cáo chạy · installer từ CI cài trên máy sạch | `#93` → `#94` · `#95` · `#96` → `#97` |
 | **G4 — Deploy** | Backend công khai, phát hành tự động | URL công khai · tag → CI build `.exe` · `pip-audit` sạch | `#89` → `#98` · `#99` · `#100` |
@@ -70,7 +70,7 @@ Chặng này chen vào được bất cứ lúc nào G3 đã xong, trước khi 
 ## 2. G1 — Nền móng
 
 **Mục tiêu:** mỗi người chạy được hệ thống trên máy mình; DB có 50 món; Swagger mở được.
-**Ra cổng khi:** 3/3 máy **A, C, D** `make doctor` xanh (máy B không tính — ADR-012; phần DB kiểm bằng `db/verify_seed.sql`) · CI xanh · **có bản cài cài được** trên Windows sạch.
+**Ra cổng khi:** máy **A và D** `make doctor` xanh (C được miễn riêng cho G1 theo ADR-015; B không tính theo ADR-012; phần DB kiểm bằng `db/verify_seed.sql`) · CI xanh · **có bản cài cài được** trên Windows sạch.
 
 ### Sóng 1 — không phụ thuộc ai, cả 4 chạy ngay
 

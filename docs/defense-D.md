@@ -282,7 +282,7 @@ chưa MySQL), cài bằng `Setup.exe`, mở từ Start Menu. ⚠️ **Hiện ch�
 
 ### 6.1 Vì sao theo cổng, không theo tuần
 
-- Cổng = **điều kiện kiểm chứng được** ("3/3 máy A/C/D `make doctor` xanh", "DB có 50 món"), tuần = **thời
+- Cổng = **điều kiện kiểm chứng được** ("A và D `make doctor` xanh", "DB có 50 món"), tuần = **thời
   gian trôi** — tuần 3 vẫn "đúng tiến độ" dù chưa có `schema.sql`.
 - Thứ tự công việc không đổi, chỉ bỏ mốc lịch; ước lượng giờ vẫn giữ trong `docs/plan.md`.
 - Có **đường găng**: `db/schema.sql` (B) chặn A (models) và C (màn hình) → giao B trước.
@@ -397,7 +397,7 @@ cách trả lời) · "phần này em không biết" (thay bằng: "phần này 
 | `dist/CafeTLU` | 134 MB (Windows CI) / 116 MB (macOS) | log build |
 | Image backend | **1,37 GB** (chưa tối ưu) | `docker images` |
 | Bản cài bắt buộc | Inno Setup 6, PyInstaller **6.11.1** | `release.yml:55` |
-| Cổng hiện tại | **G1** (chưa ra cổng) | `docs/plan.md` |
+| Cổng hiện tại | **G1** (đạt theo ADR-015; tracker cập nhật qua PR #115) | `docs/plan.md` |
 
 ---
 

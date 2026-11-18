@@ -140,7 +140,7 @@
 
 ## ADR-012: `make doctor` bắt buộc trên máy A, C, D — không tính máy B vào cổng G1
 
-- **Ngày:** 2026-11-18 · **Người quyết định:** D (@Haianh4705) · **Trạng thái:** Chấp nhận
+- **Ngày:** 2026-11-18 · **Người quyết định:** D (@Haianh4705) · **Trạng thái:** ⚠️ Thay thế một phần bởi ADR-015
 - **Bối cảnh:** điều kiện ra G1 ghi "4/4 máy `make doctor` xanh". Nhưng B chỉ làm `db/` +
   `api/services/reports.py` — phần của B kiểm chứng được bằng `db/verify_seed.sql` (21 phép kiểm
   PASS/FAIL) trên **bất kỳ** máy nào có Docker, không cần môi trường riêng của B. B vắng từ 11-11,
@@ -203,6 +203,16 @@
   `docs/plan.md`, `scripts/next_task.sh`, `.github/*` và README các thư mục con đồng bộ theo hướng dẫn
   theo tầng kỹ thuật thay vì khoá quyền sở hữu. Review đồng đội vẫn được khuyến khích ở thay đổi
   lớn nhưng không chặn merge.
+
+---
+
+## ADR-015: Cổng G1 chỉ yêu cầu `make doctor` trên máy A và D
+
+- **Ngày:** 2026-11-18 · **Người quyết định:** D (@Haianh4705) · **Trạng thái:** ✅ Chấp nhận
+- **Bối cảnh:** Issue #33 đang chờ kết quả `make doctor` của C dù A và D đã có output xanh; D xác nhận C không cần chạy lệnh này để hoàn tất G1.
+- **Quyết định:** điều kiện môi trường của G1 là `make doctor` xanh trên A và D; C được miễn riêng ở cổng G1, B tiếp tục không tính theo ADR-012.
+- **Đã cân nhắc:** giữ yêu cầu A/C/D sẽ chặn G1 dù chủ dự án đã chọn A và D làm hai máy nghiệm thu; bỏ toàn bộ `make doctor` sẽ mất kiểm tra môi trường.
+- **Hệ quả:** cập nhật `README.md`, `docs/plan.md`, `docs/workflow.md`, `docs/defense-D.md`, `WORKFLOW.md` §16.3 và Issue #33; quy tắc `make doctor` trước PR của ADR-012 vẫn giữ nguyên.
 
 ---
 

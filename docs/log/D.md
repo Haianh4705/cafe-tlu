@@ -45,6 +45,7 @@
 | 11-17 | #49 | #44 (merge) | `README.md` | merge màn Order của C (`--squash --admin` vì nhánh `BEHIND`) rồi tick #55/#44 thành ✅, sửa "Đang chặn ngay" chỉ còn #56 | bảng 6 cổng phải khớp sự thật trong cùng ngày (12.6), không để người sau đọc phải trạng thái cũ |
 | 11-17 | #19 #20 | #56 (merge) | `README.md` | duyệt #56 kèm kiểm chứng chạy thật (MySQL 8.0: `/health` 200, `/docs` 200, tắt DB 503, bật lại 200), merge, đóng #19/#20, tick bảng cổng | review chỉ đọc diff thì không biết `/health` có sống thật không — chạy uvicorn với DB thật mới chứng minh được tiêu chí "Swagger mở" của G1 |
 | 11-18 | #33 | PR `docs/doctor-3-may-adr012` | `docs/decisions.md`, `README.md`, `docs/plan.md`, `WORKFLOW.md` §16.3, `docs/workflow.md`, `docs/defense-D.md` | ADR-012: điều kiện ra G1 đổi từ 4/4 máy `make doctor` thành **3/3 (A, C, D)**, máy B không tính | phần DB của B kiểm bằng `db/verify_seed.sql` trên máy nào cũng được, còn B vắng từ 11-11 — giữ 4/4 là để một cổng kỹ thuật kẹt theo lịch của một người |
+| 11-18 | #33 | PR #115 | `docs/decisions.md` ADR-015, `README.md`, `docs/plan.md`, `WORKFLOW.md`, `docs/workflow.md`, `docs/defense-D.md` | theo quyết định mới của D, yêu cầu G1 là máy A và D xanh; C được miễn riêng ở G1 | giữ nguyên các gate CI, Swagger, dữ liệu mẫu và installer; chỉ thay số máy `make doctor` cần cho G1 |
 | 11-18 | #21 | #65 (merge) | `README.md` | duyệt #65 kèm đối chiếu 9 bảng ORM vs `information_schema` trên MySQL thật (khớp 100% cột), đếm qua ORM đúng seed, thử `CHECK` qua ORM, merge, đóng #21 | test của A chỉ compile DDL, không chạm DB — chỉ chạy trên schema thật mới biết model có lệch cột hay không (tên cột như `order_code`, `invoice_code`, `table_number` khác tên hay đoán, review bằng mắt dễ sai) |
 | 11-18 | #22 (phần DB) | PR `docs/refresh-token-schema-d` | `db/schema.sql`, `db/verify_seed.sql`, `docs/erd.md`, `docs/decisions.md`, `CHANGELOG.md`, `db/README.md`, `report/03-phan-tich.md` | chốt với A: thêm bảng `refresh_tokens` (ADR-013), **D làm thay B**; kiểm trên MySQL thật (chèn token, CHECK chặn `expires_at` quá khứ, UNIQUE chặn trùng hash, CASCADE khi xoá user), `verify_seed` 23/23 PASS | A hỏi đúng chỗ: hợp đồng có `/auth/logout` "thu hồi token" nhưng ERD không có chỗ lưu trạng thái — chọn thêm 1 bảng để logout có hiệu lực thật, thay vì nới luật security cho nhanh |
 | 11-18 | #22 | #71 (merge) | `README.md` | review #71: bắt lỗi `User-Agent` > 255 ký tự làm login **500** (MySQL 1406), yêu cầu A cắt 255 + test; kiểm lại trên MySQL thật (54 test pass, UA 300/400 ký tự → 200, hash 64 ký tự, logout → refresh 401), duyệt + merge, đóng #22 và 8 issue đã xong | review bằng cách chạy thật mới thấy lỗi 500 chỉ xảy ra khi header dài — đọc diff thì thấy code đúng; sau khi sửa phải kiểm lại cả luồng chứ không chỉ test mới |
@@ -77,6 +78,7 @@
 | 11-18 | Antigravity | tái phân công 26 Issue mở theo 4 cụm chức năng cho A/B/C/D (`#84`→C, `#87`→A, `#88`→B, `#93`–`#103`), đồng bộ `docs/plan.md` mục 0.2 & bảng G3–G5 | rà kiểm toàn bộ 26 Issue bằng `gh issue list` + `scripts/next_task.sh` cho cả 4 thành viên, chạy `make lint && DB_NAME=cafe_tlu_test make test` |
 | 11-18 | Antigravity | soạn khung 9 file `report/` và bảng phân công theo cổng cho `#32`, đối chiếu đường dẫn `docs/screenshots/` | rà tổng diff dưới 400 dòng, kiểm tra tồn tại các file ảnh đã có và giữ nguyên nội dung `report/03-phan-tich.md` của B |
 | 11-18 | Antigravity | cấu hình `alembic.ini` + `db/migrations/` (`0001`/`0002`) và test mô phỏng volume cũ trước `#69` (`tests/test_migrations.py`) | đối chiếu DDL từng cột/CHECK với `db/schema.sql`, sửa `qualname` trong `alembic.ini`, chạy thật `alembic upgrade head`, `verify_seed.sql` 23/23 PASS và đủ 75 test MySQL |
+| 11-18 | Codex | cập nhật ADR-015 và tài liệu G1 theo quyết định D: chỉ cần `make doctor` xanh trên A và D; chuẩn bị đồng bộ Issue #33 | đối chiếu output A/D trên #33, giữ nguyên các điều kiện G1 còn lại; không chạy `make doctor` trên máy C theo yêu cầu |
 | 11-18 | Antigravity | thêm `skip_or_fail_db` trong `tests/conftest.py`, kiểm kết nối MySQL ở `.github/workflows/ci.yml` và `tests/test_db_seed_smoke.py` (#85) | chạy thật `CI=true DB_NAME=cafe_tlu_test make test` (0 skip), thử tắt/lệch cổng DB để chứng minh CI đỏ thay vì skip và kiểm đảo chiều `verify_seed.sql` |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)
@@ -110,7 +112,7 @@
 
 | Cổng | Ngày | Đã xong gì | Còn thiếu gì |
 |---|---|---|---|
-| G1 | _(chưa ra cổng)_ | CI xanh; bộ cài build + Release `v0.1.0`; `make doctor` kiểm health + cổng; Dockerfile backend; lộ trình cổng; **Swagger + `/health` (A #56) và 50 món (B #55) đã vào `develop`** | 3/3 máy A/C/D `make doctor` (D xong, còn A + C — ADR-012), cài thử trên Windows sạch |
+| G1 | 11-18 | CI xanh; bộ cài Windows sạch 13/13 bước; Swagger + `/health`; 51 món; `make doctor` xanh trên A và D; C miễn riêng theo ADR-015 | Không còn điều kiện kỹ thuật; cập nhật tracker sau khi PR ADR-015 merge |
 | G2 | | | |
 | G3 | | | |
 | G4 | | | |

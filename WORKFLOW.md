@@ -840,7 +840,7 @@ Ghi thay đổi trạng thái ngay trên Issue hoặc trên thẻ Issue trong Pr
 
 | Cổng | Thời điểm | Điều kiện xanh |
 |---|---|---|
-| **G1 — Nền móng** | Khi xong 3 sóng | 3/3 máy **A, C, D** kiểm bằng `make doctor` và chạy được theo README (ADR-012) · CI xanh · Swagger mở · 50 món mẫu · bộ cài chạy trên Windows sạch |
+| **G1 — Nền móng** | Khi xong 3 sóng | Máy **A và D** kiểm bằng `make doctor` và chạy được theo README (C miễn riêng ở G1 theo ADR-015) · CI xanh · Swagger mở · 50 món mẫu · bộ cài chạy trên Windows sạch |
 | **G2 — Lát cắt dọc** | Khi CRUD món chạy end-to-end | Login, phân quyền và CRUD món chạy end-to-end từ GUI trên máy người khác · xác nhận staff bị 403 ở thao tác dành cho admin · ≥12 endpoint có test |
 | **G3 — MVP** | Khi đủ 6 yêu cầu đề bài | Đủ 6 yêu cầu đề bài · demo toàn luồng · installer từ CI cài được trên Windows sạch |
 | **G4 — Deploy** | Khi backend có URL công khai | Backend có URL công khai; tag → CI tự build installer |

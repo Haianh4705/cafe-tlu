@@ -89,7 +89,7 @@ Xem tiến độ và người phụ trách theo từng chức năng tại [miles
 
 | Cổng | Minh chứng chính |
 |---|---|
-| [G1 — Nền móng](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG1) | Máy A/C/D chạy được theo README, CI xanh, Swagger mở, có 50 món mẫu và bộ cài chạy trên Windows sạch |
+| [G1 — Nền móng ✅](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG1) | Máy A và D chạy được theo README, CI xanh, Swagger mở, có 50 món mẫu và bộ cài chạy trên Windows sạch (ADR-015) |
 | [G2 — Lát cắt dọc](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG2) | Demo login, phân quyền và CRUD món trên máy người khác. Có kiểm thử cho ít nhất 12 endpoint |
 | [G3 — MVP](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG3) | Đủ sáu yêu cầu đề bài, demo toàn luồng và cài được bộ cài từ CI trên Windows sạch |
 | [G4 — Deploy](https://github.com/Haianh4705/cafe-tlu/issues?q=milestone%3AG4) | Backend có URL công khai và tag kích hoạt build bộ cài qua CI |
