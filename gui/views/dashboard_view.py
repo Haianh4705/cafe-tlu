@@ -7,8 +7,6 @@ Tuân thủ:
 - .claude/skills/pyside6-screen/SKILL.md: 4 trạng thái, HTTP trên luồng nền, F5 làm mới.
 """
 
-import logging
-import os
 from datetime import date, timedelta
 from typing import Any
 
@@ -33,18 +31,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.api_client import ApiClient, ApiClientError
+from gui.api_client import ApiClient
 from gui.i18n import format_currency, t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
 from gui.views.base import BaseView
-
-logger = logging.getLogger(__name__)
 
 PERIOD_DAYS = 30
 TOP_PRODUCT_LIMIT = 5
 
 
-# Dữ liệu mẫu khi backend báo cáo chưa sẵn sàng (bật bằng APP_ENV=demo).
+# Dữ liệu mẫu chỉ dùng sau khi người dùng chủ động chọn Demo.
 MOCK_TOP_PRODUCTS: list[dict[str, Any]] = [
     {"product_id": 4, "name": "Trà đào cam sả", "quantity": 58, "revenue": 2030000},
     {"product_id": 2, "name": "Cà phê sữa đá", "quantity": 51, "revenue": 1479000},
@@ -149,16 +145,18 @@ class DashboardView(BaseView):
     ) -> None:
         self.api = api_client
         self._user_role: str = "admin"
-        # shortcut: mock báo cáo chỉ bật khi APP_ENV=demo hoặc use_mock=True, bỏ khi #20/#21 xong
-        self._use_mock = (
-            use_mock if use_mock is not None else os.getenv("APP_ENV", "").strip().lower() == "demo"
-        )
+        # Dữ liệu mẫu chỉ bật sau khi người dùng chọn Demo trong Dashboard.
+        self._use_mock = bool(use_mock)
         super().__init__(parent)
         self._init_dashboard_ui()
 
     def set_user_role(self, role: str) -> None:
         """Cập nhật vai trò người dùng để điều chỉnh giao diện phù hợp quyền hạn."""
         self._user_role = role
+
+    def reset_session_demo(self) -> None:
+        """Không để lựa chọn Demo của phiên trước ảnh hưởng phiên đăng nhập mới."""
+        self._use_mock = False
 
     # ------------------------------------------------------------------
     # Dựng giao diện
@@ -279,9 +277,10 @@ class DashboardView(BaseView):
         if self._use_mock:
             self.start_worker(self._collect_mock_data, self._on_data)
         elif self._user_role != "admin":
-            self.start_worker(self._collect_staff_notice, self._on_data)
+            self._on_data(self._collect_staff_notice())
         else:
-            self.start_worker(self._collect_api_data, self._on_data)
+            # Reports routes are not registered yet; don't issue requests that can only 404.
+            self._on_data({"status": "pending_api"})
 
     def _collect_staff_notice(self) -> dict[str, Any]:
         return {"status": "staff_notice"}
@@ -295,26 +294,6 @@ class DashboardView(BaseView):
             "total_revenue": total,
             "total_orders": orders,
         }
-
-    def _collect_api_data(self) -> dict[str, Any]:
-        end = date.today()
-        start = end - timedelta(days=PERIOD_DAYS - 1)
-        try:
-            revenue_raw = self.api.get_revenue_report(start.isoformat(), end.isoformat())
-            top_raw = self.api.get_top_products_report(limit=TOP_PRODUCT_LIMIT)
-            daily, total, orders = normalize_revenue(revenue_raw)
-            return {
-                "status": "ok",
-                "daily": daily,
-                "top": normalize_top_products(top_raw),
-                "total_revenue": total,
-                "total_orders": orders,
-            }
-        except ApiClientError as exc:
-            if exc.code in ("HTTP_404", "NOT_FOUND", "HTTP_405", "HTTP_501"):
-                logger.info("API báo cáo chưa đăng ký trên backend: %s", exc)
-                return {"status": "pending_api"}
-            raise
 
     def _enable_mock_and_reload(self) -> None:
         self._use_mock = True

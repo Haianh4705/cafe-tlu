@@ -8,7 +8,7 @@ Tuân thủ:
 from datetime import date
 from typing import Any
 
-from gui.api_client import ApiClient, ApiClientError
+from gui.api_client import ApiClient
 from gui.i18n import format_currency, t
 from gui.main import MainWindow
 from gui.views.dashboard_view import (
@@ -132,27 +132,30 @@ def test_dashboard_staff_notice_and_navigation(qapp: Any) -> None:
     assert nav_targets == ["orders"]
 
 
-def test_dashboard_admin_pending_api_fallback_to_demo(qapp: Any, monkeypatch: Any) -> None:
-    """Khi API báo cáo chưa sẵn sàng (404), admin thấy thông báo chờ tích hợp và nút xem Demo."""
+def test_dashboard_admin_does_not_call_unregistered_reports_until_demo(
+    qapp: Any, monkeypatch: Any
+) -> None:
+    """Admin không gọi route báo cáo chưa đăng ký; mock chỉ chạy sau khi chọn Demo."""
     api = ApiClient()
 
-    def mock_get_revenue(*args: Any, **kwargs: Any) -> Any:
-        raise ApiClientError(code="HTTP_404", message="Not Found")
+    calls: list[str] = []
 
-    monkeypatch.setattr(api, "get_revenue_report", mock_get_revenue)
+    def unexpected_report_call(*args: Any, **kwargs: Any) -> Any:
+        calls.append("reports")
+        raise AssertionError("Không được gọi API báo cáo chưa đăng ký")
+
+    monkeypatch.setattr(api, "get_revenue_report", unexpected_report_call)
+    monkeypatch.setattr(api, "get_top_products_report", unexpected_report_call)
 
     view = DashboardView(api, use_mock=False)
     view.set_user_role("admin")
-
-    # Khi gọi API bị 404, collect trả về status pending_api
-    payload = view._collect_api_data()
-    assert payload == {"status": "pending_api"}
-
-    view._on_data(payload)
+    view.load()
     assert view._state_stack.currentWidget() is view._empty_widget
     assert view._empty_label.text() == t("dashboard_pending_api")
     assert not view._empty_action_btn.isHidden()
     assert view._empty_action_btn.text() == t("dashboard_btn_demo")
+    assert calls == []
+    assert view._use_mock is False
 
     # Bấm nút Demo chuyển sang chế độ mock và tải lại
     reloaded: list[bool] = []
@@ -160,6 +163,9 @@ def test_dashboard_admin_pending_api_fallback_to_demo(qapp: Any, monkeypatch: An
     view._empty_action_btn.click()
     assert view._use_mock is True
     assert reloaded == [True]
+
+    view.reset_session_demo()
+    assert view._use_mock is False
 
 
 def test_main_window_default_navigation_and_role_handling(qapp: Any, monkeypatch: Any) -> None:
@@ -169,20 +175,41 @@ def test_main_window_default_navigation_and_role_handling(qapp: Any, monkeypatch
     monkeypatch.setattr(win._order_view, "load", lambda: None)
 
     # Khi admin đăng nhập thành công
+    win._dashboard_view._use_mock = True
     win._on_login_success(
         {"id": 1, "username": "admin", "full_name": "Quản trị viên", "role": "admin"}
     )
     assert win._dashboard_view._user_role == "admin"
+    assert win._dashboard_view._use_mock is False
     assert win._content_stack.currentWidget() is win._dashboard_view
 
     # Khi staff đăng nhập thành công
+    win._dashboard_view._use_mock = True
     win._on_login_success(
         {"id": 2, "username": "thungan01", "full_name": "Thu ngân 1", "role": "staff"}
     )
     assert win._dashboard_view._user_role == "staff"
+    assert win._dashboard_view._use_mock is False
     assert win._content_stack.currentWidget() is win._dashboard_view
 
     # Khi DashboardView của staff yêu cầu điều hướng sang orders
     win._dashboard_view.navigate_requested.emit("orders")
     assert win._content_stack.currentWidget() is win._order_view
+    win.close()
+
+
+def test_logout_resets_dashboard_demo_for_next_session(qapp: Any) -> None:
+    """Đăng xuất hoặc hết hạn phiên phải xoá lựa chọn Demo còn lại trong Dashboard."""
+    win = MainWindow()
+    win._dashboard_view._use_mock = True
+    win._finish_logout()
+    assert win._dashboard_view._use_mock is False
+
+    win._dashboard_view._use_mock = True
+    win._on_login_success({"id": 3, "username": "staff", "full_name": "Thu ngân", "role": "staff"})
+    assert win._dashboard_view._use_mock is False
+
+    win._dashboard_view._use_mock = True
+    win._handle_session_expired()
+    assert win._dashboard_view._use_mock is False
     win.close()

@@ -36,7 +36,7 @@
 | 11-18 | Codex | thêm xác minh `/auth/me` và test GUI; cài `.venv`, bật MySQL/API/GUI; chạy GUI E2E cho admin/staff, ba lần sai mật khẩu, user không tồn tại và đóng/mở lại; lưu hai ảnh đăng nhập | `make check` với `cafe_tlu_test`: 84 passed; API `/me` trả đúng role; staff bị ẩn menu admin; lỗi đăng nhập inline đồng nhất; người dùng bật quyền CUA và chạy lại GUI; bỏ qua `make doctor` theo yêu cầu |
 | 11-19 | Codex | rebase PR #120 lên `b23940c` (#124), rà luồng refresh/logout/session timeout và cập nhật minh chứng | `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test`: 117 passed; CI run 44358965729 xanh 2/2; giữ xác minh `/auth/me` từ #114 |
 | 11-18 | Antigravity AI agent | sửa cơ chế logout gửi refresh token, xử lý lỗi mạng không kẹt UI, thêm callback on_unauthenticated điều hướng khi 401, bổ sung 4 unit test PySide6 (#79) | chạy `ruff`/`black`/`pytest` đạt 68 passed, kiểm tra điều hướng thành công cả khi mất mạng và khi token hết hạn |
-| 11-19 | Codex | đồng bộ PR #125 với `origin/develop`, xử lý xung đột nhật ký và đang sửa điều hướng Dashboard theo yêu cầu #81 | baseline trên nhánh PR: `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test` — lint đạt, 116 passed; thay đổi mới sẽ được ghi sau khi kiểm chứng |
+| 11-19 | Codex | đồng bộ PR #125 với `origin/develop`; bỏ lời gọi route báo cáo chưa đăng ký, thêm Demo theo lựa chọn admin và reset khi login/logout/hết phiên; giữ staff ở Dashboard với đường sang Order | `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test`: lint sạch, 121 passed; baseline trước sửa 116 passed; 21 test GUI mục tiêu xanh |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng C)
 

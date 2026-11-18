@@ -261,6 +261,7 @@ class MainWindow(QMainWindow):
         full_name = user_info.get("full_name") or user_info.get("username", "")
         role = user_info.get("role", "staff")
 
+        self._dashboard_view.reset_session_demo()
         role_display = {
             "admin": t("role_admin"),
             "staff": t("role_staff"),
@@ -293,6 +294,7 @@ class MainWindow(QMainWindow):
         self._logout_btn.setEnabled(True)
         self._logout_btn.setText(t("logout_btn"))
         self.api.clear_tokens()
+        self._dashboard_view.reset_session_demo()
         self.current_user = None
         self._login_view._password_input.clear()
         self._root_stack.setCurrentWidget(self._login_view)
@@ -310,6 +312,7 @@ class MainWindow(QMainWindow):
         if self._root_stack.currentWidget() is self._login_view:
             return
         self.api.clear_tokens()
+        self._dashboard_view.reset_session_demo()
         self.current_user = None
         self._login_view._password_input.clear()
         self._root_stack.setCurrentWidget(self._login_view)
