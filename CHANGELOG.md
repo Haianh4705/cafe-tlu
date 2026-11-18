@@ -11,6 +11,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ### Fixed — giao diện đăng nhập
 - Sau khi nhận token, GUI xác nhận tài khoản qua `GET /auth/me`; phiên 401 được xoá token và đưa người dùng về form đăng nhập (#25)
 
+### Fixed — giao diện gọi món
+- `OrderView` tải đủ mọi trang món theo `meta.total_pages` của `GET /products`, nên tìm/lọc phủ toàn bộ danh mục thay vì chỉ 100 món đầu; chặn thêm món `is_available = false` vào giỏ (#87)
+
 ### Added — Kiosk khách hàng & chuẩn hoá GUI
 - Thêm màn Kiosk khách hàng tự gọi món (`CustomerKioskView`), hộp thoại tuỳ chọn đường/đá, sinh mã QR thanh toán thật qua `reportlab` (`QrPaymentWidget`) cho Kiosk & `CheckoutDialog`, cùng 2 endpoint public `GET /api/v1/public/menu`, `POST /api/v1/public/orders` và chuẩn hoá toàn bộ `gui/` theo skill `ui-design` (`0` hex cứng ngoài `theme.py`, `0` `QFrame` trần, hết tràn ngang `1280×720`) (#112)
 

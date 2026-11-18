@@ -11,11 +11,74 @@ from typing import Any
 
 from gui.api_client import ApiClient
 from gui.i18n import format_currency, t
-from gui.views.order_view import MOCK_PRODUCTS, MOCK_TABLES, OrderView
+from gui.views.order_view import (
+    MOCK_PRODUCTS,
+    MOCK_TABLES,
+    PRODUCT_PAGE_SIZE,
+    OrderView,
+)
 from gui.widgets.checkout_dialog import CheckoutDialog
 from gui.widgets.order_cart import ConfirmCancelOrderDialog, OrderCartWidget
 from gui.widgets.receipt_dialog import ReceiptDialog
 from gui.widgets.table_card import TableCardWidget
+
+
+class _PagedProductClient(ApiClient):
+    """Giả lập API món trả 3 trang để kiểm tra OrderView tải đủ theo meta."""
+
+    def __init__(self) -> None:
+        super().__init__(base_url="http://127.0.0.1:8000/api/v1")
+        self.pages_requested: list[tuple[int, int]] = []
+
+    def get_products(
+        self,
+        search: str | None = None,
+        category_id: int | None = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> dict[str, Any]:
+        self.pages_requested.append((page, page_size))
+        pages = {
+            1: [
+                {
+                    "id": 1,
+                    "name": "Món trang 1",
+                    "category": "Cà phê",
+                    "price": 20000,
+                    "unit": "ly",
+                    "is_available": True,
+                }
+            ],
+            2: [
+                {
+                    "id": 2,
+                    "name": "Món trang 2",
+                    "category": "Trà",
+                    "price": 30000,
+                    "unit": "ly",
+                    "is_available": True,
+                }
+            ],
+            3: [
+                {
+                    "id": 3,
+                    "name": "Trà đào trang 3",
+                    "category": "Trà",
+                    "price": 35000,
+                    "unit": "ly",
+                    "is_available": True,
+                }
+            ],
+        }
+        return {
+            "data": pages.get(page, []),
+            "meta": {
+                "page": page,
+                "page_size": page_size,
+                "total": 3,
+                "total_pages": 3,
+            },
+        }
 
 
 def test_mock_tables_and_products_structure() -> None:
@@ -227,3 +290,55 @@ def test_confirm_cancel_order_dialog_buttons(qapp: Any) -> None:
     assert dialog.skip_btn.isHidden() is False
     assert dialog.confirm_btn.isHidden() is False
     assert dialog.confirm_btn.isEnabled() is True
+
+
+def test_order_view_fetches_all_product_pages(qapp: Any) -> None:
+    """Món ngoài trang đầu vẫn tìm và thêm được nhờ tải đủ trang theo meta (#87)."""
+    client = _PagedProductClient()
+    view = OrderView(client)
+
+    products = view._fetch_all_products()
+
+    assert client.pages_requested == [
+        (1, PRODUCT_PAGE_SIZE),
+        (2, PRODUCT_PAGE_SIZE),
+        (3, PRODUCT_PAGE_SIZE),
+    ]
+    assert [p["id"] for p in products] == [1, 2, 3]
+
+    view._on_data_loaded((MOCK_TABLES, products))
+    view._search_input.setText("trang 3")
+
+    assert [p["id"] for p in view._filtered_products] == [3]
+
+    view._add_product_to_cart(view._filtered_products[0])
+    assert [item["product_id"] for item in view._cart_widget.items] == [3]
+
+
+def test_order_view_skips_unavailable_product(qapp: Any) -> None:
+    """Không cho thêm món đã ngừng bán vào giỏ (#87)."""
+    client = _PagedProductClient()
+    view = OrderView(client)
+    available = {
+        "id": 1,
+        "name": "Món đang bán",
+        "category": "Cà phê",
+        "price": 20000,
+        "unit": "ly",
+        "is_available": True,
+    }
+    unavailable = {
+        "id": 2,
+        "name": "Món ngừng bán",
+        "category": "Cà phê",
+        "price": 25000,
+        "unit": "ly",
+        "is_available": False,
+    }
+    view._on_data_loaded((MOCK_TABLES, [available, unavailable]))
+
+    view._add_product_to_cart(unavailable)
+    assert view._cart_widget.items == []
+
+    view._add_product_to_cart(available)
+    assert [item["product_id"] for item in view._cart_widget.items] == [1]
