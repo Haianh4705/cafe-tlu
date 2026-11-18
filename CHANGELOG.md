@@ -10,6 +10,8 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Fixed — điều hướng và hiển thị sau đăng nhập
 - Màn hình Tổng quan (`DashboardView`) không gọi route báo cáo chưa đăng ký; admin chủ động chọn Demo để xem dữ liệu mẫu, staff có nút chuyển sang Bán hàng, và lựa chọn Demo được xoá khi phiên thay đổi (#81)
+### Fixed — kiểm tra dữ liệu món
+- PATCH món từ chối `null` ở trường không nullable nhưng vẫn cho `image_url: null` xoá ảnh; create/update chặn giá vượt `DECIMAL(12,0)` bằng 422; test MySQL xác nhận tên trùng trả 409 và dữ liệu không bị đổi khi request lỗi (#84)
 
 ### Fixed — vòng đời phiên
 - Refresh token rotation khoá row khi đổi token và logout khoá token trước khi thu hồi, bảo đảm hai request refresh đồng thời chỉ một thành công; lỗi 422 chỉ trả `loc`/`msg`/`type`, không echo `input` (tránh lộ mật khẩu) (#86)
