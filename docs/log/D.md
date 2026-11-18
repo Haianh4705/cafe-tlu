@@ -81,7 +81,7 @@
 | 11-18 | Antigravity | cấu hình `alembic.ini` + `db/migrations/` (`0001`/`0002`) và test mô phỏng volume cũ trước `#69` (`tests/test_migrations.py`) | đối chiếu DDL từng cột/CHECK với `db/schema.sql`, sửa `qualname` trong `alembic.ini`, chạy thật `alembic upgrade head`, `verify_seed.sql` 23/23 PASS và đủ 75 test MySQL |
 | 11-18 | Codex | cập nhật ADR-015 và tài liệu G1 theo quyết định D: chỉ cần `make doctor` xanh trên A và D; chuẩn bị đồng bộ Issue #33 | đối chiếu output A/D trên #33, giữ nguyên các điều kiện G1 còn lại; không chạy `make doctor` trên máy C theo yêu cầu |
 | 11-18 | Antigravity | thêm `skip_or_fail_db` trong `tests/conftest.py`, kiểm kết nối MySQL ở `.github/workflows/ci.yml` và `tests/test_db_seed_smoke.py` (#85) | chạy thật `CI=true DB_NAME=cafe_tlu_test make test` (0 skip), thử tắt/lệch cổng DB để chứng minh CI đỏ thay vì skip và kiểm đảo chiều `verify_seed.sql` |
-| 11-18 | Codex | triển khai `make start` cho Issue #116 và đồng bộ hướng dẫn chạy local | chạy `make lint`; khởi động MySQL → API `/health` → GUI thật, Ctrl+C dừng sạch GUI/API; CI Lint & format + Test xanh sau khi rerun một lần do pytest-qt segfault lúc teardown |
+| 11-18 | Codex | kiểm chứng lại PR #117 và cập nhật hướng dẫn `make start` | `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test`: 84 passed, 32 warnings; xác nhận MySQL → `/health` → GUI, cổng 8000 bận thì fail, API degraded hết 30 giây không mở GUI, dừng GUI bằng SIGTERM/Ctrl+C đều dừng API; CI Test lần 1 segfault ở `pytest-qt` teardown, lần 2 pass; log đã lưu `/tmp/cafetlu-pr117-pytestqt-segfault.log` |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)
 
