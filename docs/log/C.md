@@ -24,6 +24,7 @@
 | 11-18 | #25 | `2a7b46c` / PR #114 (draft) | `gui/views/login_view.py`, `tests/test_gui_login.py`, `docs/test-cases.md`, `docs/screenshots/gui/` | xác minh phiên qua `/auth/me`; E2E admin/staff, ba lần sai mật khẩu, lỗi cùng thông điệp và mở lại form; lưu ảnh GUI | dùng danh tính trả về từ `/auth/me`; menu staff chỉ còn Tổng quan, Order, Bàn; `make check` trước đó đạt 84 test |
 | 11-19 | #79 | PR #120 / `6e86238` | `gui/api_client.py`, `gui/main.py`, `tests/test_gui_login.py` | đồng bộ nhánh với develop/#124 và kiểm lại logout, hết hạn phiên, điều hướng về login, đăng nhập lại; 117 test local và CI xanh | giữ request refresh token đã có trong `ApiClient.logout()`; chạy request trong worker và chỉ phân biệt máy chủ chưa xác nhận với logout thành công trên form |
 | 11-18 | #79 | PR #79 | `gui/api_client.py`, `gui/main.py`, `gui/i18n.py`, `tests/test_gui_login.py` | sửa nút Đăng xuất gửi refresh token, giải phóng phiên cục bộ cả khi lỗi mạng và đưa về form đăng nhập khi phiên hết hạn | xử lý xoá token trong finally và kết nối worker để luôn điều hướng về login form; thêm callback on_unauthenticated |
+| 11-19 | #81 | PR #125 | `gui/views/dashboard_view.py`, `gui/main.py`, `gui/i18n.py`, `tests/test_gui_dashboard.py`, `docs/screenshots/dashboard/` | Dashboard không gọi endpoint chưa đăng ký; admin chủ động chọn Demo, staff chuyển nhanh sang Bán hàng; lưu ảnh admin/staff ở 1280×720 | giữ màn đầu sau login và reset Demo khi phiên thay đổi |
 
 ## 3. AI đã làm gì
 
@@ -35,6 +36,7 @@
 | 11-18 | Codex | thêm xác minh `/auth/me` và test GUI; cài `.venv`, bật MySQL/API/GUI; chạy GUI E2E cho admin/staff, ba lần sai mật khẩu, user không tồn tại và đóng/mở lại; lưu hai ảnh đăng nhập | `make check` với `cafe_tlu_test`: 84 passed; API `/me` trả đúng role; staff bị ẩn menu admin; lỗi đăng nhập inline đồng nhất; người dùng bật quyền CUA và chạy lại GUI; bỏ qua `make doctor` theo yêu cầu |
 | 11-19 | Codex | rebase PR #120 lên `b23940c` (#124), rà luồng refresh/logout/session timeout và cập nhật minh chứng | `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test`: 117 passed; CI run 44358965729 xanh 2/2; giữ xác minh `/auth/me` từ #114 |
 | 11-18 | Antigravity AI agent | sửa cơ chế logout gửi refresh token, xử lý lỗi mạng không kẹt UI, thêm callback on_unauthenticated điều hướng khi 401, bổ sung 4 unit test PySide6 (#79) | chạy `ruff`/`black`/`pytest` đạt 68 passed, kiểm tra điều hướng thành công cả khi mất mạng và khi token hết hạn |
+| 11-19 | Codex | đồng bộ PR #125 với `origin/develop`; bỏ lời gọi route báo cáo chưa đăng ký, thêm Demo theo lựa chọn admin và reset khi login/logout/hết phiên; giữ staff ở Dashboard với đường sang Order | `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test`: lint sạch, 121 passed; baseline trước sửa 116 passed; 21 test GUI mục tiêu xanh |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng C)
 

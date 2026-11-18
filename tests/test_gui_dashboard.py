@@ -9,7 +9,8 @@ from datetime import date
 from typing import Any
 
 from gui.api_client import ApiClient
-from gui.i18n import format_currency
+from gui.i18n import format_currency, t
+from gui.main import MainWindow
 from gui.views.dashboard_view import (
     MOCK_TOP_PRODUCTS,
     DashboardView,
@@ -106,3 +107,109 @@ def test_dashboard_shows_empty_state(qapp: Any) -> None:
     view._on_data({"daily": [], "top": [], "total_revenue": 0, "total_orders": 0})
 
     assert view._state_stack.currentWidget() is view._empty_widget
+
+
+def test_dashboard_staff_notice_and_navigation(qapp: Any) -> None:
+    """Tài khoản staff khi vào Dashboard thấy thông báo quyền hạn và nút chuyển sang Bán hàng."""
+    view = DashboardView(ApiClient(), use_mock=False)
+    view.set_user_role("staff")
+    assert view._user_role == "staff"
+
+    # Worker thu thập thông báo staff
+    payload = view._collect_staff_notice()
+    assert payload == {"status": "staff_notice"}
+
+    view._on_data(payload)
+    assert view._state_stack.currentWidget() is view._empty_widget
+    assert view._empty_label.text() == t("dashboard_staff_notice")
+    assert not view._empty_action_btn.isHidden()
+    assert view._empty_action_btn.text() == t("nav_orders")
+
+    # Bấm nút hành động phát tín hiệu navigate_requested("orders")
+    nav_targets: list[str] = []
+    view.navigate_requested.connect(nav_targets.append)
+    view._empty_action_btn.click()
+    assert nav_targets == ["orders"]
+
+
+def test_dashboard_admin_does_not_call_unregistered_reports_until_demo(
+    qapp: Any, monkeypatch: Any
+) -> None:
+    """Admin không gọi route báo cáo chưa đăng ký; mock chỉ chạy sau khi chọn Demo."""
+    api = ApiClient()
+
+    calls: list[str] = []
+
+    def unexpected_report_call(*args: Any, **kwargs: Any) -> Any:
+        calls.append("reports")
+        raise AssertionError("Không được gọi API báo cáo chưa đăng ký")
+
+    monkeypatch.setattr(api, "get_revenue_report", unexpected_report_call)
+    monkeypatch.setattr(api, "get_top_products_report", unexpected_report_call)
+
+    view = DashboardView(api, use_mock=False)
+    view.set_user_role("admin")
+    view.load()
+    assert view._state_stack.currentWidget() is view._empty_widget
+    assert view._empty_label.text() == t("dashboard_pending_api")
+    assert not view._empty_action_btn.isHidden()
+    assert view._empty_action_btn.text() == t("dashboard_btn_demo")
+    assert calls == []
+    assert view._use_mock is False
+
+    # Bấm nút Demo chuyển sang chế độ mock và tải lại
+    reloaded: list[bool] = []
+    monkeypatch.setattr(view, "load", lambda: reloaded.append(True))
+    view._empty_action_btn.click()
+    assert view._use_mock is True
+    assert reloaded == [True]
+
+    view.reset_session_demo()
+    assert view._use_mock is False
+
+
+def test_main_window_default_navigation_and_role_handling(qapp: Any, monkeypatch: Any) -> None:
+    """MainWindow phân quyền vai trò cho Dashboard và điều hướng sang Order khi staff yêu cầu."""
+    win = MainWindow()
+    monkeypatch.setattr(win._dashboard_view, "load", lambda: None)
+    monkeypatch.setattr(win._order_view, "load", lambda: None)
+
+    # Khi admin đăng nhập thành công
+    win._dashboard_view._use_mock = True
+    win._on_login_success(
+        {"id": 1, "username": "admin", "full_name": "Quản trị viên", "role": "admin"}
+    )
+    assert win._dashboard_view._user_role == "admin"
+    assert win._dashboard_view._use_mock is False
+    assert win._content_stack.currentWidget() is win._dashboard_view
+
+    # Khi staff đăng nhập thành công
+    win._dashboard_view._use_mock = True
+    win._on_login_success(
+        {"id": 2, "username": "thungan01", "full_name": "Thu ngân 1", "role": "staff"}
+    )
+    assert win._dashboard_view._user_role == "staff"
+    assert win._dashboard_view._use_mock is False
+    assert win._content_stack.currentWidget() is win._dashboard_view
+
+    # Khi DashboardView của staff yêu cầu điều hướng sang orders
+    win._dashboard_view.navigate_requested.emit("orders")
+    assert win._content_stack.currentWidget() is win._order_view
+    win.close()
+
+
+def test_logout_resets_dashboard_demo_for_next_session(qapp: Any) -> None:
+    """Đăng xuất hoặc hết hạn phiên phải xoá lựa chọn Demo còn lại trong Dashboard."""
+    win = MainWindow()
+    win._dashboard_view._use_mock = True
+    win._finish_logout()
+    assert win._dashboard_view._use_mock is False
+
+    win._dashboard_view._use_mock = True
+    win._on_login_success({"id": 3, "username": "staff", "full_name": "Thu ngân", "role": "staff"})
+    assert win._dashboard_view._use_mock is False
+
+    win._dashboard_view._use_mock = True
+    win._handle_session_expired()
+    assert win._dashboard_view._use_mock is False
+    win.close()

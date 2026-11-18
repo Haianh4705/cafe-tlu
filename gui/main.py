@@ -116,6 +116,7 @@ class MainWindow(QMainWindow):
         self._content_stack.setStyleSheet(f"background-color: {COLOR['surface']};")
 
         self._dashboard_view = DashboardView(self.api, self)
+        self._dashboard_view.navigate_requested.connect(self._switch_menu)
         self._content_stack.addWidget(self._dashboard_view)
 
         self._order_view = OrderView(self.api, self)
@@ -260,6 +261,7 @@ class MainWindow(QMainWindow):
         full_name = user_info.get("full_name") or user_info.get("username", "")
         role = user_info.get("role", "staff")
 
+        self._dashboard_view.reset_session_demo()
         role_display = {
             "admin": t("role_admin"),
             "staff": t("role_staff"),
@@ -269,6 +271,7 @@ class MainWindow(QMainWindow):
         self._user_label.setText(f"{full_name} ({role_display})")
         self._update_sidebar_permissions(role)
         self._product_list_view.set_user_role(role)
+        self._dashboard_view.set_user_role(role)
         if hasattr(self, "_order_view"):
             self._order_view.cashier_name = full_name
 
@@ -291,6 +294,7 @@ class MainWindow(QMainWindow):
         self._logout_btn.setEnabled(True)
         self._logout_btn.setText(t("logout_btn"))
         self.api.clear_tokens()
+        self._dashboard_view.reset_session_demo()
         self.current_user = None
         self._login_view._password_input.clear()
         self._root_stack.setCurrentWidget(self._login_view)
@@ -308,6 +312,7 @@ class MainWindow(QMainWindow):
         if self._root_stack.currentWidget() is self._login_view:
             return
         self.api.clear_tokens()
+        self._dashboard_view.reset_session_demo()
         self.current_user = None
         self._login_view._password_input.clear()
         self._root_stack.setCurrentWidget(self._login_view)

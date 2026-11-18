@@ -183,6 +183,9 @@ STRINGS: Final[dict[str, str]] = {
     "dashboard_chart_revenue_axis": "Triệu đồng",
     "dashboard_empty": "Chưa có dữ liệu bán hàng trong 30 ngày gần nhất",
     "dashboard_no_sales": "Chưa có",
+    "dashboard_staff_notice": "Tài khoản Nhân viên không có quyền truy cập báo cáo doanh thu. Bấm nút bên dưới để chuyển sang màn hình Bán hàng.",
+    "dashboard_pending_api": "Hệ thống báo cáo doanh thu đang được tích hợp (chờ backend API /reports/*).",
+    "dashboard_btn_demo": "Xem dữ liệu mẫu (Demo)",
     # Kiosk khách hàng tự gọi món
     "kiosk_open_btn": "Khách tự chọn món (Kiosk)",
     "kiosk_switch_btn": "Chế độ Kiosk",
