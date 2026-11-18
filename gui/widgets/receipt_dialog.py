@@ -47,6 +47,10 @@ class ReceiptDialog(QDialog):
         )
         self.items = receipt_data.get("items", [])
         self.total_amount = int(receipt_data.get("total_amount", 0))
+        self.discount_amount = int(receipt_data.get("discount_amount", 0))
+        self.subtotal_amount = int(
+            receipt_data.get("subtotal_amount", self.total_amount + self.discount_amount)
+        )
         self.payment_method = receipt_data.get("payment_method", "cash")
         self.received_amount = int(receipt_data.get("received_amount", self.total_amount))
         self.change_amount = int(receipt_data.get("change_amount", 0))
@@ -184,11 +188,11 @@ class ReceiptDialog(QDialog):
             <table style='width: 100%; font-size: 13px;'>
                 <tr>
                     <td>{t("order_subtotal")}:</td>
-                    <td class='text-right bold'>{format_currency(self.total_amount)}</td>
+                    <td class='text-right bold'>{format_currency(self.subtotal_amount)}</td>
                 </tr>
                 <tr>
                     <td>{t("order_discount")}:</td>
-                    <td class='text-right'>0 đ</td>
+                    <td class='text-right'>{format_currency(self.discount_amount)}</td>
                 </tr>
                 <tr style='font-size: 15px; font-weight: bold; color: {COLOR["navy"]};'>
                     <td style='padding-top: 6px; border-top: 1px solid {COLOR["ink"]};'>{t("order_total")}:</td>

@@ -188,6 +188,32 @@ class _OrderApiClient(ApiClient):
         assert self.order is not None
         return self.order
 
+    def checkout_order(
+        self,
+        order_id: int,
+        payment_method: str = "cash",
+        paid_amount: int | None = None,
+        discount_amount: int = 0,
+    ) -> dict[str, Any]:
+        self.calls.append(("checkout", order_id, payment_method, paid_amount, discount_amount))
+        assert self.order is not None
+        self.order["status"] = "completed"
+        final_amount = self.order["total_amount"]
+        invoice = {
+            "id": 9,
+            "invoice_code": "INV-20261118-001",
+            "order_id": order_id,
+            "cashier_id": 3,
+            "subtotal_amount": final_amount,
+            "discount_amount": 0,
+            "final_amount": final_amount,
+            "paid_amount": paid_amount or final_amount,
+            "change_amount": max(0, (paid_amount or final_amount) - final_amount),
+            "payment_method": "transfer" if payment_method == "qr" else payment_method,
+            "paid_at": "2026-11-18T12:00:00",
+        }
+        return {"order": self.order, "invoice": invoice}
+
 
 def test_mock_tables_and_products_structure() -> None:
     """Kiểm tra cấu trúc và tính hợp lệ của dữ liệu bàn và thực đơn mẫu."""
@@ -306,6 +332,7 @@ def test_receipt_dialog_rendering_and_content(qapp: Any) -> None:
     html = dialog._generate_html()
 
     # Kiểm tra các thông tin bắt buộc trong hoá đơn
+    assert "Manrope" in html
     assert "QUÁN CÀ PHÊ TLU" in html
     assert "HD-20261109-001" in html
     assert "Bàn 03" in html
@@ -491,6 +518,38 @@ def test_order_view_persists_cart_actions_through_api(qapp: Any, monkeypatch: An
 
     view._on_cart_item_removed(1)
     assert ("remove", 7, 101) in client.calls
+    assert view._cart_widget.items == []
+
+
+def test_order_view_checkout_uses_server_invoice(qapp: Any, monkeypatch: Any) -> None:
+    """Bấm thanh toán gọi API checkout và mở hoá đơn từ dữ liệu server trả về (#94)."""
+    client = _OrderApiClient()
+    view = OrderView(client)
+    monkeypatch.setattr(view, "start_worker", types.MethodType(_run_worker_now, view))
+    monkeypatch.setattr(
+        CheckoutDialog,
+        "exec",
+        lambda self: CheckoutDialog.DialogCode.Accepted,
+    )
+    shown: dict[str, Any] = {}
+    monkeypatch.setattr(
+        ReceiptDialog,
+        "exec",
+        lambda self: shown.setdefault("data", self.receipt_data) and 0,
+    )
+
+    product = client.get_products()["data"][0]
+    view._on_data_loaded((client.get_tables(), [product]))
+    view._add_product_to_cart(product)
+    view._open_checkout_dialog()
+
+    assert ("checkout", 7, "cash", 25000, 0) in client.calls
+    assert shown["data"]["invoice_code"] == "INV-20261118-001"
+    assert shown["data"]["subtotal_amount"] == 25000
+    assert shown["data"]["discount_amount"] == 0
+    assert shown["data"]["total_amount"] == 25000
+    assert shown["data"]["received_amount"] == 25000
+    assert shown["data"]["items"][0]["name"] == "Cà phê API"
     assert view._cart_widget.items == []
 
 

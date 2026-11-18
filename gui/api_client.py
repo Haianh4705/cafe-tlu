@@ -198,13 +198,20 @@ class ApiClient:
         """DELETE /orders/{id}/items/{item_id} - Bỏ món khỏi đơn."""
         self._request("DELETE", f"/orders/{order_id}/items/{item_id}")
 
-    def checkout_order(self, order_id: int, payment_method: str = "cash") -> dict[str, Any]:
+    def checkout_order(
+        self,
+        order_id: int,
+        payment_method: str = "cash",
+        paid_amount: int | None = None,
+        discount_amount: int = 0,
+    ) -> dict[str, Any]:
         """POST /orders/{id}/checkout - Thanh toán và xuất hoá đơn."""
-        return self._request(
-            "POST",
-            f"/orders/{order_id}/checkout",
-            json_data={"payment_method": payment_method},
-        )
+        payload: dict[str, Any] = {"payment_method": payment_method}
+        if paid_amount is not None:
+            payload["paid_amount"] = paid_amount
+        if discount_amount:
+            payload["discount_amount"] = discount_amount
+        return self._request("POST", f"/orders/{order_id}/checkout", json_data=payload)
 
     # ------------------------------------------------------------------
     # 4. Báo cáo (Reports)

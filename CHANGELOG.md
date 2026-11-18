@@ -18,6 +18,10 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - 6 endpoint `GET /tables`, `POST /orders`, `GET /orders/{id}`, `POST/PATCH/DELETE` món trong đơn (#13–#18): mỗi bàn một đơn mở, giá snapshot, tổng tiền tính lại ở server trong transaction, `409 ORDER_ALREADY_PAID` khi sửa đơn đã đóng; `GET /tables` trả `open_order_id` để GUI khôi phục giỏ (#93)
 - `OrderView` nối API thật cho chọn bàn, thêm/sửa/xoá món và tải lại đơn đang mở; bỏ dữ liệu mock khi chạy bình thường (#93)
 
+### Added — thanh toán & hoá đơn
+- `POST /orders/{id}/checkout` (#19) chốt đơn nguyên tử: server tính lại tạm tính/giảm giá/thực thu, tạo `invoices`, đóng đơn và trả bàn về `available`; chặn thanh toán kép `409 ORDER_ALREADY_PAID`; QR được lưu thành `transfer` (#94)
+- `OrderView` gọi checkout qua API và mở `ReceiptDialog` từ hoá đơn server (mã `INV-*`, tiền thừa, font Manrope); chế độ demo vẫn có hoá đơn tạm (#94)
+
 ### Added — Kiosk khách hàng & chuẩn hoá GUI
 - Thêm màn Kiosk khách hàng tự gọi món (`CustomerKioskView`), hộp thoại tuỳ chọn đường/đá, sinh mã QR thanh toán thật qua `reportlab` (`QrPaymentWidget`) cho Kiosk & `CheckoutDialog`, cùng 2 endpoint public `GET /api/v1/public/menu`, `POST /api/v1/public/orders` và chuẩn hoá toàn bộ `gui/` theo skill `ui-design` (`0` hex cứng ngoài `theme.py`, `0` `QFrame` trần, hết tràn ngang `1280×720`) (#112)
 

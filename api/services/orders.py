@@ -1,17 +1,19 @@
-"""Nghiệp vụ bàn và đơn gọi món tại bàn (docs/api-contract.md #13-#18)."""
+"""Nghiệp vụ bàn, đơn gọi món và thanh toán (docs/api-contract.md #13-#19)."""
 
 import logging
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
+from api.models.invoice import Invoice
 from api.models.order import Order, OrderItem
 from api.models.product import Product
 from api.models.table import CafeTable
 from api.models.user import User
-from api.schemas.order import OrderItemCreate, OrderItemUpdate
+from api.schemas.order import CheckoutRequest, OrderItemCreate, OrderItemUpdate
 from api.services.public_kiosk import generate_order_code
 from shared.error_codes import ErrorCode
 from shared.errors import AppError
@@ -190,6 +192,101 @@ def remove_item(db: Session, order_id: int, item_id: int) -> None:
     db.delete(item)
     _recalculate_total(db, order)
     db.commit()
+
+
+def checkout_order(
+    db: Session, order_id: int, cashier: User, payload: CheckoutRequest
+) -> tuple[Order, Invoice]:
+    """Chốt đơn nguyên tử: tính tiền ở server, tạo hoá đơn, đóng đơn và trả bàn về trống."""
+    order = _get_open_order_for_update(db, order_id)
+    table = db.scalar(select(CafeTable).where(CafeTable.id == order.table_id).with_for_update())
+    if table is None:
+        raise AppError(
+            ErrorCode.NOT_FOUND,
+            "Không tìm thấy bàn phục vụ",
+            404,
+            {"field": "table_id", "value": order.table_id},
+        )
+
+    items = db.scalars(
+        select(OrderItem).where(
+            OrderItem.order_id == order.id,
+            OrderItem.status != "cancelled",
+        )
+    ).all()
+    if not items:
+        raise AppError(
+            ErrorCode.VALIDATION_ERROR,
+            "Đơn chưa có món để thanh toán",
+            400,
+            {"field": "items"},
+        )
+
+    subtotal = sum((Decimal(item.subtotal) for item in items), Decimal(0))
+    discount = Decimal(payload.discount_amount)
+    if discount > subtotal:
+        raise AppError(
+            ErrorCode.VALIDATION_ERROR,
+            "Giảm giá không được lớn hơn tạm tính",
+            400,
+            {"field": "discount_amount"},
+        )
+    final_amount = subtotal - discount
+    paid_amount = Decimal(payload.paid_amount) if payload.paid_amount is not None else final_amount
+    if paid_amount < final_amount:
+        raise AppError(
+            ErrorCode.VALIDATION_ERROR,
+            "Số tiền khách đưa chưa đủ thanh toán",
+            400,
+            {"field": "paid_amount"},
+        )
+
+    payment_method = "transfer" if payload.payment_method == "qr" else payload.payment_method
+    invoice = Invoice(
+        invoice_code=_generate_invoice_code(db),
+        order_id=order.id,
+        cashier_id=cashier.id,
+        subtotal_amount=subtotal,
+        discount_amount=discount,
+        final_amount=final_amount,
+        paid_amount=paid_amount,
+        change_amount=paid_amount - final_amount,
+        payment_method=payment_method,
+        notes=payload.notes.strip() if payload.notes else None,
+    )
+    order.total_amount = subtotal
+    order.status = "completed"
+    table.status = "available"
+    db.add(invoice)
+
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        logger.warning("Xung đột checkout đơn %s: %s", order_id, exc)
+        raise AppError(
+            ErrorCode.ORDER_ALREADY_PAID,
+            "Đơn đã được thanh toán hoặc hoá đơn đã tồn tại",
+            409,
+            {"field": "order_id", "value": order_id},
+        ) from exc
+
+    db.refresh(invoice)
+    return get_order(db, order.id), invoice
+
+
+def _generate_invoice_code(db: Session) -> str:
+    """Sinh mã hoá đơn duy nhất theo ngày dạng INV-YYYYMMDD-XXX."""
+    prefix = f"INV-{datetime.now().strftime('%Y%m%d')}-"
+    existing_codes = db.scalars(
+        select(Invoice.invoice_code).where(Invoice.invoice_code.like(f"{prefix}%"))
+    ).all()
+    max_seq = 0
+    for code in existing_codes:
+        suffix = code.removeprefix(prefix)
+        if suffix.isdigit():
+            max_seq = max(max_seq, int(suffix))
+    return f"{prefix}{max_seq + 1:03d}"
 
 
 def _order_query():

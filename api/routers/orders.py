@@ -1,14 +1,18 @@
-"""Endpoint bàn và đơn gọi món tại bàn (docs/api-contract.md #13-#18)."""
+"""Endpoint bàn, đơn gọi món và thanh toán (docs/api-contract.md #13-#19)."""
 
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from api.core.db import get_db
 from api.core.security import require_role
+from api.models.invoice import Invoice
 from api.models.order import Order
 from api.models.user import User
 from api.schemas.common import Envelope
 from api.schemas.order import (
+    CheckoutOut,
+    CheckoutRequest,
+    InvoiceOut,
     OrderCreate,
     OrderItemCreate,
     OrderItemOut,
@@ -46,6 +50,22 @@ def _to_order_out(order: Order) -> OrderOut:
             )
             for item in order.items
         ],
+    )
+
+
+def _to_invoice_out(invoice: Invoice) -> InvoiceOut:
+    return InvoiceOut(
+        id=invoice.id,
+        invoice_code=invoice.invoice_code,
+        order_id=invoice.order_id,
+        cashier_id=invoice.cashier_id,
+        subtotal_amount=int(invoice.subtotal_amount),
+        discount_amount=int(invoice.discount_amount),
+        final_amount=int(invoice.final_amount),
+        paid_amount=int(invoice.paid_amount),
+        change_amount=int(invoice.change_amount),
+        payment_method=invoice.payment_method,
+        paid_at=invoice.paid_at,
     )
 
 
@@ -129,3 +149,15 @@ def remove_order_item(
     """Bỏ món khỏi đơn đang mở."""
     order_service.remove_item(db, order_id, item_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/orders/{order_id}/checkout", response_model=Envelope[CheckoutOut])
+def checkout_order(
+    order_id: int,
+    payload: CheckoutRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_role(*STAFF_ROLES)),
+) -> Envelope[CheckoutOut]:
+    """Thanh toán đơn trong một transaction, tạo hoá đơn và trả bàn về trống."""
+    order, invoice = order_service.checkout_order(db, order_id, user, payload)
+    return Envelope(data=CheckoutOut(order=_to_order_out(order), invoice=_to_invoice_out(invoice)))

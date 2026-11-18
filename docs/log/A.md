@@ -24,6 +24,7 @@
 | 2026-11-17 | #29 | #73 (merged) | `api/routers/categories.py`, `api/routers/products.py`, `api/services/products.py`, `api/schemas/`, `tests/test_products.py` | CRUD thực đơn: list + search + lọc danh mục + phân trang, tạo/sửa/xoá mềm, chặn trùng tên | Router mỏng + service giữ nghiệp vụ; `deleted_at` cho phép tạo lại tên món đã xoá (cột sinh `active_name`) |
 | 2026-11-18 | #87 | #121 | `gui/views/order_view.py`, `tests/test_gui_order.py` | Tải đủ trang món theo `meta.total_pages`, tìm/lọc trên toàn danh mục và chặn thêm món ngừng bán | Chọn tải hết trang thay vì gọi search server mỗi lần gõ vì màn Order cần toàn bộ danh mục cho bộ lọc, seed chỉ 51 món và tránh request/race khi gõ |
 | 2026-11-18 | #93 | #122 | `api/routers/orders.py`, `api/services/orders.py`, `api/schemas/order.py`, `gui/views/order_view.py`, `tests/test_orders.py`, `tests/test_gui_order.py` | 6 endpoint bàn/đơn (#13–#18), khoá đơn theo bàn, giá snapshot và tổng tiền tính lại ở server; nối OrderView thêm/sửa/xoá món qua API | Router mỏng + service giữ transaction; trả `open_order_id` trong `/tables` để GUI mở lại đơn thay vì đoán, và guard `ORDER_ALREADY_PAID` chặn sửa đơn đã đóng |
+| 2026-11-18 | #94 | `feature/checkout-invoice-bao` | `api/routers/orders.py`, `api/services/orders.py`, `api/schemas/order.py`, `gui/api_client.py`, `gui/views/order_view.py`, `tests/test_orders.py`, `tests/test_gui_order.py` | Endpoint #19 checkout nguyên tử, tạo `invoices`, đóng đơn/trả bàn; nối CheckoutDialog → API → ReceiptDialog | Server là nguồn tính tiền và giữ transaction để không lệch hoá đơn; QR map sang `transfer` đúng CHECK của bảng `invoices` |
 
 ## 3. AI đã làm gì
 
@@ -35,6 +36,7 @@
 | 2026-11-17 | Command Code | Viết CRUD categories/products + 13 test; sửa `User-Agent` >255 theo review D | Review lại từng endpoint với `docs/api-contract.md` + `gui/api_client.py`; chạy 67 test trên MySQL thật |
 | 2026-11-18 | Command Code | Viết `_fetch_all_products` theo `meta.total_pages` và 2 test phân trang/món ngừng bán cho #87 | Đối chiếu `GET /products` (`page_size` ≤ 100, meta `total_pages`) và chạy `tests/test_gui_order.py`: 11 passed; kiểm tra không đổi API/contract |
 | 2026-11-18 | Command Code | Viết 6 endpoint bàn/đơn #13–#18 + 7 test, nối `OrderView` thêm/sửa/xoá món qua API và 2 test GUI | Đối chiếu bất biến ERD (1 đơn mở/bàn, snapshot `unit_price`, total server), chạy 107 test trên MySQL; tự kiểm mã 400/401/404/409 |
+| 2026-11-18 | Command Code | Viết checkout #19 + 3 test API, nối CheckoutDialog/ReceiptDialog và test GUI hoá đơn server | Kiểm transaction/CHECK `invoices`, thanh toán kép 409, underpaid 400; chạy lại toàn bộ test trên MySQL |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng A)
 
@@ -59,7 +61,7 @@
 - [x] Đã chạy **67 test pass** trên MySQL thật, gồm `Base.metadata.create_all` và 13 test CRUD #29.
 - [ ] Alembic autogenerate diff rỗng chưa kiểm — repo chưa có `alembic.ini`/`db/migrations` (đề xuất issue riêng).
 - [ ] Rate limit `/auth/login` chưa làm: cần mã lỗi 429 mới + cập nhật contract bằng PR riêng (để G4).
-- [ ] #93: huỷ cả đơn và checkout vẫn xử lý local — chờ endpoint #19 và quy ước huỷ đơn ở #94.
+- [ ] Huỷ cả đơn tại bàn chưa có endpoint trong contract #13–#19 — cần chốt endpoint/Issue riêng.
 - [ ] GUI gọi `/auth/logout` **không gửi body** nhưng API đang bắt buộc `refresh_token` → cần nới thành optional (bug tích hợp, PR fix riêng).
 
 ## 6. Nhật ký theo cổng
@@ -68,4 +70,4 @@
 |---|---|---|---|
 | G1 | 2026-11-17 | #19/#20, #21, #22 đã merge; MySQL local bật + 67 test pass | `make doctor` 4/4 máy (D); rate limit login để G4 |
 | G2 | 2026-11-17 | #29 CRUD products/categories (chờ PR) | C nối màn danh sách món với API thật; D điền test case `TC-PRD` |
-| G3 | 2026-11-18 | #87 tải đủ trang món (#121); #93 API bàn/đơn + nối OrderView | #94 checkout & hoá đơn PDF; #95/#96 (B); #97 smoke (D) |
+| G3 | 2026-11-18 | #87 tải đủ trang món (#121); #93 API bàn/đơn (#122); #94 checkout & hoá đơn | #95/#96 (B); #97 smoke (D); huỷ cả đơn cần endpoint riêng |

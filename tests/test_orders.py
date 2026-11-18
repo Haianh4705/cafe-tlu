@@ -3,8 +3,11 @@
 import re
 from datetime import datetime
 
+from sqlalchemy import func, select
+
 from api.core.security import create_access_token
 from api.models.category import Category
+from api.models.invoice import Invoice
 from api.models.order import Order
 from api.models.product import Product
 from api.models.table import CafeTable
@@ -253,6 +256,131 @@ def test_add_item_validates_product_state(client, db_session, staff_user) -> Non
     data = client.get(order_url, headers=headers).json()["data"]
     assert data["items"] == []
     assert data["total_amount"] == 0
+
+
+def test_checkout_creates_invoice_and_closes_order(client, db_session, staff_user) -> None:
+    """Checkout tính lại tiền, tạo hoá đơn, đóng đơn và trả bàn về available trong một transaction."""
+    table, coffee, cake = _seed(db_session)
+    headers = _auth(staff_user)
+    order = _create_order(client, headers, table.id)
+    order_url = f"{ORDERS_URL}/{order['id']}"
+    client.post(
+        f"{order_url}/items",
+        json={"product_id": coffee.id, "quantity": 2},
+        headers=headers,
+    )
+    client.post(
+        f"{order_url}/items",
+        json={"product_id": cake.id, "quantity": 1},
+        headers=headers,
+    )
+
+    response = client.post(
+        f"{order_url}/checkout",
+        json={"payment_method": "cash", "paid_amount": 100000, "discount_amount": 5000},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    data = response.json()["data"]
+    invoice = data["invoice"]
+    today = datetime.now().strftime("%Y%m%d")
+    assert re.fullmatch(rf"INV-{today}-\d{{3}}", invoice["invoice_code"])
+    assert data["order"]["status"] == "completed"
+    assert data["order"]["total_amount"] == 95000
+    assert invoice["subtotal_amount"] == 95000
+    assert invoice["discount_amount"] == 5000
+    assert invoice["final_amount"] == 90000
+    assert invoice["paid_amount"] == 100000
+    assert invoice["change_amount"] == 10000
+    assert invoice["payment_method"] == "cash"
+
+    db_session.expire_all()
+    table_db = db_session.get(CafeTable, table.id)
+    order_db = db_session.get(Order, order["id"])
+    assert table_db is not None and table_db.status == "available"
+    assert order_db is not None and order_db.status == "completed"
+    assert db_session.scalar(select(func.count()).select_from(Invoice)) == 1
+
+    duplicate = client.post(
+        f"{order_url}/checkout",
+        json={"payment_method": "cash"},
+        headers=headers,
+    )
+    assert duplicate.status_code == 409
+    assert duplicate.json()["error"]["code"] == ErrorCode.ORDER_ALREADY_PAID
+
+
+def test_checkout_rejects_underpaid_or_empty_order(client, db_session, staff_user) -> None:
+    """Số tiền chưa đủ hoặc đơn rỗng trả 400 và không tạo hoá đơn, đơn vẫn mở."""
+    table, coffee, _ = _seed(db_session)
+    headers = _auth(staff_user)
+    order = _create_order(client, headers, table.id)
+    order_url = f"{ORDERS_URL}/{order['id']}"
+
+    empty = client.post(
+        f"{order_url}/checkout",
+        json={"payment_method": "cash"},
+        headers=headers,
+    )
+    assert empty.status_code == 400
+    assert empty.json()["error"]["code"] == ErrorCode.VALIDATION_ERROR
+
+    client.post(
+        f"{order_url}/items",
+        json={"product_id": coffee.id, "quantity": 1},
+        headers=headers,
+    )
+    underpaid = client.post(
+        f"{order_url}/checkout",
+        json={"payment_method": "cash", "paid_amount": 20000},
+        headers=headers,
+    )
+    assert underpaid.status_code == 400
+    assert underpaid.json()["error"]["code"] == ErrorCode.VALIDATION_ERROR
+
+    db_session.expire_all()
+    assert db_session.scalar(select(func.count()).select_from(Invoice)) == 0
+    order_db = db_session.get(Order, order["id"])
+    assert order_db is not None and order_db.status == "pending"
+    table_db = db_session.get(CafeTable, table.id)
+    assert table_db is not None and table_db.status == "occupied"
+
+
+def test_checkout_qr_maps_to_transfer_and_needs_auth(client, db_session, staff_user) -> None:
+    """Thanh toán QR lưu payment_method transfer; thiếu token 401 và đơn không tồn tại 404."""
+    table, coffee, _ = _seed(db_session)
+    headers = _auth(staff_user)
+    order = _create_order(client, headers, table.id)
+    order_url = f"{ORDERS_URL}/{order['id']}"
+    client.post(
+        f"{order_url}/items",
+        json={"product_id": coffee.id, "quantity": 1},
+        headers=headers,
+    )
+
+    response = client.post(
+        f"{order_url}/checkout",
+        json={"payment_method": "qr", "paid_amount": 25000},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["data"]["invoice"]["payment_method"] == "transfer"
+
+    assert (
+        client.post(
+            f"{ORDERS_URL}/999999/checkout",
+            json={"payment_method": "cash"},
+        ).status_code
+        == 401
+    )
+    assert (
+        client.post(
+            f"{ORDERS_URL}/999999/checkout",
+            json={"payment_method": "cash"},
+            headers=headers,
+        ).status_code
+        == 404
+    )
 
 
 def test_item_must_belong_to_order(client, db_session, staff_user) -> None:
