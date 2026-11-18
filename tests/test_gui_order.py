@@ -6,6 +6,7 @@ Tuân thủ:
 - Kiểm thử trực tiếp các widget PySide6: OrderView, OrderCartWidget, TableCardWidget, CheckoutDialog, ReceiptDialog.
 """
 
+import types
 from decimal import Decimal
 from typing import Any
 
@@ -79,6 +80,113 @@ class _PagedProductClient(ApiClient):
                 "total_pages": 3,
             },
         }
+
+
+class _OrderApiClient(ApiClient):
+    """Giả lập API bàn/đơn để kiểm tra OrderView lưu thao tác qua server."""
+
+    def __init__(self) -> None:
+        super().__init__(base_url="http://127.0.0.1:8000/api/v1")
+        self.calls: list[tuple[Any, ...]] = []
+        self.order: dict[str, Any] | None = None
+        self.tables: list[dict[str, Any]] = [
+            {
+                "id": 1,
+                "table_number": "Bàn O01",
+                "area": "Tầng 1",
+                "seating_capacity": 4,
+                "status": "available",
+                "open_order_id": None,
+            }
+        ]
+
+    def get_tables(self) -> list[dict[str, Any]]:
+        return self.tables
+
+    def get_products(
+        self,
+        search: str | None = None,
+        category_id: int | None = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> dict[str, Any]:
+        return {
+            "data": [
+                {
+                    "id": 1,
+                    "name": "Cà phê API",
+                    "category": "Cà phê",
+                    "price": 25000,
+                    "unit": "ly",
+                    "is_available": True,
+                }
+            ],
+            "meta": {"page": 1, "page_size": page_size, "total": 1, "total_pages": 1},
+        }
+
+    def create_order(self, table_id: int) -> dict[str, Any]:
+        self.calls.append(("create", table_id))
+        self.tables[0]["status"] = "occupied"
+        self.tables[0]["open_order_id"] = 7
+        self.order = {
+            "id": 7,
+            "order_code": "ORD-20261118-001",
+            "table_id": table_id,
+            "table_number": "Bàn O01",
+            "status": "pending",
+            "total_amount": 0,
+            "notes": None,
+            "created_at": "2026-11-18T00:00:00",
+            "items": [],
+        }
+        return self.order
+
+    def add_order_item(
+        self, order_id: int, product_id: int, quantity: int = 1, note: str = ""
+    ) -> dict[str, Any]:
+        self.calls.append(("add", order_id, product_id, quantity))
+        assert self.order is not None
+        existing = next(
+            (item for item in self.order["items"] if item["product_id"] == product_id), None
+        )
+        if existing is None:
+            existing = {
+                "id": 101,
+                "product_id": product_id,
+                "product_name": "Cà phê API",
+                "unit": "ly",
+                "quantity": 0,
+                "unit_price": 25000,
+                "subtotal": 0,
+                "status": "pending",
+                "notes": None,
+            }
+            self.order["items"].append(existing)
+        existing["quantity"] += quantity
+        existing["subtotal"] = existing["unit_price"] * existing["quantity"]
+        self.order["total_amount"] = sum(i["subtotal"] for i in self.order["items"])
+        return self.order
+
+    def update_order_item(
+        self, order_id: int, item_id: int, quantity: int, note: str = ""
+    ) -> dict[str, Any]:
+        self.calls.append(("update", order_id, item_id, quantity, note))
+        assert self.order is not None
+        item = next(item for item in self.order["items"] if item["id"] == item_id)
+        item["quantity"] = quantity
+        item["subtotal"] = item["unit_price"] * quantity
+        self.order["total_amount"] = sum(i["subtotal"] for i in self.order["items"])
+        return self.order
+
+    def remove_order_item(self, order_id: int, item_id: int) -> None:
+        self.calls.append(("remove", order_id, item_id))
+        assert self.order is not None
+        self.order["items"] = [item for item in self.order["items"] if item["id"] != item_id]
+        self.order["total_amount"] = sum(i["subtotal"] for i in self.order["items"])
+
+    def get_order(self, order_id: int) -> dict[str, Any]:
+        assert self.order is not None
+        return self.order
 
 
 def test_mock_tables_and_products_structure() -> None:
@@ -295,7 +403,7 @@ def test_confirm_cancel_order_dialog_buttons(qapp: Any) -> None:
 def test_order_view_fetches_all_product_pages(qapp: Any) -> None:
     """Món ngoài trang đầu vẫn tìm và thêm được nhờ tải đủ trang theo meta (#87)."""
     client = _PagedProductClient()
-    view = OrderView(client)
+    view = OrderView(client, use_mock=True)
 
     products = view._fetch_all_products()
 
@@ -318,7 +426,7 @@ def test_order_view_fetches_all_product_pages(qapp: Any) -> None:
 def test_order_view_skips_unavailable_product(qapp: Any) -> None:
     """Không cho thêm món đã ngừng bán vào giỏ (#87)."""
     client = _PagedProductClient()
-    view = OrderView(client)
+    view = OrderView(client, use_mock=True)
     available = {
         "id": 1,
         "name": "Món đang bán",
@@ -342,3 +450,84 @@ def test_order_view_skips_unavailable_product(qapp: Any) -> None:
 
     view._add_product_to_cart(available)
     assert [item["product_id"] for item in view._cart_widget.items] == [1]
+
+
+def _run_worker_now(
+    self: Any,
+    func: Any,
+    *args: Any,
+    on_success: Any,
+    on_error: Any = None,
+    **kwargs: Any,
+) -> None:
+    """Chạy worker đồng bộ trong test để kiểm tra luồng gọi API của OrderView."""
+    try:
+        result = func(*args, **kwargs)
+    except Exception as exc:
+        if on_error is not None:
+            on_error(exc)
+        return
+    on_success(result)
+
+
+def test_order_view_persists_cart_actions_through_api(qapp: Any, monkeypatch: Any) -> None:
+    """Thêm/sửa/xoá món trong OrderView gọi đúng API và lấy tổng tiền từ server (#93)."""
+    client = _OrderApiClient()
+    view = OrderView(client)
+    monkeypatch.setattr(view, "start_worker", types.MethodType(_run_worker_now, view))
+
+    product = client.get_products()["data"][0]
+    view._on_data_loaded((client.get_tables(), [product]))
+
+    view._add_product_to_cart(product)
+    assert ("create", 1) in client.calls
+    assert [item["product_id"] for item in view._cart_widget.items] == [1]
+    assert view._cart_widget.calculate_total() == 25000
+
+    view._on_cart_quantity_changed(1, 3)
+    assert ("update", 7, 101, 3, "") in client.calls
+    assert view._cart_widget.items[0]["quantity"] == 3
+    assert view._cart_widget.calculate_total() == 75000
+
+    view._on_cart_item_removed(1)
+    assert ("remove", 7, 101) in client.calls
+    assert view._cart_widget.items == []
+
+
+def test_order_view_restores_open_order_for_table(qapp: Any, monkeypatch: Any) -> None:
+    """Chọn bàn đang có đơn mở thì tải lại giỏ hàng từ GET /orders/{id}."""
+    client = _OrderApiClient()
+    client.order = {
+        "id": 7,
+        "order_code": "ORD-20261118-001",
+        "table_id": 1,
+        "table_number": "Bàn O01",
+        "status": "serving",
+        "total_amount": 50000,
+        "notes": None,
+        "created_at": "2026-11-18T00:00:00",
+        "items": [
+            {
+                "id": 101,
+                "product_id": 1,
+                "product_name": "Cà phê API",
+                "unit": "ly",
+                "quantity": 2,
+                "unit_price": 25000,
+                "subtotal": 50000,
+                "status": "pending",
+                "notes": "Ít đá",
+            }
+        ],
+    }
+    client.tables[0].update(status="occupied", open_order_id=7)
+
+    view = OrderView(client)
+    monkeypatch.setattr(view, "start_worker", types.MethodType(_run_worker_now, view))
+    product = client.get_products()["data"][0]
+    view._on_data_loaded((client.get_tables(), [product]))
+
+    assert view._order_ids[1] == 7
+    assert [item["product_id"] for item in view._cart_widget.items] == [1]
+    assert view._cart_widget.items[0]["quantity"] == 2
+    assert view._cart_widget.items[0]["note"] == "Ít đá"

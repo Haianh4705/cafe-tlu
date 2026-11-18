@@ -37,12 +37,12 @@
 | 10 | POST | `/products` | admin | Tạo món | ✅ |
 | 11 | PATCH | `/products/{id}` | admin | Sửa món | ✅ |
 | 12 | DELETE | `/products/{id}` | admin | Xoá mềm món | ✅ |
-| 13 | GET | `/tables` | staff+ | Danh sách bàn + trạng thái | ⬜ |
-| 14 | POST | `/orders` | staff+ | Tạo đơn (order tại bàn) | ⬜ |
-| 15 | GET | `/orders/{id}` | staff+ | Chi tiết đơn | ⬜ |
-| 16 | POST | `/orders/{id}/items` | staff+ | Thêm món vào đơn | ⬜ |
-| 17 | PATCH | `/orders/{id}/items/{item_id}` | staff+ | Sửa số lượng / ghi chú | ⬜ |
-| 18 | DELETE | `/orders/{id}/items/{item_id}` | staff+ | Bỏ món khỏi đơn | ⬜ |
+| 13 | GET | `/tables` | staff+ | Danh sách bàn + trạng thái + `open_order_id` | ✅ |
+| 14 | POST | `/orders` | staff+ | Tạo đơn (order tại bàn) | ✅ |
+| 15 | GET | `/orders/{id}` | staff+ | Chi tiết đơn | ✅ |
+| 16 | POST | `/orders/{id}/items` | staff+ | Thêm món vào đơn | ✅ |
+| 17 | PATCH | `/orders/{id}/items/{item_id}` | staff+ | Sửa số lượng / ghi chú | ✅ |
+| 18 | DELETE | `/orders/{id}/items/{item_id}` | staff+ | Bỏ món khỏi đơn | ✅ |
 | 19 | POST | `/orders/{id}/checkout` | staff+ | Thanh toán + tạo hoá đơn | ⬜ |
 | 20 | GET | `/reports/revenue` | admin | Doanh thu theo ngày/tháng | ⬜ |
 | 21 | GET | `/reports/top-products` | admin | Top món bán chạy | ⬜ |
@@ -52,6 +52,10 @@
 | 25 | POST | `/public/orders` | public | Tạo đơn gọi món từ Kiosk khách hàng (trả kèm `qr_payload`) | ✅ |
 
 **Trạng thái:** ⬜ chưa làm · 🟡 đang làm · ✅ xong + có test
+
+> `GET /tables` trả thêm `open_order_id` (`null` nếu bàn trống) để GUI mở lại đơn đang phục vụ.
+> `POST /orders/{id}/items` gộp số lượng nếu món đã có trong đơn; mọi thay đổi món đều tính lại
+> `orders.total_amount` ở server trong cùng transaction.
 
 ## 3. Mã lỗi
 

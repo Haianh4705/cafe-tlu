@@ -14,6 +14,10 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ### Fixed — giao diện gọi món
 - `OrderView` tải đủ mọi trang món theo `meta.total_pages` của `GET /products`, nên tìm/lọc phủ toàn bộ danh mục thay vì chỉ 100 món đầu; chặn thêm món `is_available = false` vào giỏ (#87)
 
+### Added — bàn & đơn gọi món
+- 6 endpoint `GET /tables`, `POST /orders`, `GET /orders/{id}`, `POST/PATCH/DELETE` món trong đơn (#13–#18): mỗi bàn một đơn mở, giá snapshot, tổng tiền tính lại ở server trong transaction, `409 ORDER_ALREADY_PAID` khi sửa đơn đã đóng; `GET /tables` trả `open_order_id` để GUI khôi phục giỏ (#93)
+- `OrderView` nối API thật cho chọn bàn, thêm/sửa/xoá món và tải lại đơn đang mở; bỏ dữ liệu mock khi chạy bình thường (#93)
+
 ### Added — Kiosk khách hàng & chuẩn hoá GUI
 - Thêm màn Kiosk khách hàng tự gọi món (`CustomerKioskView`), hộp thoại tuỳ chọn đường/đá, sinh mã QR thanh toán thật qua `reportlab` (`QrPaymentWidget`) cho Kiosk & `CheckoutDialog`, cùng 2 endpoint public `GET /api/v1/public/menu`, `POST /api/v1/public/orders` và chuẩn hoá toàn bộ `gui/` theo skill `ui-design` (`0` hex cứng ngoài `theme.py`, `0` `QFrame` trần, hết tràn ngang `1280×720`) (#112)
 

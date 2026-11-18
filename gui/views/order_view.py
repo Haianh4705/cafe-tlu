@@ -152,6 +152,8 @@ class OrderView(BaseView):
         self._selected_table: dict[str, Any] | None = None
         self._table_cards: dict[int, TableCardWidget] = {}
         self._table_orders: dict[int, list[dict[str, Any]]] = {}
+        self._order_ids: dict[int, int] = {}
+        self._item_ids: dict[int, dict[int, int]] = {}
         self._current_cols: int = 1
         self.cashier_name: str = t("role_staff")
 
@@ -286,8 +288,8 @@ class OrderView(BaseView):
         self._cart_widget.setFixedWidth(340)
         self._cart_widget.checkout_requested.connect(self._open_checkout_dialog)
         self._cart_widget.cancel_order_requested.connect(self._handle_cancel_order)
-        self._cart_widget.item_quantity_changed.connect(self._sync_cart_to_table_order)
-        self._cart_widget.item_removed.connect(self._sync_cart_to_table_order)
+        self._cart_widget.item_quantity_changed.connect(self._on_cart_quantity_changed)
+        self._cart_widget.item_removed.connect(self._on_cart_item_removed)
         return self._cart_widget
 
     def _setup_shortcuts(self) -> None:
@@ -356,6 +358,11 @@ class OrderView(BaseView):
         tables, products = result
         self._tables = tables
         self._products = products
+        self._order_ids = {
+            int(tbl["id"]): int(tbl["open_order_id"])
+            for tbl in tables
+            if tbl.get("open_order_id") is not None
+        }
 
         if not self._tables and not self._products:
             self._set_state(
@@ -421,7 +428,124 @@ class OrderView(BaseView):
             card.set_active(cid == t_id)
 
         self._cart_widget.set_table(table_data)
-        self._cart_widget.set_items(self._table_orders.get(t_id, []))
+        if self._use_mock:
+            self._cart_widget.set_items(self._table_orders.get(t_id, []))
+            return
+
+        order_id = self._order_ids.get(t_id)
+        if order_id is None or table_data.get("status") in ("free", "available"):
+            self._order_ids.pop(t_id, None)
+            self._cart_widget.set_items([])
+            return
+        self.start_worker(
+            self.api.get_order,
+            order_id,
+            on_success=self._apply_order,
+            on_error=self._on_action_error,
+        )
+
+    def _apply_order(self, order: dict[str, Any]) -> None:
+        """Đồng bộ giỏ hàng và trạng thái bàn từ đơn do server trả về."""
+        table_id = int(order["table_id"])
+        self._order_ids[table_id] = int(order["id"])
+        self._item_ids[table_id] = {
+            int(item["product_id"]): int(item["id"]) for item in order.get("items", [])
+        }
+        items = [
+            {
+                "id": item["id"],
+                "product_id": item["product_id"],
+                "name": item["product_name"],
+                "product_name": item["product_name"],
+                "price": item["unit_price"],
+                "quantity": item["quantity"],
+                "note": item.get("notes") or "",
+            }
+            for item in order.get("items", [])
+        ]
+        self._table_orders[table_id] = items
+
+        status = "occupied" if order.get("status") in ("pending", "serving") else "free"
+        if status == "free":
+            self._order_ids.pop(table_id, None)
+        for tbl in self._tables:
+            if tbl.get("id") == table_id:
+                tbl["status"] = status
+                if table_id in self._table_cards:
+                    self._table_cards[table_id].update_data(tbl)
+                break
+
+        if self._selected_table and self._selected_table.get("id") == table_id:
+            self._selected_table["status"] = status
+            self._cart_widget.set_table(self._selected_table)
+            self._cart_widget.set_items(items)
+
+    def _save_added_product(self, table_id: int, product_id: int) -> dict[str, Any]:
+        """Tạo đơn nếu bàn chưa có rồi thêm món; luôn để server tính tiền."""
+        order_id = self._order_ids.get(table_id)
+        if order_id is None:
+            order = self.api.create_order(table_id)
+            order_id = int(order["id"])
+            self._order_ids[table_id] = order_id
+        return self.api.add_order_item(order_id, product_id, 1)
+
+    def _on_cart_quantity_changed(self, product_id: int, quantity: int) -> None:
+        """Lưu số lượng mới lên server; demo giữ đồng bộ trong bộ nhớ."""
+        if self._use_mock:
+            self._sync_cart_to_table_order()
+            return
+        if not self._selected_table:
+            return
+        table_id = int(self._selected_table.get("id", 0))
+        order_id = self._order_ids.get(table_id)
+        item_id = self._item_ids.get(table_id, {}).get(product_id)
+        if order_id is None or item_id is None:
+            return
+        note = next(
+            (
+                str(item.get("note") or "")
+                for item in self._cart_widget.items
+                if item.get("product_id") == product_id
+            ),
+            "",
+        )
+        self.start_worker(
+            self.api.update_order_item,
+            order_id,
+            item_id,
+            quantity,
+            note,
+            on_success=self._apply_order,
+            on_error=self._on_action_error,
+        )
+
+    def _on_cart_item_removed(self, product_id: int) -> None:
+        """Xoá món trên server rồi đọc lại đơn để giỏ hàng khớp dữ liệu thật."""
+        if self._use_mock:
+            self._sync_cart_to_table_order()
+            return
+        if not self._selected_table:
+            return
+        table_id = int(self._selected_table.get("id", 0))
+        order_id = self._order_ids.get(table_id)
+        item_id = self._item_ids.get(table_id, {}).pop(product_id, None)
+        if order_id is None or item_id is None:
+            return
+
+        def remove_and_reload() -> dict[str, Any]:
+            self.api.remove_order_item(order_id, item_id)
+            return self.api.get_order(order_id)
+
+        self.start_worker(
+            remove_and_reload,
+            on_success=self._apply_order,
+            on_error=self._on_action_error,
+        )
+
+    def _on_action_error(self, exc: Exception) -> None:
+        logger.error("Lỗi thao tác đơn tại bàn: %s", exc)
+        message = exc.message if isinstance(exc, ApiClientError) else str(exc)
+        QMessageBox.warning(self, t("notice"), message)
 
     def _menu_column_count(self) -> int:
         return 2 if self._menu_scroll.viewport().width() >= 420 else 1
@@ -506,8 +630,18 @@ class OrderView(BaseView):
         if not self._selected_table:
             QMessageBox.information(self, t("notice"), t("order_select_table_hint"))
             return
-        self._cart_widget.add_product(product)
-        self._sync_cart_to_table_order()
+        if self._use_mock:
+            self._cart_widget.add_product(product)
+            self._sync_cart_to_table_order()
+            return
+
+        self.start_worker(
+            self._save_added_product,
+            int(self._selected_table.get("id", 0)),
+            int(product.get("id", 0)),
+            on_success=self._apply_order,
+            on_error=self._on_action_error,
+        )
 
     def _sync_cart_to_table_order(self, *_: Any) -> None:
         """Đồng bộ giỏ hàng vào bộ nhớ bàn và cập nhật trạng thái occupied."""
