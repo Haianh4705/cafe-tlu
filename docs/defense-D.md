@@ -32,7 +32,8 @@ Nếu chỉ còn 5 phút: đọc **mục 1**, **mục 2**, **mục 8**.
 2. **Backend đóng gói thành image** — `infra/Dockerfile`, chạy bằng user thường (không phải root),
    có `HEALTHCHECK` gọi `/health`, và `infra/docker-compose.prod.yml` không mở cổng DB ra ngoài.
 3. **CI chặn code lỗi vào `develop`** — 2 job `Lint & format` và `Test`, test chạy với MySQL thật
-   trong service container; nhánh `develop` bị khoá: phải 1 approval + 2 check xanh + linear history.
+   trong service container; nhánh `develop` bị khoá (`enforce_admins: true`): 100% thay đổi phải qua
+   Pull Request + 2 check CI xanh + linear history (nhóm bỏ bắt buộc approve từ 2026-11-18 theo ADR-014).
 4. **Bộ cài Windows** — PyInstaller đóng GUI thành thư mục chạy được, Inno Setup bọc thành
    `CafeTLU-Setup-v0.1.0.exe`; vì cả nhóm dùng macOS nên **build trên `windows-latest` của GitHub
    Actions** khi push tag `v*`, đính thẳng vào GitHub Release (ADR-005).
@@ -182,17 +183,15 @@ branch protection bắt buộc đúng 2 tên check `Lint & format`, `Test`.
 
 | Thiết lập | Giá trị | Vì sao |
 |---|---|---|
-| Required approvals | **1** | GitHub **không cho tự approve** PR của mình; nếu bắt 2 thì nhóm 4 người phải chờ 2 người, chậm |
-| Required checks | `Lint & format`, `Test` | Chỉ chặn khi 2 job này xanh |
-| Strict / up-to-date | bật | PR phải rebase lên `develop` mới nhất rồi mới merge → tránh "xanh trên code cũ" |
-| Linear history | bật | Cấm merge commit; lịch sử 1 dòng, `git log` đọc được, revert dễ |
-| `enforce_admins` | **tắt** | Chủ repo là admin; tắt để còn đường `gh pr merge --admin` khi bị kẹt vì không ai review |
-| Code owner review | **không bật** | Mỗi người là owner duy nhất vùng mình → PR của A chỉ @A duyệt được → kẹt vĩnh viễn (ghi rõ trong `.github/CODEOWNERS`) |
+| Bắt buộc qua PR (`required_pull_request_reviews`) | **bật**, `required_approving_review_count = 0` | Chặn push thẳng, ép mọi chức năng qua Issue + PR; từ 2026-11-18 (ADR-014) bỏ bắt buộc approve để tác giả tự Squash & merge khi CI xanh, tránh nghẽn tiến độ |
+| Required checks | `Lint & format`, `Test` | Bắt buộc CI xanh toàn bộ trước khi merge |
+| Strict / up-to-date | **bật** | PR phải đồng bộ `develop` mới nhất rồi mới merge → tránh "xanh trên code cũ" |
+| Linear history | **bật** | Cấm merge commit; lịch sử 1 dòng, `git log` đọc được, revert dễ |
+| `enforce_admins` | **bật (`true`)** | Cả admin cũng không được push thẳng hay lách `--admin` vượt qua CI/PR |
+| Code owner review | **không bật** | Nhóm giao việc theo chức năng (ADR-014), không khoá cứng reviewer theo thư mục |
 
-**Câu bẫy: "Vậy bảo vệ nhánh có tác dụng gì khi em tự merge bằng `--admin`?"**
-→ Trả lời thật: "Với người khác thì chặn đúng; với em là lỗ hổng có chủ ý. Em dùng `--admin` chỉ khi
-PR của chính em mà không ai online, và luôn ghi lý do trong PR. Cách sửa đúng là bật `enforce_admins`
-khi nhóm đủ người trực review — em đã ghi việc này trong `docs/setup-github.md`."
+**Câu bẫy: "Không bắt buộc approve thì lỡ code sai lọt vào `develop` thì sao?"**
+→ Trả lời thật: "Trước tiên mọi PR vẫn phải qua 2 check CI bắt buộc (`Lint & format` và `Test` chạy với MySQL thật), bắt buộc có test mới và `strict: true`, và `enforce_admins: true` chặn mọi đường lách luật kể cả admin. Giai đoạn đầu nhóm từng bật 1 approval (lúc đó phải tắt `enforce_admins`), nhưng thực tế thành viên bận làm PR xanh bị kẹt. ADR-014 chọn mở tốc độ hợp lý cho nhóm 4 người, bù lại bằng checklist 3 câu giải thích ở mỗi PR và test hồi quy bắt buộc."
 
 ### 4.3 `.github/workflows/release.yml`
 
@@ -372,7 +371,7 @@ CHANGELOG 1 dòng · ảnh chụp **chỉ khi** vừa hoàn thiện/đổi một
 |---|---|
 | "Image 1,4 GB, em tối ưu kiểu gì?" | Thừa nhận ngay: do `requirements.txt` dùng chung kéo PySide6; kế hoạch G4 tách `requirements-api.txt` + multi-stage; ước còn < 300 MB |
 | "CI chỉ chạy trên Ubuntu, sao biết app chạy Windows?" | Đúng — CI chỉ build installer trên Windows, **không chạy test** ở đó. Bù lại bằng TC-PKG-01 trên máy sạch; đây là lỗ hổng đã biết |
-| "Bảo vệ nhánh mà em vẫn `--admin` merge?" | Thừa nhận là lỗ hổng có chủ ý, chỉ dùng khi không ai review được, có ghi lý do; bật `enforce_admins` khi nhóm trực review đủ |
+| "Bảo vệ nhánh mà không bắt buộc approve thì có lỏng lẻo không?" | Có trade-off rõ (ADR-014): giai đoạn đầu nhóm bật 1 approval nhưng tắt `enforce_admins` để admin tự cứu khi kẹt. Từ 2026-11-18 đổi sang bật `enforce_admins: true` (chặn 100% push thẳng/lách CI), giữ `Lint & format` + `Test` với MySQL thật (`strict: true`), và đặt `required_approving_review_count = 0` để mọi thành viên đều tự merge PR hợp lệ của mình |
 | "Test của nhóm có bao nhiêu % coverage?" | Nói số thật từ `make test` (15 test, coverage hiện thấp vì API chưa có); không bịa |
 | "Sao không có test cho Dockerfile/installer?" | Đúng, chưa có test tự động cho hạ tầng; kiểm bằng tay theo TC-PKG. Ghi vào phần "hạn chế" của báo cáo |
 | "Nếu push tag sai thì sao?" | Xoá tag local + remote, sửa version trong `shared/version.py` rồi tag lại; Release cũ phải xoá tay vì pipeline không tự dọn |
@@ -442,7 +441,7 @@ Nếu mạng/Docker hỏng: **không sửa live**, chuyển sang ảnh chụp tr
 - [ ] Trả lời được **10/10** câu mục 7, mỗi câu chỉ được vào file
 - [ ] Thuộc **6 số** đầu tiên ở mục 9
 - [ ] Chuẩn bị sẵn câu thừa nhận cho **4 chỗ yếu**: image 1,4 GB · CI không test Windows · chưa cài
-      thử máy sạch · bảo vệ nhánh không enforce admin
+      thử máy sạch · bảo vệ nhánh không bắt buộc approve (đã bù bằng CI thật + `enforce_admins: true` theo ADR-014)
 - [ ] Trả lời được **≥ 5 câu** vùng khác (dùng `defense.md` mục A/B/C): kiến trúc GUI→API→DB,
       envelope `data/meta/error`, transaction khi tạo đơn, bcrypt/JWT, vì sao bảng chi tiết đơn lưu giá
 - [ ] Chạy lại mục 10 một lần, chụp màn hình kết quả để dự phòng

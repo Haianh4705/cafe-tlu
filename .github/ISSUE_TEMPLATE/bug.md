@@ -15,6 +15,6 @@ labels: bug
 
 - [ ] <!-- Ca hồi quy cần đạt -->
 
-## Phụ thuộc
+## Phụ thuộc & phạm vi
 
-<!-- Link Issue/PR hoặc ghi “Không có”. Gán một người, một milestone, nhãn vùng và ghi ước lượng S/M/L. -->
+<!-- Link Issue/PR (hoặc ghi "Không có"), ước lượng S/M/L. Gán 1 thành viên xử lý, 1 milestone và các nhãn tầng kỹ thuật chạm tới (`api`, `gui`, `db`, `report`, `infra`, `docs`). -->

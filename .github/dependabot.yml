@@ -3,7 +3,7 @@ version: 2
 # Chính sách cập nhật thư viện (WORKFLOW.md mục 7.4):
 # - Phiên bản trong requirements.txt là CHỦ ĐÍCH, không tự động bump major.
 # - Chỉ nhận patch/minor, gom thành 1 PR/tuần để không làm nhiễu board.
-# - Mọi PR của Dependabot vẫn phải qua CI + 1 approval như PR thường.
+# - Mọi PR của Dependabot vẫn phải qua CI xanh trước khi merge (ADR-014 bỏ bắt buộc approve).
 
 updates:
   # ── Thư viện Python ──────────────────────────────────────────

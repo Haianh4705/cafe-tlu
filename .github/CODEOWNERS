@@ -1,53 +1,17 @@
-# CODEOWNERS — ai review vùng nào (WORKFLOW.md mục 3.2)
+# CODEOWNERS — chính sách reviewer của CafeTLU (ADR-014)
 #
-# Phân vai (đã chốt 2026-11-06):
-#   @bao20062005dh-creator  → A: Backend / API
-#   @trungdunxg             → B: Data & Reports
-#   @MeoCamGuitar           → C: GUI / UX
-#   @Haianh4705             → D: Infra + QA + Docs
+# Từ 2026-11-18, nhóm áp dụng ADR-014:
+#   1. Giao việc theo chức năng cần làm (không khoá cứng thư mục theo A/B/C/D).
+#   2. Bỏ bắt buộc approve: Branch Protection đặt required_approving_review_count = 0
+#      và require_code_owner_reviews = false, đồng thời bật enforce_admins = true
+#      để bắt buộc 100% thay đổi qua Issue + PR + CI xanh (Lint & format, Test).
 #
-# ⚠️ KHÔNG bật "Require review from Code Owners" (Settings → Branches).
-#    Lý do: mỗi người là owner duy nhất của vùng mình, mà GitHub không cho tự
-#    approve PR của chính mình → PR của A sẽ kẹt vĩnh viễn vì chỉ @A được duyệt.
-#    GitHub yêu cầu tối thiểu một approval. Gán reviewer theo WORKFLOW.md mục 3.2,
-#    dùng review chéo khi owner là tác giả và kiểm ngoại lệ cần hai approval.
-
-# ─────────────────────────────────────────────────────────────
-# 1. Mặc định: mọi file cần 1 trong 4 người review
-# ─────────────────────────────────────────────────────────────
-*                       @Haianh4705 @bao20062005dh-creator @MeoCamGuitar @trungdunxg
-
-# ─────────────────────────────────────────────────────────────
-# 2. Chia theo vùng — reviewer mặc định
-# ─────────────────────────────────────────────────────────────
-/api/                   @bao20062005dh-creator
-/shared/                @bao20062005dh-creator
-/db/                    @trungdunxg
-/api/services/reports.py @trungdunxg
-/scripts/seed_data.py   @trungdunxg
-/gui/                   @MeoCamGuitar
-/assets/                @MeoCamGuitar
-
-# ─────────────────────────────────────────────────────────────
-# 3. Hạ tầng, CI, tài liệu — D
-# ─────────────────────────────────────────────────────────────
-/infra/                 @Haianh4705
-/installer/             @Haianh4705
-/scripts/               @Haianh4705
-/.github/               @Haianh4705
-/docs/                  @Haianh4705
-/report/                @Haianh4705
-/docker-compose.yml     @Haianh4705
-/Makefile               @Haianh4705
-/requirements.txt       @Haianh4705
-/requirements-dev.txt   @Haianh4705
-/pyproject.toml         @Haianh4705
-/.pre-commit-config.yaml @Haianh4705
-
-# ─────────────────────────────────────────────────────────────
-# 4. Quy chuẩn chung — cần D + 1 người khác (WORKFLOW.md mục 3.2)
-# ─────────────────────────────────────────────────────────────
-/WORKFLOW.md            @Haianh4705 @bao20062005dh-creator @MeoCamGuitar @trungdunxg
-/AGENTS.md              @Haianh4705
-/README.md              @Haianh4705
-/CHANGELOG.md           @Haianh4705
+# File này cố ý không khai rule tự động gắn reviewer để tránh tự gán người vắng mặt
+# hoặc khoá vùng khi một thành viên làm trọn gói chức năng xuyên tầng. Khi cần góp ý
+# ở thay đổi lớn/nhạy cảm, tác giả chủ động tag đồng đội trực tiếp trong PR.
+#
+# Thành viên nhóm:
+#   A: @bao20062005dh-creator
+#   B: @trungdunxg
+#   C: @MeoCamGuitar
+#   D: @Haianh4705

@@ -1,12 +1,12 @@
-## Issue và thay đổi
+## Issue và chức năng thực hiện
 
 Refs #
 
-<!-- Nêu kết quả chính và lý do nếu PR cần giữ nhiều phần cùng nhau. -->
+<!-- Nêu kết quả đạt được (các tầng đã chạm: db / api / gui / infra / docs) và lý do nếu tách/gộp. -->
 
 ## Kiểm chứng
 
-<!-- Lệnh, kết quả thật và link CI. Thêm test case và ảnh theo quy định nếu đổi màn hình. -->
+<!-- Dán lệnh + kết quả thật (`make lint`, `make test`) và link CI. Thêm ảnh chụp vào `docs/screenshots/` nếu xong/đổi màn hình. -->
 
 ## Giải thích được
 
@@ -14,8 +14,9 @@ Refs #
 2. Vì sao chọn cách này?
 3. Nếu thầy hỏi vì sao không dùng cách khác thì trả lời thế nào?
 
-## Checklist chung
+## Checklist trước khi Squash & Merge (không cần chờ approve — ADR-014)
 
-- [ ] **Tác giả** đã kiểm phạm vi, test hồi quy hoặc nêu lý do, cập nhật tài liệu/changelog khi áp dụng và ghi nhật ký cá nhân.
-- [ ] **Reviewer** đã đối chiếu nghiệm thu, caller, trường hợp biên, phân quyền, bảo mật, dữ liệu, hiệu năng và kiến trúc liên quan.
-- [ ] **Reviewer** đã kiểm bằng chứng test, khả năng giải thích và các yêu cầu review theo WORKFLOW mục 3.2.
+- [ ] Đúng phạm vi Issue, giữ kiến trúc một chiều `gui → api → db` (`gui/` không chạm DB/models).
+- [ ] `make lint && make test` xanh ở local và cả 2 check CI trên GitHub đã xanh.
+- [ ] Đã cập nhật tài liệu liên quan (`docs/api-contract.md` / `db/schema.sql` / `CHANGELOG.md` khi đổi hành vi).
+- [ ] Đã ghi 1–3 dòng vào `docs/log/<vai>.md` của chính mình (mục 2: việc · mục 3: AI đã hỗ trợ gì).

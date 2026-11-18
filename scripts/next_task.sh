@@ -3,7 +3,7 @@
 #
 #   make next
 #
-# Thứ tự = milestone (W1 trước W2…) rồi tới số Issue. Issue được tạo theo đúng
+# Thứ tự = milestone (G1 trước G2…) rồi tới số Issue. Issue được tạo theo đúng
 # thứ tự phụ thuộc nên số nhỏ hơn = làm trước (xem docs/plan.md).
 set -uo pipefail
 
@@ -17,7 +17,7 @@ if ! command -v gh >/dev/null 2>&1; then
    Windows: winget install GitHub.cli
 
    Chưa cài được cũng không sao — mở trực tiếp trên GitHub:
-   • Bảng điều khiển tuần : issue "W<n> — Bảng điều khiển tuần <n>"
+   • Bảng điều khiển cổng : issue "G<n> — Bảng điều khiển..."
    • Việc của bạn         : github.com/Haianh4705/cafe-tlu/issues?q=assignee:@me
 EOF
   exit 1
@@ -34,26 +34,33 @@ who=${1:-$login}
 rows=$(gh issue list --assignee "$who" --state open --limit 50 \
   --json number,title,milestone,labels,url \
   --jq '
-    def skill:
+    def skill_for:
       if . == "api" then "fastapi-endpoint"
       elif . == "db" then "sqlalchemy-model"
       elif . == "gui" then "pyside6-screen + ui-design"
       elif . == "infra" then "win-installer"
       elif . == "report" then "report-export"
-      else "—" end;
+      else empty end;
     sort_by([ (.milestone.title // "Z9"), .number ])
     | .[]
-    | select((.labels[0].name // "") != "tracking")
-    | (.labels[0].name // "") as $label
-    | [ (.milestone.title // "—"), (.number | tostring), $label,
-        .title, .url, ($label | skill) ]
+    | select(([.labels[].name] | index("tracking")) | not)
+    | ([.labels[].name] | join(", ")) as $labels
+    | ([.labels[].name | skill_for] | unique | join(", ")) as $skills
+    | [
+        (.milestone.title // "—"),
+        (.number | tostring),
+        (if $labels == "" then "—" else $labels end),
+        .title,
+        .url,
+        (if $skills == "" then "—" else $skills end)
+      ]
     | @tsv' 2>/dev/null)
 
 if [ -z "$rows" ]; then
   line
   printf '🎉 @%s không còn việc nào được gán.\n\n' "$who"
-  printf 'Hỏi D để nhận việc tiếp, hoặc tự nhận một Issue đang mở:\n'
-  printf '  gh issue list --state open --limit 20\n'
+  printf 'Hỏi D hoặc xem danh sách Issue chức năng chưa gán để nhận việc:\n'
+  printf '  gh issue list --state open --limit 30\n'
   line
   exit 0
 fi
@@ -86,15 +93,15 @@ cat <<'EOF'
 
 ──────────────────────────────────────────────────────────────
 TRƯỚC KHI CODE
-  1. Đọc issue: mục "Việc cần làm" + "Tiêu chí nghiệm thu"
-  2. Đọc skill ghi ở trên  (.claude/skills/<tên>/SKILL.md)
+  1. Đọc issue: mục "Kết quả mong đợi" + "Nghiệm thu" + "Phụ thuộc"
+  2. Đọc đủ skill ứng với các tầng chạm tới (.claude/skills/<tên>/SKILL.md)
   3. Đọc skill `minimal-change` (áp cho mọi việc)
   4. git switch develop && git pull --ff-only
      git switch -c feature/<scope>-<slug>-<tên>
 
 KHI XONG
-  make check → PR vào develop → cần 1 approval + CI xanh
+  make check → mở PR vào develop (Refs #<issue>) → chờ CI xanh → tự Squash & Merge → nghiệm thu & đóng Issue
   Điền mục "Giải thích được" 3 câu trong PR (docs/defense.md)
-  Ghi 1–3 dòng vào docs/log/<vai>.md  (việc đã làm + AI đã hỗ trợ gì)
+  Ghi 1–3 dòng vào docs/log/<vai>.md (mục 2: việc · mục 3: AI đã hỗ trợ gì)
 ──────────────────────────────────────────────────────────────
 EOF

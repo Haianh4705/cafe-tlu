@@ -1,6 +1,6 @@
 # `tests/` — Kiểm thử
 
-**Owner:** A và B (mỗi người test phần mình) · **Bắt đầu:** cổng G2 · **Trạng thái:** 🟡 khung trống
+**Phạm vi:** sửa theo Issue chức năng được giao (`ADR-014`) — đọc skill `pytest-db` trước khi viết test, giữ kiến trúc `gui → api → db`.
 
 ## Cấu trúc
 

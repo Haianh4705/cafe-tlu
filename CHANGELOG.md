@@ -9,7 +9,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ## [Unreleased]
 
 ### Changed — Quy trình nhóm
-- Theo dõi tiến độ trên GitHub Issues, rút gọn mẫu Issue/PR và làm rõ review chéo cùng nghiệm thu sau merge (#90).
+- Chuyển quy trình sang gán thành viên theo chức năng (`ADR-014`), bỏ bắt buộc approve trên GitHub (`required_approving_review_count = 0`) và bật `enforce_admins: true` để mọi chức năng đi qua Issue & PR (#90)
 
 ### Fixed — CI
 - Cập nhật thư viện: `fastapi` 0.162.5 (sửa dọn dependency khi cancel), `pymysql` 1.2.4, `ruff` 0.17.5 — thay PR dependabot #57 bị conflict sau khi #45 được squash (#57)

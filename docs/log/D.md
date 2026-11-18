@@ -52,7 +52,7 @@
 | 11-18 | #33, G3 | #70 (merge) | `README.md` | duyệt #70 sau khi C điền body + đổi tiêu đề; kiểm 50 passed (GUI offscreen), 58 file sạch, merge thử 0 conflict, rebase giữ đủ key i18n; merge + tick G3, ghi rõ Dashboard còn mock | trước đó tôi đã trả PR lại vì body template và tiêu đề sai quy ước — squash merge sẽ biến tiêu đề PR thành commit message nên phải sửa trước, không phải sau |
 | 11-18 | — | `4221dc0` | `gui/`, `api/`, `db/`, `.github/workflows/` | rà soát `develop`, ưu tiên lỗi đăng xuất, nâng cấp MySQL và thứ tự kiểm bộ cài trước phát hành | đối chiếu luồng gọi với hợp đồng và log CI để tìm lỗi tích hợp còn ngoài phạm vi bộ test |
 | 11-18 | #78–#89 | `4221dc0` | GitHub Issues, `WORKFLOW.md` | gán 12 phát hiện review cho A/B/C/D, ghi hướng sửa và nghiệm thu, đề xuất rút gọn quy trình | giao theo vùng sở hữu và mốc để thấy rõ người chịu trách nhiệm và phụ thuộc |
-| 11-18 | #90 | #91 | `WORKFLOW.md`, `docs/log/D.md`, mẫu Issue/PR | thống nhất review chéo, nguồn trạng thái, bước đóng Issue và đồng bộ nhật ký D | giảm cập nhật lặp, tránh xung đột nhật ký trên `develop` mà vẫn giữ minh chứng cổng kiểm tra |
+| 11-18 | #90 | #91 | `WORKFLOW.md` v2.0, `docs/decisions.md` (ADR-014), `AGENTS.md`, `docs/plan.md`, `scripts/next_task.sh`, `.github/*`, GitHub settings | mở khoá ranh giới thư mục để gán theo chức năng, tắt bắt buộc approve (`required_approving_review_count = 0`), bật `enforce_admins: true`, bổ sung 11 Issue G3–G5 (#93–#103) và đồng bộ toàn bộ tài liệu | quy trình khoá vùng + chờ approve làm kẹt PR dù CI xanh; chuyển sang Issue theo chức năng + CI bắt buộc + tự merge giúp nhóm tăng tốc mà vẫn giữ lịch sử kiểm soát qua Issue/PR |
 
 > Chi tiết từng quyết định: `docs/decisions.md` (ADR-003…005, 009, 010) · kết quả kiểm chứng:
 > CI xanh, Release `v0.1.0` có `CafeTLU-Setup-v0.1.0.exe` (39,4 MB), `pytest` 15 passed.
@@ -69,7 +69,7 @@
 | 11-11 | AI agent | đề xuất `timeout-minutes` + apt `Acquire::*`, viết bản sửa workflow | tự chọn ngưỡng (lint 10', test 15', release 45') dựa trên thời gian chạy thật 15–60s và 6–10 phút; tự kiểm YAML bằng `yaml.safe_load` |
 | 11-11 | AI agent | soạn `docs/defense-D.md` + khung `docs/log/README.md` + 4 file A–D, nối quy tắc vào `WORKFLOW.md`/`AGENTS.md`/PR template | đối chiếu từng câu trả lời với code thật, sửa 4 số liệu sai (số ca kiểm thử, số dòng file, cổng compose); tự chốt 6 mục nhật ký, **không** thêm check CI tự động vì dễ chặn nhầm |
 | 11-18 | Codex + Sol | đối chiếu SHA trên GitHub, chạy lint và test local (50 pass, 23 skip do cấu hình DB), kiểm Qt offscreen, đọc CI cùng SHA (73 pass) và soạn nháp #78–#89 | rà lại 12 phát hiện theo vùng sở hữu A/B/C/D, chốt gắn mốc G2–G4 trên GitHub Issues |
-| 11-18 | Codex + Sol, Antigravity | soạn quy trình tinh gọn cho #90, rà liên kết/cấu hình GitHub; phát hiện và gộp xung đột nhật ký `docs/log/D.md` giữa `develop` và PR #91 | chọn phương án gộp nhật ký vào PR #91, làm sạch `develop` local, chạy lại `make lint && make test` trước khi push |
+| 11-18 | Codex + Sol, Antigravity | rà liên kết/cấu hình GitHub, gộp xung đột nhật ký `docs/log/D.md` giữa `develop` và PR #91; cập nhật đồng bộ quy trình mới v2.0 (ADR-014), sửa `scripts/next_task.sh`, bật `enforce_admins: true` & `approvals=0`, tạo 11 Issue G3–G5 (#93–#103) | kiểm chứng cấu hình `gh api` thật trên `develop`/`main`, rà toàn bộ liên kết nội bộ, chạy `make lint && DB_NAME=cafe_tlu_test make test` và trực tiếp kiểm thử tự Squash & merge PR #91 |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng D)
 
