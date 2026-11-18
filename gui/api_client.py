@@ -111,8 +111,9 @@ class ApiClient:
 
     def logout(self) -> None:
         """POST /auth/logout - Thu hồi token và đăng xuất."""
+        payload = {"refresh_token": self.refresh_token} if self.refresh_token else None
         try:
-            self._request("POST", "/auth/logout")
+            self._request("POST", "/auth/logout", json_data=payload)
         finally:
             self.clear_tokens()
 
@@ -219,3 +220,14 @@ class ApiClient:
     def get_top_products_report(self, limit: int = 10) -> list[dict[str, Any]]:
         """GET /reports/top-products - Lấy danh sách món bán chạy nhất."""
         return self._request("GET", "/reports/top-products", params={"limit": limit})
+
+    # ------------------------------------------------------------------
+    # 5. Kiosk khách hàng (Public)
+    # ------------------------------------------------------------------
+    def get_public_menu(self) -> dict[str, Any]:
+        """GET /public/menu - Lấy danh mục, bàn và thực đơn cho màn Kiosk."""
+        return self._request("GET", "/public/menu")
+
+    def create_public_order(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """POST /public/orders - Gửi đơn khách tự chọn món và nhận payload QR."""
+        return self._request("POST", "/public/orders", json_data=payload)

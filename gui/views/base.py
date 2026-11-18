@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from gui.i18n import t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
 
 logger = logging.getLogger(__name__)
@@ -87,14 +88,14 @@ class BaseView(QWidget):
         self._state_stack.addWidget(self._loading_widget)
 
         # 2. Empty widget
-        self._empty_label = QLabel("Chưa có dữ liệu", self)
-        self._empty_action_btn = QPushButton("Thêm mới", self)
+        self._empty_label = QLabel(t("no_data"), self)
+        self._empty_action_btn = QPushButton(t("add_new"), self)
         self._empty_widget = self._build_empty_widget()
         self._state_stack.addWidget(self._empty_widget)
 
         # 3. Error widget
-        self._error_label = QLabel("Đã có lỗi xảy ra", self)
-        self._retry_btn = QPushButton("Thử lại", self)
+        self._error_label = QLabel(t("error_default"), self)
+        self._retry_btn = QPushButton(t("retry"), self)
         self._error_widget = self._build_error_widget()
         self._state_stack.addWidget(self._error_widget)
 
@@ -182,7 +183,7 @@ class BaseView(QWidget):
                 self._empty_action_btn.setVisible(False)
             self._state_stack.setCurrentWidget(self._empty_widget)
         elif state == self.STATE_ERROR:
-            self._error_label.setText(message or "Không thể tải dữ liệu. Vui lòng thử lại.")
+            self._error_label.setText(message or t("error_default"))
             self._state_stack.setCurrentWidget(self._error_widget)
         elif state == self.STATE_DATA:
             self._state_stack.setCurrentWidget(self._data_widget)
@@ -196,7 +197,7 @@ class BaseView(QWidget):
         layout.setContentsMargins(SPACE["xl"], SPACE["xl"], SPACE["xl"], SPACE["xl"])
         layout.setSpacing(SPACE["md"])
 
-        label = QLabel("Đang tải dữ liệu...", widget)
+        label = QLabel(t("loading"), widget)
         label.setStyleSheet(f"color: {COLOR['muted']}; font-size: {FONT['body']}px;")
         label.setWordWrap(True)
 

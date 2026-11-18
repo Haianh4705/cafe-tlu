@@ -48,6 +48,8 @@
 | 21 | GET | `/reports/top-products` | admin | Top món bán chạy | ⬜ |
 | 22 | GET | `/reports/export` | admin | Xuất Excel/PDF | ⬜ |
 | 23 | GET | `/audit-logs` | admin | Lịch sử thao tác | ⬜ |
+| 24 | GET | `/public/menu` | public | Danh mục, bàn và thực đơn cho Kiosk khách hàng | ✅ |
+| 25 | POST | `/public/orders` | public | Tạo đơn gọi món từ Kiosk khách hàng (trả kèm `qr_payload`) | ✅ |
 
 **Trạng thái:** ⬜ chưa làm · 🟡 đang làm · ✅ xong + có test
 
@@ -106,5 +108,46 @@
     "message": "Tên món đã tồn tại",
     "details": { "field": "name", "value": "Trà đào cam sả" }
   }
+}
+```
+
+### 4.4 `POST /public/orders` (Kiosk khách hàng)
+
+```json
+// Request
+{
+  "table_id": 3,
+  "notes": "Ít ngọt",
+  "items": [
+    { "product_id": 4, "quantity": 2, "notes": "50% đường, Ít đá" }
+  ]
+}
+
+// 201 Created
+{
+  "data": {
+    "id": 121,
+    "order_code": "ORD-20261118-001",
+    "table_id": 3,
+    "table_number": "Bàn 03",
+    "status": "pending",
+    "total_amount": 70000,
+    "notes": "[Kiosk] Ít ngọt",
+    "qr_payload": "CAFETLU|VIETQR|ORD-20261118-001|70000",
+    "created_at": "2026-11-18T13:50:00",
+    "items": [
+      {
+        "id": 251,
+        "product_id": 4,
+        "product_name": "Trà đào cam sả",
+        "unit": "ly",
+        "quantity": 2,
+        "unit_price": 35000,
+        "subtotal": 70000,
+        "notes": "50% đường, Ít đá"
+      }
+    ]
+  },
+  "meta": null
 }
 ```

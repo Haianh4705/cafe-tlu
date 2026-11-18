@@ -1,5 +1,9 @@
 """Kiểm thử đơn vị cho các thành phần giao diện tĩnh: Theme, i18n và ApiClient."""
 
+import ast
+import re
+from pathlib import Path
+
 from gui.api_client import ApiClient, ApiClientError
 from gui.i18n import t
 from gui.theme import COLOR, FONT, RADIUS, SPACE
@@ -65,3 +69,53 @@ def test_api_client_token_management() -> None:
     client.clear_tokens()
     assert client.access_token is None
     assert "Authorization" not in client._headers()
+
+
+def _iter_non_docstring_strings(tree: ast.AST) -> list[str]:
+    """Lấy toàn bộ chuỗi literal trong AST trừ docstring của module/class/hàm."""
+    docstring_nodes: set[int] = set()
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Constant)
+            and isinstance(node.body[0].value.value, str)
+        ):
+            docstring_nodes.add(id(node.body[0].value))
+
+    return [
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and id(node) not in docstring_nodes
+    ]
+
+
+def test_gui_floor_no_hardcoded_hex_or_bare_qframe() -> None:
+    """Rào Floor Check: cấm mã màu #hex ngoài theme.py và cấm QFrame { không gắn #objectName."""
+    hex_pattern = re.compile(r"#[0-9a-fA-F]{3,8}\b")
+    bare_qframe_pattern = re.compile(r"(?<![#\w])QFrame\s*\{")
+    gui_root = Path(__file__).resolve().parent.parent / "gui"
+
+    hex_violations: list[str] = []
+    qframe_violations: list[str] = []
+
+    for py_file in sorted(gui_root.rglob("*.py")):
+        source = py_file.read_text(encoding="utf-8")
+        tree = ast.parse(source, filename=str(py_file))
+
+        if py_file.name != "theme.py":
+            for literal in _iter_non_docstring_strings(tree):
+                matches = hex_pattern.findall(literal)
+                if matches:
+                    hex_violations.append(f"{py_file.name}: {matches}")
+
+        for literal in _iter_non_docstring_strings(tree):
+            qframe_matches = bare_qframe_pattern.findall(literal)
+            if qframe_matches:
+                qframe_violations.append(f"{py_file.name}: {qframe_matches}")
+
+    assert not hex_violations, f"Phát hiện mã màu #hex cứng ngoài theme.py: {hex_violations}"
+    assert not qframe_violations, f"Phát hiện QFrame {{ thiếu #objectName: {qframe_violations}"

@@ -1,10 +1,11 @@
 """Hộp thoại Thêm/Sửa và Xác nhận xoá món ăn trong CafeTLU.
 
 Tuân thủ:
-- .claude/skills/ui-design/SKILL.md: Màu Navy #000066 cho nút Lưu, Đỏ #F32409 cho nút Xoá.
-- .claude/skills/pyside6-screen/SKILL.md: Validate tại chỗ, hộp thoại xác nhận khi xoá.
+- .claude/skills/ui-design/SKILL.md: Nút Lưu navy, nút Xoá đỏ, token gui/theme.py.
+- .claude/skills/pyside6-screen/SKILL.md: Giữ form khi lỗi API, xác nhận thao tác phá huỷ.
 """
 
+from collections.abc import Callable
 from typing import Any
 
 from PySide6.QtWidgets import (
@@ -32,11 +33,13 @@ class ProductFormDialog(QDialog):
         categories: list[dict[str, Any]],
         product: dict[str, Any] | None = None,
         parent: QWidget | None = None,
+        on_submit: Callable[[dict[str, Any]], None] | None = None,
     ) -> None:
         super().__init__(parent)
         self._categories = categories
         self._product = product
         self._is_edit_mode = product is not None
+        self._on_submit = on_submit
 
         title = t("product_title_edit") if self._is_edit_mode else t("product_title_add")
         self.setWindowTitle(title)
@@ -52,7 +55,6 @@ class ProductFormDialog(QDialog):
         layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
         layout.setSpacing(SPACE["md"])
 
-        # Tiêu đề Dialog
         header_text = t("product_title_edit") if self._is_edit_mode else t("product_title_add")
         title_label = QLabel(header_text, self)
         title_label.setStyleSheet(
@@ -60,27 +62,23 @@ class ProductFormDialog(QDialog):
         )
         layout.addWidget(title_label)
 
-        # Thông báo lỗi Inline
         self._error_label = QLabel("", self)
         self._error_label.setWordWrap(True)
         self._error_label.setStyleSheet(
-            f"color: {COLOR['red_text']}; background-color: #FEF3F2; "
-            f"border: 1px solid #FECDCA; border-radius: {RADIUS['sm']}px; "
+            f"color: {COLOR['red_text']}; background-color: {COLOR['danger_bg']}; "
+            f"border: 1px solid {COLOR['danger_border']}; border-radius: {RADIUS['sm']}px; "
             f"padding: {SPACE['sm']}px; font-size: {FONT['caption']}px;"
         )
         self._error_label.setVisible(False)
         layout.addWidget(self._error_label)
 
-        # Form fields
-        # 1. Tên món
         name_label = QLabel(t("product_name") + " *", self)
         name_label.setStyleSheet(f"font-weight: 600; color: {COLOR['ink']};")
         self._name_input = QLineEdit(self)
-        self._name_input.setPlaceholderText("Ví dụ: Cà phê sữa đá, Trà đào cam sả...")
+        self._name_input.setPlaceholderText(t("product_name_placeholder"))
         layout.addWidget(name_label)
         layout.addWidget(self._name_input)
 
-        # 2. Danh mục
         cat_label = QLabel(t("product_category") + " *", self)
         cat_label.setStyleSheet(f"font-weight: 600; color: {COLOR['ink']};")
         self._cat_combo = QComboBox(self)
@@ -89,11 +87,9 @@ class ProductFormDialog(QDialog):
         layout.addWidget(cat_label)
         layout.addWidget(self._cat_combo)
 
-        # 3. Đơn giá & Đơn vị tính (trên 1 dòng)
         price_unit_layout = QHBoxLayout()
         price_unit_layout.setSpacing(SPACE["md"])
 
-        # Đơn giá
         price_box = QVBoxLayout()
         price_box.setSpacing(SPACE["xs"])
         price_label = QLabel(t("product_price") + " *", self)
@@ -106,13 +102,12 @@ class ProductFormDialog(QDialog):
         price_box.addWidget(price_label)
         price_box.addWidget(self._price_spin)
 
-        # Đơn vị tính
         unit_box = QVBoxLayout()
         unit_box.setSpacing(SPACE["xs"])
         unit_label = QLabel(t("product_unit") + " *", self)
         unit_label.setStyleSheet(f"font-weight: 600; color: {COLOR['ink']};")
         self._unit_input = QLineEdit(self)
-        self._unit_input.setPlaceholderText("ly, cốc, đĩa...")
+        self._unit_input.setPlaceholderText(t("product_unit_placeholder"))
         self._unit_input.setText("ly")
         unit_box.addWidget(unit_label)
         unit_box.addWidget(self._unit_input)
@@ -121,7 +116,6 @@ class ProductFormDialog(QDialog):
         price_unit_layout.addLayout(unit_box, stretch=1)
         layout.addLayout(price_unit_layout)
 
-        # 4. Trạng thái còn bán
         self._available_check = QCheckBox(t("product_available"), self)
         self._available_check.setChecked(True)
         self._available_check.setStyleSheet(f"font-size: {FONT['body']}px;")
@@ -129,20 +123,19 @@ class ProductFormDialog(QDialog):
 
         layout.addSpacing(SPACE["sm"])
 
-        # 5. Thanh nút bấm
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(SPACE["sm"])
 
-        cancel_btn = QPushButton(t("cancel"), self)
-        cancel_btn.setProperty("variant", "secondary")
-        cancel_btn.clicked.connect(self.reject)
+        self._cancel_btn = QPushButton(t("cancel"), self)
+        self._cancel_btn.setProperty("variant", "secondary")
+        self._cancel_btn.clicked.connect(self.reject)
 
-        save_btn = QPushButton(t("save"), self)
-        save_btn.clicked.connect(self._validate_and_accept)
+        self._save_btn = QPushButton(t("save"), self)
+        self._save_btn.clicked.connect(self._validate_and_accept)
 
         btn_layout.addStretch()
-        btn_layout.addWidget(cancel_btn)
-        btn_layout.addWidget(save_btn)
+        btn_layout.addWidget(self._cancel_btn)
+        btn_layout.addWidget(self._save_btn)
         layout.addLayout(btn_layout)
 
     def _fill_data(self, product: dict[str, Any]) -> None:
@@ -159,31 +152,51 @@ class ProductFormDialog(QDialog):
                 self._cat_combo.setCurrentIndex(idx)
 
     def _validate_and_accept(self) -> None:
-        """Kiểm tra hợp lệ trước khi đóng hộp thoại."""
+        """Kiểm tra hợp lệ trước khi gửi API hoặc đóng hộp thoại."""
         name = self._name_input.text().strip()
         price = self._price_spin.value()
         unit = self._unit_input.text().strip()
 
         if not name:
-            self._error_label.setText(t("product_err_name_required"))
-            self._error_label.setVisible(True)
+            self.show_error(t("product_err_name_required"))
             self._name_input.setFocus()
             return
 
         if price <= 0:
-            self._error_label.setText(t("product_err_price_invalid"))
-            self._error_label.setVisible(True)
+            self.show_error(t("product_err_price_invalid"))
             self._price_spin.setFocus()
             return
 
         if not unit:
-            self._error_label.setText(t("product_err_unit_required"))
-            self._error_label.setVisible(True)
+            self.show_error(t("product_err_unit_required"))
             self._unit_input.setFocus()
             return
 
         self._error_label.setVisible(False)
-        self.accept()
+        if self._on_submit is not None:
+            self._on_submit(self.get_data())
+        else:
+            self.accept()
+
+    def set_submitting(self, submitting: bool) -> None:
+        """Khoá/mở form khi đang chờ API phản hồi để tránh gửi lặp."""
+        for widget in (
+            self._name_input,
+            self._cat_combo,
+            self._price_spin,
+            self._unit_input,
+            self._available_check,
+            self._cancel_btn,
+            self._save_btn,
+        ):
+            widget.setEnabled(not submitting)
+        self._save_btn.setText(t("saving") if submitting else t("save"))
+
+    def show_error(self, message: str) -> None:
+        """Hiển thị lỗi ngay trên dialog mà không làm mất nội dung đang nhập."""
+        self.set_submitting(False)
+        self._error_label.setText(message)
+        self._error_label.setVisible(True)
 
     def get_data(self) -> dict[str, Any]:
         """Lấy dữ liệu đã nhập từ form để gửi API."""
@@ -209,25 +222,20 @@ class ConfirmDeleteDialog(QDialog):
         layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
         layout.setSpacing(SPACE["md"])
 
-        # Tiêu đề
         title = QLabel(t("confirm_delete_product", name=product_name), self)
         title.setWordWrap(True)
         title.setStyleSheet(
             f"color: {COLOR['ink']}; font-size: {FONT['title']}px; font-weight: bold;"
         )
 
-        # Cảnh báo
         warning = QLabel(t("product_delete_warning"), self)
         warning.setWordWrap(True)
-        warning.setStyleSheet(
-            f"color: {COLOR['muted']}; font-size: {FONT['body']}px; line-height: 1.4;"
-        )
+        warning.setStyleSheet(f"color: {COLOR['muted']}; font-size: {FONT['body']}px;")
 
         layout.addWidget(title)
         layout.addWidget(warning)
         layout.addSpacing(SPACE["sm"])
 
-        # Nút bấm: Huỷ và Xoá (đỏ)
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(SPACE["sm"])
 

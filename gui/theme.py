@@ -21,7 +21,10 @@ COLOR: Final[dict[str, str]] = {
     "tint_200": "#CCDAFF",  # Viền nhấn, badge nhạt
     # Màu cảnh báo / nguy hiểm (Swoosh đỏ trong logo TLU)
     "red": "#F32409",  # CHỈ dùng cho hành động nguy hiểm: xoá, huỷ đơn, cảnh báo nặng
+    "danger_hover": "#D91D04",  # Hover nút nguy hiểm
     "red_text": "#B42318",  # Chữ đỏ nhỏ (< 18px) đảm bảo tương phản AA (>= 4.5:1)
+    "danger_bg": "#FEF3F2",  # Nền banner lỗi nhạt
+    "danger_border": "#FECDCA",  # Viền banner lỗi nhạt
     # Trung tính / Nội dung
     "ink": "#0C0A09",  # Chữ nội dung chính (19.8:1 trên trắng - AAA)
     "muted": "#6B7280",  # Nhãn phụ, mô tả, placeholder
@@ -30,7 +33,9 @@ COLOR: Final[dict[str, str]] = {
     "surface_subtle": "#F9FAFB",  # Nền phụ, header của bảng
     # Trạng thái
     "success": "#1E7B45",  # Thành công, bàn trống
+    "success_bg": "#D1FAE5",  # Nền badge bàn trống
     "warning": "#A16207",  # Chờ pha chế, cảnh báo nhẹ
+    "warning_bg": "#FEF3C7",  # Nền badge đã đặt trước
 }
 
 # ---------------------------------------------------------------------------
@@ -68,118 +73,117 @@ FONT: Final[dict[str, object]] = {
 # ---------------------------------------------------------------------------
 # 5. Global Stylesheet (QSS) cho toàn ứng dụng
 # ---------------------------------------------------------------------------
-GLOBAL_QSS: Final[
-    str
-] = f"""
+_GLOBAL_QSS_BODY = f"""
 * {{
-    font-family: "{FONT['family']}", {FONT['fallback']};
-    font-size: {FONT['body']}px;
-    color: {COLOR['ink']};
+    font-family: "{FONT["family"]}", {FONT["fallback"]};
+    font-size: {FONT["body"]}px;
+    color: {COLOR["ink"]};
 }}
 
 QWidget {{
-    background-color: {COLOR['surface']};
+    background-color: {COLOR["surface"]};
 }}
 
 /* Nút bấm mặc định: Hành động chính Navy */
 QPushButton {{
-    background-color: {COLOR['navy']};
-    color: {COLOR['surface']};
+    background-color: {COLOR["navy"]};
+    color: {COLOR["surface"]};
     border: none;
-    border-radius: {RADIUS['sm']}px;
-    padding: {SPACE['sm']}px {SPACE['md']}px;
+    border-radius: {RADIUS["sm"]}px;
+    padding: {SPACE["sm"]}px {SPACE["md"]}px;
     font-weight: 600;
     min-height: 20px;
 }}
 
 QPushButton:hover {{
-    background-color: {COLOR['navy_600']};
+    background-color: {COLOR["navy_600"]};
 }}
 
 QPushButton:pressed {{
-    background-color: {COLOR['navy_strong']};
+    background-color: {COLOR["navy_strong"]};
 }}
 
 QPushButton:disabled {{
-    background-color: {COLOR['border']};
-    color: {COLOR['muted']};
+    background-color: {COLOR["border"]};
+    color: {COLOR["muted"]};
 }}
 
 /* Nút phụ / Secondary Button */
 QPushButton[variant="secondary"] {{
-    background-color: {COLOR['surface']};
-    color: {COLOR['navy']};
-    border: 1px solid {COLOR['navy']};
+    background-color: {COLOR["surface"]};
+    color: {COLOR["navy"]};
+    border: 1px solid {COLOR["navy"]};
 }}
 
 QPushButton[variant="secondary"]:hover {{
-    background-color: {COLOR['tint_100']};
+    background-color: {COLOR["tint_100"]};
 }}
 
 /* Nút nguy hiểm (Xoá, Huỷ đơn) */
 QPushButton[variant="danger"] {{
-    background-color: {COLOR['red']};
-    color: {COLOR['surface']};
+    background-color: {COLOR["red"]};
+    color: {COLOR["surface"]};
 }}
 
 QPushButton[variant="danger"]:hover {{
-    background-color: #D91D04;
+    background-color: {COLOR["danger_hover"]};
 }}
 
 /* Ô nhập liệu */
 QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {{
-    background-color: {COLOR['surface']};
-    border: 1px solid {COLOR['border']};
-    border-radius: {RADIUS['sm']}px;
-    padding: {SPACE['sm']}px {SPACE['sm']}px;
-    color: {COLOR['ink']};
-    selection-background-color: {COLOR['tint_200']};
-    selection-color: {COLOR['ink']};
+    background-color: {COLOR["surface"]};
+    border: 1px solid {COLOR["border"]};
+    border-radius: {RADIUS["sm"]}px;
+    padding: {SPACE["sm"]}px {SPACE["sm"]}px;
+    color: {COLOR["ink"]};
+    selection-background-color: {COLOR["tint_200"]};
+    selection-color: {COLOR["ink"]};
 }}
 
 QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {{
-    border: 1.5px solid {COLOR['brand_400']};
+    border: 1.5px solid {COLOR["brand_400"]};
 }}
 
 /* Bảng dữ liệu */
 QTableWidget, QTableView {{
-    background-color: {COLOR['surface']};
-    border: 1px solid {COLOR['border']};
-    border-radius: {RADIUS['sm']}px;
-    gridline-color: {COLOR['border']};
-    selection-background-color: {COLOR['tint_100']};
-    selection-color: {COLOR['ink']};
+    background-color: {COLOR["surface"]};
+    border: 1px solid {COLOR["border"]};
+    border-radius: {RADIUS["sm"]}px;
+    gridline-color: {COLOR["border"]};
+    selection-background-color: {COLOR["tint_100"]};
+    selection-color: {COLOR["ink"]};
 }}
 
 QHeaderView::section {{
-    background-color: {COLOR['surface_subtle']};
-    color: {COLOR['muted']};
+    background-color: {COLOR["surface_subtle"]};
+    color: {COLOR["muted"]};
     font-weight: 600;
-    padding: {SPACE['sm']}px;
+    padding: {SPACE["sm"]}px;
     border: none;
-    border-bottom: 1px solid {COLOR['border']};
+    border-bottom: 1px solid {COLOR["border"]};
 }}
 
 /* Thanh cuộn */
 QScrollBar:vertical {{
     border: none;
-    background: {COLOR['surface_subtle']};
+    background: {COLOR["surface_subtle"]};
     width: 8px;
     margin: 0px;
     border-radius: 4px;
 }}
 
 QScrollBar::handle:vertical {{
-    background: {COLOR['border']};
+    background: {COLOR["border"]};
     min-height: 20px;
     border-radius: 4px;
 }}
 
 QScrollBar::handle:vertical:hover {{
-    background: {COLOR['muted']};
+    background: {COLOR["muted"]};
 }}
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
     height: 0px;
 }}
 """
+GLOBAL_QSS: Final[str] = _GLOBAL_QSS_BODY

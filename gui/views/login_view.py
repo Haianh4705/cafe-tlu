@@ -3,7 +3,7 @@
 Tuân thủ:
 - docs/api-contract.md: Endpoint POST /auth/login.
 - docs/test-cases.md: TC-AUTH-01, TC-AUTH-02, TC-AUTH-03.
-- .claude/skills/ui-design/SKILL.md: Nhận diện TLU (Navy #000066), lưới 8pt.
+- .claude/skills/ui-design/SKILL.md: Nhận diện TLU, QFrame#objectName, lưới 8pt.
 - .claude/skills/pyside6-screen/SKILL.md: Validate form tại chỗ, gọi API trên luồng nền.
 """
 
@@ -31,8 +31,9 @@ logger = logging.getLogger(__name__)
 class LoginView(BaseView):
     """Màn hình Đăng nhập hệ thống kết nối với Backend API."""
 
-    # Tín hiệu phát ra khi đăng nhập thành công, mang theo thông tin tài khoản
+    # Tín hiệu phát ra khi đăng nhập thành công hoặc chuyển sang Kiosk khách hàng
     login_success = Signal(dict)
+    open_kiosk_requested = Signal()
 
     def __init__(self, api_client: ApiClient, parent: QWidget | None = None) -> None:
         self.api = api_client
@@ -41,28 +42,24 @@ class LoginView(BaseView):
 
     def _init_login_form(self) -> None:
         """Khởi tạo giao diện đăng nhập căn giữa màn hình."""
-        # Chuyển BaseView sang trạng thái dữ liệu chính
         self._set_state(self.STATE_DATA)
-
-        # Xoá padding mặc định của BaseView để căn giữa form
         self._data_layout.setContentsMargins(0, 0, 0, 0)
         self._data_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Hộp chứa form đăng nhập (Card đăng nhập)
         card = QFrame(self)
+        card.setObjectName("loginCard")
         card.setFixedWidth(400)
         card.setStyleSheet(
-            f"QFrame {{ "
+            f"QFrame#loginCard {{ "
             f"  background-color: {COLOR['surface']}; "
             f"  border: 1px solid {COLOR['border']}; "
             f"  border-radius: {RADIUS['md']}px; "
-            f"  padding: {SPACE['lg']}px; "
             f"}}"
         )
         card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
         card_layout.setSpacing(SPACE["md"])
 
-        # 1. Tiêu đề & Logo
         title_label = QLabel(t("app_name"), card)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet(
@@ -79,54 +76,55 @@ class LoginView(BaseView):
         card_layout.addWidget(subtitle_label)
         card_layout.addSpacing(SPACE["xs"])
 
-        # 2. Thông báo lỗi (Inline Banner)
         self._error_banner = QLabel("", card)
+        self._error_banner.setObjectName("loginErrorBanner")
         self._error_banner.setWordWrap(True)
         self._error_banner.setStyleSheet(
-            f"color: {COLOR['red_text']}; background-color: #FEF3F2; "
-            f"border: 1px solid #FECDCA; border-radius: {RADIUS['sm']}px; "
+            f"color: {COLOR['red_text']}; background-color: {COLOR['danger_bg']}; "
+            f"border: 1px solid {COLOR['danger_border']}; border-radius: {RADIUS['sm']}px; "
             f"padding: {SPACE['sm']}px; font-size: {FONT['caption']}px;"
         )
         self._error_banner.setVisible(False)
         card_layout.addWidget(self._error_banner)
 
-        # 3. Ô nhập tên đăng nhập
         user_label = QLabel(t("username"), card)
         user_label.setStyleSheet(f"font-weight: 600; color: {COLOR['ink']}; border: none;")
         self._username_input = QLineEdit(card)
-        self._username_input.setPlaceholderText("Nhập tên đăng nhập")
+        self._username_input.setPlaceholderText(t("login_username_placeholder"))
         self._username_input.returnPressed.connect(self._handle_login)
 
         card_layout.addWidget(user_label)
         card_layout.addWidget(self._username_input)
 
-        # 4. Ô nhập mật khẩu
         pass_label = QLabel(t("password"), card)
         pass_label.setStyleSheet(f"font-weight: 600; color: {COLOR['ink']}; border: none;")
         self._password_input = QLineEdit(card)
         self._password_input.setEchoMode(QLineEdit.EchoMode.Password)
-        self._password_input.setPlaceholderText("••••••••")
+        self._password_input.setPlaceholderText(t("login_password_placeholder"))
         self._password_input.returnPressed.connect(self._handle_login)
 
         card_layout.addWidget(pass_label)
         card_layout.addWidget(self._password_input)
         card_layout.addSpacing(SPACE["sm"])
 
-        # 5. Nút bấm Đăng nhập
         self._login_btn = QPushButton(t("login_btn"), card)
         self._login_btn.setFixedHeight(40)
         self._login_btn.clicked.connect(self._handle_login)
         card_layout.addWidget(self._login_btn)
 
-        # Chân thẻ ghi chú đồ án
-        footer_label = QLabel("Đồ án học phần Python — ĐH Thăng Long", card)
+        self._kiosk_btn = QPushButton(t("kiosk_open_btn"), card)
+        self._kiosk_btn.setProperty("variant", "secondary")
+        self._kiosk_btn.setFixedHeight(38)
+        self._kiosk_btn.clicked.connect(self.open_kiosk_requested.emit)
+        card_layout.addWidget(self._kiosk_btn)
+
+        footer_label = QLabel(t("login_footer"), card)
         footer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         footer_label.setStyleSheet(
-            f"color: {COLOR['muted']}; font-size: {FONT['caption']}px; border: none; margin-top: {SPACE['sm']}px;"
+            f"color: {COLOR['muted']}; font-size: {FONT['caption']}px; border: none;"
         )
         card_layout.addWidget(footer_label)
 
-        # Đặt card vào giữa màn hình
         self._data_layout.addWidget(card)
 
     def _show_error(self, message: str) -> None:
@@ -144,21 +142,19 @@ class LoginView(BaseView):
         username = self._username_input.text().strip()
         password = self._password_input.text()
 
-        # Validate phía giao diện trước khi gửi request (Definition of Ready)
         if not username:
-            self._show_error("Vui lòng nhập tên đăng nhập.")
+            self._show_error(t("login_err_username_required"))
             self._username_input.setFocus()
             return
 
         if not password:
-            self._show_error("Vui lòng nhập mật khẩu.")
+            self._show_error(t("login_err_password_required"))
             self._password_input.setFocus()
             return
 
         self._clear_error()
         self._set_loading(True)
 
-        # Gọi API trên luồng nền qua worker (không làm treo UI)
         self.start_worker(
             self.api.login,
             on_success=self._on_login_success,
@@ -170,6 +166,7 @@ class LoginView(BaseView):
     def _set_loading(self, is_loading: bool) -> None:
         """Khoá/Mở nút đăng nhập và ô nhập liệu khi đang gửi request."""
         self._login_btn.setEnabled(not is_loading)
+        self._kiosk_btn.setEnabled(not is_loading)
         self._username_input.setEnabled(not is_loading)
         self._password_input.setEnabled(not is_loading)
         if is_loading:
