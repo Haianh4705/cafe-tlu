@@ -59,14 +59,22 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    """Chuẩn hoá lỗi validate Pydantic thành VALIDATION_ERROR theo format chung."""
+    """Chuẩn hoá lỗi validate Pydantic; chỉ trả vị trí/lỗi, không echo dữ liệu người dùng."""
+    errors = [
+        {
+            "loc": list(error.get("loc", [])),
+            "msg": error.get("msg", ""),
+            "type": error.get("type", ""),
+        }
+        for error in exc.errors()
+    ]
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "error": {
                 "code": ErrorCode.VALIDATION_ERROR,
                 "message": "Dữ liệu không hợp lệ",
-                "details": {"errors": exc.errors()},
+                "details": {"errors": errors},
             }
         },
     )

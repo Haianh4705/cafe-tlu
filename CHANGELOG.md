@@ -8,6 +8,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [Unreleased]
 
+### Fixed — vòng đời phiên
+- Refresh token rotation khoá row khi đổi token và logout khoá token trước khi thu hồi, bảo đảm hai request refresh đồng thời chỉ một thành công; lỗi 422 chỉ trả `loc`/`msg`/`type`, không echo `input` (tránh lộ mật khẩu) (#86)
+
 ### Fixed — giao diện đăng nhập
 - Sau khi nhận token, GUI xác nhận tài khoản qua `GET /auth/me`; phiên 401 được xoá token và đưa người dùng về form đăng nhập (#25)
 

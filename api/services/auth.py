@@ -59,7 +59,9 @@ def refresh(db: Session, raw_token: str, user_agent: str | None) -> tuple[User, 
     """Đổi refresh token cũ lấy cặp mới; token cũ bị thu hồi (rotation)."""
     now = _utcnow()
     token = db.scalar(
-        select(RefreshToken).where(RefreshToken.token_hash == hash_refresh_token(raw_token))
+        select(RefreshToken)
+        .where(RefreshToken.token_hash == hash_refresh_token(raw_token))
+        .with_for_update()
     )
     if token is None or token.revoked_at is not None or token.expires_at <= now:
         raise AppError(ErrorCode.UNAUTHENTICATED, SESSION_EXPIRED_MESSAGE, 401)
@@ -69,7 +71,6 @@ def refresh(db: Session, raw_token: str, user_agent: str | None) -> tuple[User, 
         raise AppError(ErrorCode.UNAUTHENTICATED, SESSION_EXPIRED_MESSAGE, 401)
 
     access_token = create_access_token(user)
-    # shortcut: chưa khoá row khi 2 request refresh đồng thời, nâng cấp khi cần (G4)
     new_raw_token, new_token = _issue_refresh_token(db, user.id, user_agent, now)
     token.revoked_at = now
     token.replaced_by_id = new_token.id
@@ -83,10 +84,13 @@ def logout(db: Session, user: User, raw_token: str | None) -> None:
 
     if raw_token is None:
         active_tokens = db.scalars(
-            select(RefreshToken).where(
+            select(RefreshToken)
+            .where(
                 RefreshToken.user_id == user.id,
                 RefreshToken.revoked_at.is_(None),
             )
+            .order_by(RefreshToken.id)
+            .with_for_update()
         ).all()
         if active_tokens:
             for token in active_tokens:
@@ -95,10 +99,12 @@ def logout(db: Session, user: User, raw_token: str | None) -> None:
         return
 
     token = db.scalar(
-        select(RefreshToken).where(
+        select(RefreshToken)
+        .where(
             RefreshToken.token_hash == hash_refresh_token(raw_token),
             RefreshToken.user_id == user.id,
         )
+        .with_for_update()
     )
     if token is not None and token.revoked_at is None:
         token.revoked_at = now
