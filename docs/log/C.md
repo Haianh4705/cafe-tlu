@@ -21,7 +21,7 @@
 | 11-09 | #30 | #41 / `e462185` | `gui/views/product_list_view.py`, `gui/widgets/product_dialog.py`, `tests/test_gui_products.py` | xây dựng màn Quản lý thực đơn: tìm kiếm `Ctrl+F`, lọc danh mục, phân trang và dialog CRUD + xác nhận xoá | tải qua `ApiWorker` trên `QThread` và đọc envelope `data`/`meta` để không treo UI khi gọi backend |
 | 11-11 | #49 | #44 | `gui/views/order_view.py`, `gui/widgets/order_cart.py`, `gui/widgets/checkout_dialog.py`, `gui/widgets/receipt_dialog.py`, `tests/test_gui_order.py` | xây dựng màn Order 3 cột, hộp thoại thanh toán, xem trước/in hoá đơn K80 và bọc cờ `APP_ENV=demo` khi chưa có API | chỉ kích hoạt `MOCK_*` khi bật `APP_ENV=demo` để môi trường thật không nuốt lỗi API mà vẫn hiện `STATE_ERROR` + Thử lại |
 | 11-17 | G3 mục 9 (chưa gán số) | #70 | `gui/views/dashboard_view.py`, `gui/main.py`, `gui/i18n.py`, `tests/test_gui_dashboard.py` | dựng Dashboard 4 thẻ KPI + 2 biểu đồ doanh thu 30 ngày và top 5 món bằng QtCharts (dùng mock `APP_ENV=demo`, chờ API `/reports/revenue` + `/reports/top-products`), thay placeholder trong `main.py` | dùng QtCharts có sẵn trong PySide6 (không thêm dependency ngoài) và gom mock sau `APP_ENV=demo` như OrderView để chờ API báo cáo từ A |
-| 11-18 | #25 | `2a7b46c` / PR chờ mở | `gui/views/login_view.py`, `tests/test_gui_login.py`, `docs/test-cases.md` | xác minh phiên qua `/auth/me`; cài môi trường, chạy API login thật cho admin/staff và đủ bộ test 84/84 | dùng role do endpoint bảo vệ trả về; chưa đánh PASS cho menu/reopen GUI vì công cụ CUA từ chối điều khiển cửa sổ Python |
+| 11-18 | #25 | `2a7b46c` / PR #114 (draft) | `gui/views/login_view.py`, `tests/test_gui_login.py`, `docs/test-cases.md` | xác minh phiên qua `/auth/me`; cài môi trường, chạy API login thật cho admin/staff và đủ bộ test 84/84 | dùng role do endpoint bảo vệ trả về; chưa đánh PASS cho menu/reopen GUI vì công cụ CUA từ chối điều khiển cửa sổ Python |
 
 ## 3. AI đã làm gì
 
@@ -52,7 +52,7 @@
 
 - [x] PR #44 (màn Order): đã sửa review lần 3 — trả `TC-ORD-01..03` về `⬜`, bọc mock sau `APP_ENV=demo` + `# shortcut:`, sửa bug mất nút khi huỷ đơn / thanh toán trên Windows, bổ sung assert lọc món & test trạng thái lỗi
 - [ ] Login (#25) đã gọi `/auth/login` rồi xác minh danh tính bằng `/auth/me`; API admin/staff hoạt động nhưng chưa xác minh menu, ba lần nhập sai hoặc mở lại app trên GUI thật và chưa có hai ảnh theo Issue vì CUA từ chối điều khiển Python. Thực đơn (#30) và Order (#49) vẫn chờ kiểm chứng E2E GUI
-- [ ] Commit #25 trên `feature/gui-login-meocam`; GitHub CLI hiện đã đăng nhập, cần mở PR sau khi bổ sung minh chứng GUI
+- [ ] PR #114 đang ở dạng draft trên `feature/gui-login-meocam`; cần bổ sung minh chứng GUI trước khi chuyển thành PR sẵn sàng merge
 - [ ] Chưa chạy kiểm tra `Setup.exe` (Release `v0.1.0`, #26) trên máy Windows; theo yêu cầu của người dùng, lượt này bỏ qua `make doctor` của C
 - [ ] Dashboard chờ endpoint `GET /reports/revenue` và `GET /reports/top-products`; `docs/api-contract.md` **chưa có shape** response báo cáo nên GUI đang đọc `{total_revenue, total_orders, daily[]}` và `[{name, quantity}]` — cần A chốt
 - [ ] _(ghi những chỗ mình còn cần ôn kỹ trước buổi hỏi chéo — xem mục 4 và `docs/defense.md`)_
