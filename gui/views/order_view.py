@@ -447,25 +447,32 @@ class OrderView(BaseView):
     def _apply_order(self, order: dict[str, Any]) -> None:
         """Đồng bộ giỏ hàng và trạng thái bàn từ đơn do server trả về."""
         table_id = int(order["table_id"])
+        is_open = order.get("status") in ("pending", "serving")
         self._order_ids[table_id] = int(order["id"])
-        self._item_ids[table_id] = {
-            int(item["product_id"]): int(item["id"]) for item in order.get("items", [])
-        }
-        items = [
-            {
-                "id": item["id"],
-                "product_id": item["product_id"],
-                "name": item["product_name"],
-                "product_name": item["product_name"],
-                "price": item["unit_price"],
-                "quantity": item["quantity"],
-                "note": item.get("notes") or "",
-            }
-            for item in order.get("items", [])
-        ]
+        self._item_ids[table_id] = (
+            {int(item["product_id"]): int(item["id"]) for item in order.get("items", [])}
+            if is_open
+            else {}
+        )
+        items = (
+            [
+                {
+                    "id": item["id"],
+                    "product_id": item["product_id"],
+                    "name": item["product_name"],
+                    "product_name": item["product_name"],
+                    "price": item["unit_price"],
+                    "quantity": item["quantity"],
+                    "note": item.get("notes") or "",
+                }
+                for item in order.get("items", [])
+            ]
+            if is_open
+            else []
+        )
         self._table_orders[table_id] = items
 
-        status = "occupied" if order.get("status") in ("pending", "serving") else "free"
+        status = "occupied" if is_open else "free"
         if status == "free":
             self._order_ids.pop(table_id, None)
         for tbl in self._tables:
@@ -692,40 +699,108 @@ class OrderView(BaseView):
             order_items=self._cart_widget.items,
             parent=self,
         )
-        if dialog.exec() == CheckoutDialog.DialogCode.Accepted:
-            items_snapshot = [dict(item) for item in self._cart_widget.items]
-            payment_method = dialog.payment_method
-            received_amount = dialog.received_amount
-            change_amount = max(0, received_amount - total_amount)
+        if dialog.exec() != CheckoutDialog.DialogCode.Accepted:
+            return
 
-            t_id = self._selected_table.get("id", 0)
-            self._table_orders[t_id] = []
+        items_snapshot = [dict(item) for item in self._cart_widget.items]
+        payment_method = dialog.payment_method
+        received_amount = dialog.received_amount
+
+        if self._use_mock:
+            self._complete_local_checkout(
+                table_name,
+                total_amount,
+                items_snapshot,
+                payment_method,
+                received_amount,
+            )
+            return
+
+        table_id = int(self._selected_table.get("id", 0))
+        order_id = self._order_ids.get(table_id)
+        if order_id is None:
+            QMessageBox.warning(self, t("notice"), t("order_not_saved"))
+            return
+        self.start_worker(
+            self.api.checkout_order,
+            order_id,
+            payment_method,
+            received_amount,
+            on_success=self._on_checkout_success,
+            on_error=self._on_action_error,
+        )
+
+    def _on_checkout_success(self, result: dict[str, Any]) -> None:
+        """Cập nhật đơn đã đóng và mở hoá đơn do server trả về."""
+        order = result["order"]
+        invoice = result["invoice"]
+        self._apply_order(order)
+
+        paid_at = str(invoice.get("paid_at") or "").replace("T", " ")[:19]
+        receipt_data = {
+            "invoice_code": invoice["invoice_code"],
+            "table_name": order["table_number"],
+            "cashier_name": self.cashier_name,
+            "created_at": paid_at,
+            "items": [
+                {
+                    "name": item["product_name"],
+                    "quantity": item["quantity"],
+                    "price": item["unit_price"],
+                    "subtotal": item["subtotal"],
+                    "note": item.get("notes") or "",
+                }
+                for item in order.get("items", [])
+            ],
+            "subtotal_amount": invoice["subtotal_amount"],
+            "discount_amount": invoice["discount_amount"],
+            "total_amount": invoice["final_amount"],
+            "payment_method": invoice["payment_method"],
+            "received_amount": invoice["paid_amount"],
+            "change_amount": invoice["change_amount"],
+        }
+        ReceiptDialog(receipt_data, parent=self).exec()
+
+    def _complete_local_checkout(
+        self,
+        table_name: str,
+        total_amount: int,
+        items_snapshot: list[dict[str, Any]],
+        payment_method: str,
+        received_amount: int,
+    ) -> None:
+        """Chế độ demo: đóng đơn trong bộ nhớ và in hoá đơn tạm."""
+        change_amount = max(0, received_amount - total_amount)
+        t_id = self._selected_table.get("id", 0) if self._selected_table else 0
+        self._table_orders[t_id] = []
+        if self._selected_table:
             self._selected_table["status"] = "free"
-            for tbl in self._tables:
-                if tbl.get("id") == t_id:
-                    tbl["status"] = "free"
-                    break
+        for tbl in self._tables:
+            if tbl.get("id") == t_id:
+                tbl["status"] = "free"
+                break
 
-            if t_id in self._table_cards:
-                self._table_cards[t_id].update_data(self._selected_table)
+        if t_id in self._table_cards:
+            self._table_cards[t_id].update_data(self._selected_table)
 
-            self._cart_widget.set_table(self._selected_table)
-            self._cart_widget.set_items([])
+        self._cart_widget.set_table(self._selected_table)
+        self._cart_widget.set_items([])
 
-            # shortcut: tạm sinh invoice_code ở client khi chưa nối API checkout (#94)
-            invoice_code = f"HD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            receipt_data = {
-                "invoice_code": invoice_code,
-                "table_name": table_name,
-                "cashier_name": self.cashier_name,
-                "created_at": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                "items": items_snapshot,
-                "total_amount": total_amount,
-                "payment_method": payment_method,
-                "received_amount": received_amount,
-                "change_amount": change_amount,
-            }
-            ReceiptDialog(receipt_data, parent=self).exec()
+        invoice_code = f"HD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        receipt_data = {
+            "invoice_code": invoice_code,
+            "table_name": table_name,
+            "cashier_name": self.cashier_name,
+            "created_at": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "items": items_snapshot,
+            "subtotal_amount": total_amount,
+            "discount_amount": 0,
+            "total_amount": total_amount,
+            "payment_method": payment_method,
+            "received_amount": received_amount,
+            "change_amount": change_amount,
+        }
+        ReceiptDialog(receipt_data, parent=self).exec()
 
     def resizeEvent(self, event: QResizeEvent) -> None:  # noqa: N802
         super().resizeEvent(event)

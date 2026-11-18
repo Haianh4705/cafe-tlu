@@ -129,6 +129,7 @@ STRINGS: Final[dict[str, str]] = {
     "order_confirm_cancel_btn": "Huỷ toàn bộ đơn",
     "order_no_matching_product": "Không tìm thấy món nào phù hợp",
     "order_connect_error": "Không thể kết nối máy chủ: {error}",
+    "order_not_saved": "Đơn chưa được lưu trên máy chủ, vui lòng thử lại.",
     "skip": "Bỏ qua",
     "checkout_title": "Thanh toán đơn hàng",
     "checkout_item_count": "Số lượng món trong đơn: {count} món",

@@ -43,7 +43,7 @@
 | 16 | POST | `/orders/{id}/items` | staff+ | Thêm món vào đơn | ✅ |
 | 17 | PATCH | `/orders/{id}/items/{item_id}` | staff+ | Sửa số lượng / ghi chú | ✅ |
 | 18 | DELETE | `/orders/{id}/items/{item_id}` | staff+ | Bỏ món khỏi đơn | ✅ |
-| 19 | POST | `/orders/{id}/checkout` | staff+ | Thanh toán + tạo hoá đơn | ⬜ |
+| 19 | POST | `/orders/{id}/checkout` | staff+ | Thanh toán + tạo hoá đơn (transaction) | ✅ |
 | 20 | GET | `/reports/revenue` | admin | Doanh thu theo ngày/tháng | ⬜ |
 | 21 | GET | `/reports/top-products` | admin | Top món bán chạy | ⬜ |
 | 22 | GET | `/reports/export` | admin | Xuất Excel/PDF | ⬜ |
@@ -56,6 +56,9 @@
 > `GET /tables` trả thêm `open_order_id` (`null` nếu bàn trống) để GUI mở lại đơn đang phục vụ.
 > `POST /orders/{id}/items` gộp số lượng nếu món đã có trong đơn; mọi thay đổi món đều tính lại
 > `orders.total_amount` ở server trong cùng transaction.
+> `POST /orders/{id}/checkout` nhận `payment_method` (`cash|qr|transfer|card`), `paid_amount`
+> (mặc định bằng thực thu), `discount_amount`, `notes`; server tính lại tiền, tạo `invoices`,
+> đóng đơn và trả bàn về `available` trong một transaction; kết quả trả `{order, invoice}`.
 
 ## 3. Mã lỗi
 

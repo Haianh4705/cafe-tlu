@@ -1,6 +1,7 @@
-"""Schema request/response cho bàn và đơn gọi món (docs/api-contract.md #13-#18)."""
+"""Schema request/response cho bàn, đơn và thanh toán (docs/api-contract.md #13-#19)."""
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -63,3 +64,35 @@ class OrderItemUpdate(BaseModel):
 
     quantity: int | None = Field(default=None, ge=1, le=50)
     notes: str | None = Field(default=None, max_length=255)
+
+
+class CheckoutRequest(BaseModel):
+    """Thanh toán đơn: server tự tính lại tiền và tạo hoá đơn."""
+
+    payment_method: Literal["cash", "qr", "transfer", "card"] = "cash"
+    paid_amount: int | None = Field(default=None, ge=0)
+    discount_amount: int = Field(default=0, ge=0)
+    notes: str | None = Field(default=None, max_length=500)
+
+
+class InvoiceOut(BaseModel):
+    """Chứng từ thanh toán do server tạo sau khi checkout thành công."""
+
+    id: int
+    invoice_code: str
+    order_id: int
+    cashier_id: int
+    subtotal_amount: int
+    discount_amount: int
+    final_amount: int
+    paid_amount: int
+    change_amount: int
+    payment_method: str
+    paid_at: datetime
+
+
+class CheckoutOut(BaseModel):
+    """Kết quả checkout gồm đơn đã đóng và hoá đơn tương ứng."""
+
+    order: OrderOut
+    invoice: InvoiceOut
