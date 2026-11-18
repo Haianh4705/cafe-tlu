@@ -12,6 +12,7 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - Refresh token rotation khoá row khi đổi token và logout khoá token trước khi thu hồi, bảo đảm hai request refresh đồng thời chỉ một thành công; lỗi 422 chỉ trả `loc`/`msg`/`type`, không echo `input` (tránh lộ mật khẩu) (#86)
 
 ### Fixed — giao diện đăng nhập
+- Đăng xuất gửi đúng refresh token lên API, giải phóng phiên và đưa về form đăng nhập kể cả khi mất mạng; điều hướng về form kèm thông báo khi phiên hết hạn trong lúc làm việc (#79)
 - Sau khi nhận token, GUI xác nhận tài khoản qua `GET /auth/me`; phiên 401 được xoá token và đưa người dùng về form đăng nhập (#25)
 
 ### Fixed — giao diện gọi món

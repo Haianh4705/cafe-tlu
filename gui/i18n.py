@@ -46,6 +46,8 @@ STRINGS: Final[dict[str, str]] = {
     "login_btn": "Đăng nhập",
     "login_loading": "Đang đăng nhập...",
     "logout_btn": "Đăng xuất",
+    "logout_loading": "Đang đăng xuất...",
+    "logout_server_unreachable": "Đã đăng xuất cục bộ (máy chủ chưa xác nhận huỷ phiên).",
     "login_failed": "Tên đăng nhập hoặc mật khẩu không chính xác.",
     "session_expired": "Phiên đã hết hạn, vui lòng đăng nhập lại",
     "login_err_username_required": "Vui lòng nhập tên đăng nhập.",
