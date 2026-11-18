@@ -22,6 +22,7 @@
 
 | Ngày | Issue | PR / commit | File chính | Làm gì (1 câu) | Vì sao cách đó (1 câu) |
 |---|---|---|---|---|---|
+| 11-18 | #118 | `docs/readme-bat-dau-d` | `README.md` | sắp xếp lại hướng dẫn cài, chạy thử, xử lý lỗi và nhận việc; làm rõ mảng phụ trách A–D | đưa thao tác cần nhất lên trước và dẫn sang tài liệu chi tiết |
 | 11-04 | — | #8 | `.github/dependabot.yml` | gom cập nhật thư viện theo nhóm hằng tuần | giảm 19 PR lẻ thành 1, đỡ nhiễu review |
 | 11-04 | — | #10 | `Makefile` | `make up` tìm được Docker CLI + credential helper | Docker Desktop trên macOS không nạp `~/.docker/bin` vào PATH |
 | 11-04 | — | #11, #37 | `.github/CODEOWNERS` | gán reviewer theo vùng A/B/C/D | owner vùng duy nhất nên không bật "require code owner review", tránh PR tự kẹt |
@@ -75,6 +76,7 @@
 
 | Ngày | Công cụ | AI làm gì | Tôi sửa / kiểm chứng gì |
 |---|---|---|---|
+| 11-18 | Codex | đối chiếu README với Makefile, tên nút trên GUI và Issue được gán; viết lại hướng dẫn (#118) | Codex kiểm tra 27 liên kết nội bộ, lint sạch và 96 test đạt trên MySQL test riêng cả trước và sau khi sửa |
 | 11-04 → 11-06 | AI agent trong repo (Claude/DSH) | soạn nháp `WORKFLOW.md`, `AGENTS.md`, 8 skill, README, `docs/defense.md` | đọc lại từng mục, bỏ phần không khớp đề bài; chốt phân vai A/B/C/D |
 | 11-09 | AI agent | soạn nháp `infra/Dockerfile`, `.dockerignore`, `docker-compose.prod.yml`, `cafetlu.spec`, `cafetlu.iss`, `build_installer.sh`, `release.yml` | **sửa 3 lỗi thật:** (1) spec trỏ `SPECPATH.parent.parent` ra `~/Desktop` → `FileNotFoundError`; (2) Git Bash đổi `/DMyAppVersion` thành đường dẫn Windows → ISCC báo "more than one script filename", sửa bằng `MSYS_NO_PATHCONV=1`; (3) `doctor` chỉ kiểm container chạy → đổi sang health + socket. Kiểm chứng: build local ra `dist/CafeTLU/`, CI release xanh, chạy `make doctor` từng dòng |
 | 11-09 | AI agent | soạn nháp `docs/plan.md` theo cổng, `docs/workflow.md` | tự viết lại phần điều kiện ra cổng cho đo được; bỏ toàn bộ mốc tuần |
