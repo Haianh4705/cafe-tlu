@@ -310,6 +310,60 @@ def test_checkout_creates_invoice_and_closes_order(client, db_session, staff_use
     assert duplicate.json()["error"]["code"] == ErrorCode.ORDER_ALREADY_PAID
 
 
+def test_product_price_snapshot_and_order_history_survive_soft_delete(
+    client, db_session, staff_user, admin_user
+) -> None:
+    """Giá đã gọi và lịch sử đơn còn nguyên sau khi đổi giá rồi xoá mềm món."""
+    table, coffee, _ = _seed(db_session)
+    staff_headers = _auth(staff_user)
+    admin_headers = _auth(admin_user)
+    order = _create_order(client, staff_headers, table.id)
+    order_url = f"{ORDERS_URL}/{order['id']}"
+
+    added = client.post(
+        f"{order_url}/items",
+        json={"product_id": coffee.id, "quantity": 2},
+        headers=staff_headers,
+    )
+    assert added.status_code == 201
+    assert added.json()["data"]["items"][0]["unit_price"] == 25000
+
+    changed = client.patch(
+        f"/api/v1/products/{coffee.id}",
+        json={"price": 35000},
+        headers=admin_headers,
+    )
+    assert changed.status_code == 200
+
+    before_checkout = client.get(order_url, headers=staff_headers).json()["data"]
+    assert before_checkout["items"][0]["unit_price"] == 25000
+    assert before_checkout["total_amount"] == 50000
+
+    checkout = client.post(
+        f"{order_url}/checkout",
+        json={"payment_method": "cash", "paid_amount": 50000},
+        headers=staff_headers,
+    )
+    assert checkout.status_code == 200
+    invoice = checkout.json()["data"]["invoice"]
+    assert invoice["final_amount"] == 50000
+
+    deleted = client.delete(f"/api/v1/products/{coffee.id}", headers=admin_headers)
+    assert deleted.status_code == 204
+
+    historical_order = client.get(order_url, headers=staff_headers)
+    assert historical_order.status_code == 200
+    historical_item = historical_order.json()["data"]["items"][0]
+    assert historical_item["product_name"] == "Cà phê Order"
+    assert historical_item["unit_price"] == 25000
+    assert historical_item["subtotal"] == 50000
+
+    db_session.expire_all()
+    saved_invoice = db_session.scalar(select(Invoice).where(Invoice.order_id == order["id"]))
+    assert saved_invoice is not None
+    assert int(saved_invoice.final_amount) == 50000
+
+
 def test_checkout_rejects_underpaid_or_empty_order(client, db_session, staff_user) -> None:
     """Số tiền chưa đủ hoặc đơn rỗng trả 400 và không tạo hoá đơn, đơn vẫn mở."""
     table, coffee, _ = _seed(db_session)
