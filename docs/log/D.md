@@ -22,6 +22,7 @@
 
 | Ngày | Issue | PR / commit | File chính | Làm gì (1 câu) | Vì sao cách đó (1 câu) |
 |---|---|---|---|---|---|
+| 11-19 | #34 | PR #132 | `docs/test-cases.md`, `docs/plan.md`, Issue #34 | ghi riêng PASS cho năm bước E2E được chủ dự án xác nhận; chuyển TC-SRC-02 (lọc giá khoảng đóng) sang backlog G3 theo quyết định của chủ dự án; giữ G2 mở vì ảnh và ca chi tiết chưa đủ | không suy ra PASS cho test biên chưa chạy; ghi feature lọc giá ở G3 để không mở rộng tiêu chí G2 sau khi chốt |
 | 11-18 | #118 | `docs/readme-bat-dau-d` | `README.md` | sắp xếp lại hướng dẫn cài, chạy thử, xử lý lỗi và nhận việc; làm rõ mảng phụ trách A–D | đưa thao tác cần nhất lên trước và dẫn sang tài liệu chi tiết |
 | 11-04 | — | #8 | `.github/dependabot.yml` | gom cập nhật thư viện theo nhóm hằng tuần | giảm 19 PR lẻ thành 1, đỡ nhiễu review |
 | 11-04 | — | #10 | `Makefile` | `make up` tìm được Docker CLI + credential helper | Docker Desktop trên macOS không nạp `~/.docker/bin` vào PATH |
@@ -76,6 +77,7 @@
 
 | Ngày | Công cụ | AI làm gì | Tôi sửa / kiểm chứng gì |
 |---|---|---|---|
+| 11-19 | Codex | đối chiếu G2 với WORKFLOW, Issue #34, test case và code filter; ghi kết quả được xác nhận, chuyển TC-SRC-02 sang G3 theo quyết định chủ dự án | chủ dự án xác nhận login, thêm, tìm, sửa, xoá thành công qua API/MySQL trên máy thành viên khác; chưa có ảnh; baseline và sau cập nhật docs đều `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test` xanh (142 passed, 20 warnings) |
 | 11-18 | Codex | đối chiếu README với Makefile, tên nút trên GUI và Issue được gán; viết lại hướng dẫn (#118) | Codex kiểm tra 27 liên kết nội bộ, lint sạch và 96 test đạt trên MySQL test riêng cả trước và sau khi sửa |
 | 11-04 → 11-06 | AI agent trong repo (Claude/DSH) | soạn nháp `WORKFLOW.md`, `AGENTS.md`, 8 skill, README, `docs/defense.md` | đọc lại từng mục, bỏ phần không khớp đề bài; chốt phân vai A/B/C/D |
 | 11-09 | AI agent | soạn nháp `infra/Dockerfile`, `.dockerignore`, `docker-compose.prod.yml`, `cafetlu.spec`, `cafetlu.iss`, `build_installer.sh`, `release.yml` | **sửa 3 lỗi thật:** (1) spec trỏ `SPECPATH.parent.parent` ra `~/Desktop` → `FileNotFoundError`; (2) Git Bash đổi `/DMyAppVersion` thành đường dẫn Windows → ISCC báo "more than one script filename", sửa bằng `MSYS_NO_PATHCONV=1`; (3) `doctor` chỉ kiểm container chạy → đổi sang health + socket. Kiểm chứng: build local ra `dist/CafeTLU/`, CI release xanh, chạy `make doctor` từng dòng |
@@ -129,6 +131,6 @@
 | Cổng | Ngày | Đã xong gì | Còn thiếu gì |
 |---|---|---|---|
 | G1 | 11-18 | CI xanh; bộ cài Windows sạch 13/13 bước; Swagger + `/health`; 51 món; `make doctor` xanh trên A và D; C miễn riêng theo ADR-015 | Không còn điều kiện kỹ thuật; cập nhật tracker sau khi PR ADR-015 merge |
-| G2 | | | |
+| G2 | 11-19 | Chủ dự án xác nhận E2E login → thêm/tìm/sửa/xoá qua API + MySQL thật trên máy thành viên khác; staff 403 và 12 endpoint đã có minh chứng trước đó | Chưa có ảnh E2E ≥1280px và chưa chạy đủ các ca chi tiết; TC-SRC-02 chuyển sang G3 theo quyết định chủ dự án; chưa đủ điều kiện đóng #34/milestone |
 | G3 | | | |
 | G4 | | | |

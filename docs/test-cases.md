@@ -6,6 +6,20 @@
 > Quy ước: **C** = C (GUI) viết, **D** = D kiểm chứng lại trên máy sạch.
 > Kết quả: `PASS` / `FAIL` / `BLOCKED` (kèm số Issue nếu FAIL).
 
+## G2 — Luồng E2E trên máy thành viên khác
+
+| ID | Bước đã xác nhận | Kết quả | Ghi chú |
+|---|---|---|---|
+| TC-G2-E2E-01 | Đăng nhập qua GUI | PASS | Chủ dự án xác nhận ngày 19-11-2026: luồng chạy trên máy thành viên khác, dùng API và MySQL thật. Chưa có ảnh đính kèm. |
+| TC-G2-E2E-02 | Thêm món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; chi tiết dữ liệu/response chưa được cung cấp. |
+| TC-G2-E2E-03 | Tìm món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; không đại diện cho ca 5.000 món, khoảng giá hoặc tìm không có kết quả ở các mục dưới. |
+| TC-G2-E2E-04 | Sửa món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; chưa xác nhận riêng việc giữ giá trong hoá đơn cũ. |
+| TC-G2-E2E-05 | Xoá món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; chưa xác nhận riêng lịch sử hoá đơn sau xoá. |
+
+> Nguồn ghi nhận: xác nhận của chủ dự án trên Issue #34 ngày 19-11-2026. Ảnh chụp toàn cửa sổ
+> ≥1280px từ máy đó chưa được cung cấp; các dòng PASS ở đây chỉ ghi nhận kết quả luồng E2E được
+> xác nhận, không thay thế các ca chi tiết chưa chạy hoặc chưa có minh chứng.
+
 ## 1. Xác thực & phân quyền
 
 | ID | Tiền điều kiện | Bước | Kết quả mong đợi | Người | Kết quả | Ghi chú |
@@ -13,7 +27,7 @@
 | TC-AUTH-01 | Có user `admin` | Đăng nhập đúng mật khẩu | Vào được Dashboard, menu đầy đủ | C | PASS | E2E 18-11: admin vào Dashboard, `/auth/me` trả 200 và menu đủ 5 mục. Nội dung Tổng quan báo lỗi riêng vì `GET /reports/revenue` trả 404; không thuộc màn đăng nhập. |
 | TC-AUTH-02 | Có user `admin` | Đăng nhập sai mật khẩu 3 lần | Báo lỗi rõ ràng, không lộ "sai user hay sai pass" | C | PASS | E2E 18-11: sai mật khẩu 3 lần và user không tồn tại đều hiện cùng lỗi inline `Tên đăng nhập hoặc mật khẩu không đúng`; không có messagebox. Ảnh `docs/screenshots/gui/login-20261118-02.png`. |
 | TC-AUTH-03 | Có user `thungan01` role `staff` | Đăng nhập role `staff` | Không thấy menu Quản lý thực đơn / Báo cáo doanh thu | C | PASS | E2E 18-11: `/auth/me` trả 200; staff chỉ thấy Tổng quan, Bán hàng / Order, Quản lý bàn. |
-| TC-AUTH-04 | Role `staff` | Gọi trực tiếp API admin bằng token staff | 403 `FORBIDDEN` (chặn ở server) | D | ⬜ | |
+| TC-AUTH-04 | Role `staff` | Gọi trực tiếp API admin bằng token staff | 403 `FORBIDDEN` (chặn ở server) | D | PASS | Kiểm bằng API test có DB fixture: `test_create_category_staff_forbidden`, `test_delete_product_staff_forbidden`; suite local `DB_NAME=cafe_tlu_test make test` đạt 142 passed. |
 | TC-AUTH-05 | Đã đăng nhập | Đóng app, mở lại | Quay về form đăng nhập; token chỉ lưu trong RAM | C | PASS | E2E 18-11: sau khi đóng và chạy lại `make gui`, app trở về form trống, không khôi phục phiên cũ. |
 
 ## 2. Quản lý món ăn / đồ uống (CRUD)
@@ -31,7 +45,7 @@
 | ID | Tiền điều kiện | Bước | Kết quả mong đợi | Người | Kết quả | Ghi chú |
 |---|---|---|---|---|---|---|
 | TC-SRC-01 | 5.000 món | Gõ "trà" vào ô tìm kiếm | Kết quả < 300ms, đúng chuỗi | D | ⬜ | |
-| TC-SRC-02 | | Lọc theo danh mục + khoảng giá | Kết quả đúng cả 2 điều kiện | C | ⬜ | |
+| TC-SRC-02 | | Lọc theo danh mục + khoảng giá | Kết quả đúng cả 2 điều kiện; giá thoả `min <= price <= max` (khoảng đóng) | C | BLOCKED | Chủ dự án chuyển ca này sang G3 ngày 19-11-2026. GUI/API hiện chưa hỗ trợ lọc khoảng giá; chỉ kiểm ca sau khi feature G3 được triển khai. Không chặn nghiệm thu G2. |
 | TC-SRC-03 | | Tìm chuỗi không tồn tại | Hiện trạng thái "không có kết quả", không bảng trống trơ | C | ⬜ | |
 
 ## 4. Order & thanh toán
