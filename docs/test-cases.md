@@ -10,15 +10,16 @@
 
 | ID | Bước đã xác nhận | Kết quả | Ghi chú |
 |---|---|---|---|
-| TC-G2-E2E-01 | Đăng nhập qua GUI | PASS | Chủ dự án xác nhận ngày 19-11-2026: luồng chạy trên máy thành viên khác, dùng API và MySQL thật. Chủ dự án miễn ảnh nghiệm thu G2 ngày 20-11-2026. |
-| TC-G2-E2E-02 | Thêm món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; chi tiết dữ liệu/response chưa được cung cấp. Ảnh được miễn theo quyết định ngày 20-11-2026. |
-| TC-G2-E2E-03 | Tìm món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; không đại diện cho ca 5.000 món, khoảng giá hoặc tìm không có kết quả ở các mục dưới. Ảnh được miễn theo quyết định ngày 20-11-2026. |
-| TC-G2-E2E-04 | Sửa món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; chưa xác nhận riêng việc giữ giá trong hoá đơn cũ. Ảnh được miễn theo quyết định ngày 20-11-2026. |
-| TC-G2-E2E-05 | Xoá món qua GUI/API | PASS | Cùng lần chạy E2E được chủ dự án xác nhận; chưa xác nhận riêng khả năng xem lại hoá đơn sau xoá. Ảnh được miễn theo quyết định ngày 20-11-2026. |
+| TC-G2-E2E-01 | Đăng nhập qua GUI | PASS | Chủ dự án xác nhận ngày 19-11-2026: luồng chạy trên máy thành viên khác qua API + MySQL thật. Ảnh toàn cửa sổ vẫn cần nộp; lần miễn ảnh ngày 20-11 đã được thu hồi. |
+| TC-G2-E2E-02 | Thêm món qua GUI/API | PASS | Chủ dự án xác nhận cùng lần E2E; ảnh trạng thái món mới trong danh sách còn chờ D kiểm tra và lưu. |
+| TC-G2-E2E-03 | Tìm món qua GUI/API | PASS | Chủ dự án xác nhận cùng lần E2E; ảnh kết quả tìm chính xác món test còn chờ D kiểm tra và lưu. Không thay thế TC-SRC-01/02/03. |
+| TC-G2-E2E-04 | Sửa món qua GUI/API | PASS | Chủ dự án xác nhận cùng lần E2E; ảnh giá/tên sau sửa còn chờ D kiểm tra và lưu. |
+| TC-G2-E2E-05 | Xoá món qua GUI/API | PASS | Chủ dự án xác nhận cùng lần E2E; ảnh kết quả sau xoá còn chờ D kiểm tra và lưu. |
 
-> Nguồn ghi nhận: xác nhận của chủ dự án trên Issue #34 ngày 19-11-2026. Ngày 20-11-2026,
-> chủ dự án miễn yêu cầu ảnh nghiệm thu G2; các dòng PASS vẫn chỉ ghi nhận kết quả E2E được xác nhận,
-> không thay thế các ca chi tiết chưa chạy.
+> Nguồn ghi nhận: xác nhận của chủ dự án trên Issue #34 ngày 19-11-2026. Chủ dự án từng miễn ảnh ngày
+> 20-11-2026 nhưng sau đó khôi phục yêu cầu ảnh nghiệm thu; D phải kiểm tra ảnh toàn cửa sổ, chiều ngang
+> ≥1280px, dữ liệu thật và lưu vào `docs/screenshots/product/`. Các PASS ghi nhận lời xác nhận E2E,
+> chưa thay thế việc D kiểm tra và lưu bộ ảnh.
 
 ## 1. Xác thực & phân quyền
 
@@ -38,7 +39,7 @@
 | TC-PRD-02 | | Thêm món trùng tên | Báo `PRODUCT_NAME_DUPLICATED`, không tạo bản ghi | C | PASS | MySQL API test `test_create_product_admin_and_duplicate_name`: tạo lần hai trả 409 `PRODUCT_NAME_DUPLICATED`; suite mục tiêu 12 passed (20-11-2026). |
 | TC-PRD-03 | | Nhập giá âm hoặc chữ | Chặn ở form, không gửi lên server | C | PASS | GUI test `test_product_form_rejects_non_positive_price_before_submit`: QSpinBox chặn số âm ở 0, validate báo lỗi và không submit (20-11-2026). |
 | TC-PRD-04 | | Sửa giá món đang có đơn | Món trong đơn cũ **giữ giá cũ** | D | PASS | MySQL API test `test_product_price_snapshot_and_order_history_survive_soft_delete`: dòng đơn giữ giá 25.000 sau khi giá món đổi lên 35.000; tổng 50.000 (20-11-2026). |
-| TC-PRD-05 | | Xoá món | Xoá mềm; món biến khỏi danh sách nhưng hoá đơn cũ vẫn xem được | C | BLOCKED | Test MySQL xác nhận món bị xoá mềm, GET đơn cũ vẫn trả dòng món/giá và bản ghi Invoice còn trong DB; chưa có API/UI lấy lại hoá đơn lịch sử sau khi đóng ReceiptDialog. C cần xác nhận tiêu chí là dữ liệu đơn cũ còn đọc được hay cần luồng xem lại hoá đơn; nếu cần luồng xem lại, mở Issue riêng. Không đánh PASS cho phần chưa có cách truy cập. |
+| TC-PRD-05 | | Xoá món | Xoá mềm; món biến khỏi danh sách nhưng hoá đơn cũ vẫn xem được | D | BLOCKED | Test MySQL xác nhận soft delete, GET đơn cũ giữ tên/giá món và Invoice còn lưu trong DB. GUI hiện chỉ mở ReceiptDialog ngay sau checkout; sau khi đóng không có màn/route để truy xuất và mở lại hoá đơn hoàn tất. Chờ D/chủ dự án chốt “xem được” chỉ yêu cầu dữ liệu còn lưu hay cần thêm hành vi mở lại từ GUI; chưa sửa ngoài phạm vi trước khi chốt. |
 
 ## 3. Tìm kiếm & lọc
 
