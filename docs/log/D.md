@@ -22,6 +22,7 @@
 
 | Ngày | Issue | PR / commit | File chính | Làm gì (1 câu) | Vì sao cách đó (1 câu) |
 |---|---|---|---|---|---|
+| 11-20 | #34 | PR #132 | `docs/log/D.md`, Issue #34 | kiểm tra MySQL/API local, thử `make start` và xác định GUI CafeTLU đã có tiến trình chạy; chưa thao tác CRUD/chụp ảnh vì phiên này không được cấp quyền điều khiển cửa sổ | không reset DB hay dừng tiến trình đang dùng; không ghi PASS cho thao tác chưa quan sát được, chờ D gửi ảnh thật và kết quả từng bước |
 | 11-20 | #34 | PR #132 | `docs/test-cases.md`, Issue #34 | khôi phục ảnh toàn cửa sổ ≥1280px thành điều kiện G2 theo quyết định mới của chủ dự án, giao toàn bộ hạng mục còn mở cho D và giữ TC-SRC-02 ở G3 | thay thế minh bạch lần miễn ảnh trước; không sửa hoặc mở lại các Issue G2 đã đóng |
 | 11-20 | #34 | PR #132 | `docs/test-cases.md`, `tests/test_orders.py`, `tests/test_gui_products.py`, Issue #34 | ghi quyết định miễn ảnh và chuyển TC-SRC-02 sang G3; kiểm thêm TC-PRD-02..04, TC-SRC-01/03 với MySQL test; giữ TC-PRD-05 BLOCKED vì chưa có cách xem lại hoá đơn lịch sử sau khi đóng ReceiptDialog | ghi PASS chỉ cho kết quả đã chạy/được chủ dự án xác nhận; không suy từ bản ghi Invoice còn trong DB thành khả năng xem lại hoá đơn |
 | 11-19 | #34 | PR #132 | `docs/test-cases.md`, `docs/plan.md`, Issue #34 | ghi riêng PASS cho năm bước E2E được chủ dự án xác nhận; chuyển TC-SRC-02 (lọc giá khoảng đóng) sang backlog G3 theo quyết định của chủ dự án; giữ G2 mở vì ảnh và ca chi tiết chưa đủ | không suy ra PASS cho test biên chưa chạy; ghi feature lọc giá ở G3 để không mở rộng tiêu chí G2 sau khi chốt |
@@ -79,6 +80,7 @@
 
 | Ngày | Công cụ | AI làm gì | Tôi sửa / kiểm chứng gì |
 |---|---|---|---|
+| 11-20 | Codex | thử khởi chạy và xác định tiến trình CafeTLU hiện có; dừng tại giới hạn điều khiển GUI thay vì thao tác thay người dùng | Docker MySQL healthy, `/health` trả `status=ok`/`database=ok`; `make start` lần hai báo cổng 8000 đã dùng; `gui.main` đang chạy trong checkout. Không chụp/ghi nhận test GUI. |
 | 11-20 | Codex | khôi phục tiêu chí ảnh G2 trong checklist, Issue/PR và chuẩn bị lệnh/chụp màn hình cho D chạy E2E trên máy thành viên khác | xác nhận `origin/develop` ở `32a1ee1`; PR #132 base `develop`, mergeable, hai check xanh trên `fa6c77c`; chưa có ảnh thực tế và TC-PRD-05 cần chủ dự án chốt hành vi xem lại |
 | 11-20 | Codex | rà checklist G2 theo quyết định chủ dự án; thêm test giá snapshot/đơn lịch sử và validate giá form, đo tìm kiếm 5.000 món | `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test`: lint sạch, 144 passed/20 warnings; benchmark MySQL fixture 5.000 món: API 12,2ms + Qt render 4,3ms; TC-PRD-05 còn thiếu luồng truy xuất hoá đơn lịch sử |
 | 11-19 | Codex | đối chiếu G2 với WORKFLOW, Issue #34, test case và code filter; ghi kết quả được xác nhận, chuyển TC-SRC-02 sang G3 theo quyết định chủ dự án | chủ dự án xác nhận login, thêm, tìm, sửa, xoá thành công qua API/MySQL trên máy thành viên khác; chưa có ảnh; baseline và sau cập nhật docs đều `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test` xanh (142 passed, 20 warnings) |
