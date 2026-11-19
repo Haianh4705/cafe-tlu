@@ -22,6 +22,7 @@
 
 | Ngày | Issue | PR / commit | File chính | Làm gì (1 câu) | Vì sao cách đó (1 câu) |
 |---|---|---|---|---|---|
+| 11-20 | #97 | nhánh `codex/issue97-order-smoke` | `scripts/smoke_test.py`, `tests/test_smoke_test.py`, `scripts/README.md` | chuẩn bị smoke test API local cho bàn trống → thêm/sửa món → checkout, kiểm tổng server và trả bàn về trống; cố ý chưa gọi báo cáo | giới hạn ghi vào localhost và yêu cầu xác nhận DB `_test`; #95/#96 còn mở nên hoãn nghiệm thu toàn luồng/installer; `make next` vẫn chỉ #97 là việc hiện tại và liệt kê #76 là G4 kế tiếp |
 | 11-18 | #118 | `docs/readme-bat-dau-d` | `README.md` | sắp xếp lại hướng dẫn cài, chạy thử, xử lý lỗi và nhận việc; làm rõ mảng phụ trách A–D | đưa thao tác cần nhất lên trước và dẫn sang tài liệu chi tiết |
 | 11-04 | — | #8 | `.github/dependabot.yml` | gom cập nhật thư viện theo nhóm hằng tuần | giảm 19 PR lẻ thành 1, đỡ nhiễu review |
 | 11-04 | — | #10 | `Makefile` | `make up` tìm được Docker CLI + credential helper | Docker Desktop trên macOS không nạp `~/.docker/bin` vào PATH |
@@ -76,6 +77,7 @@
 
 | Ngày | Công cụ | AI làm gì | Tôi sửa / kiểm chứng gì |
 |---|---|---|---|
+| 11-20 | Codex | viết smoke flow có kiểm soát cho bàn/đơn/thanh toán, test thứ tự API bằng HTTP giả và cập nhật hướng dẫn/chặn an toàn | `DB_NAME=cafe_tlu_test make lint && DB_NAME=cafe_tlu_test make test`: lint sạch, 145 passed/20 warnings; script chưa chạy với API thật vì cần tài khoản staff, bàn trống và món test đã cấu hình; #95/#96 còn mở |
 | 11-18 | Codex | đối chiếu README với Makefile, tên nút trên GUI và Issue được gán; viết lại hướng dẫn (#118) | Codex kiểm tra 27 liên kết nội bộ, lint sạch và 96 test đạt trên MySQL test riêng cả trước và sau khi sửa |
 | 11-04 → 11-06 | AI agent trong repo (Claude/DSH) | soạn nháp `WORKFLOW.md`, `AGENTS.md`, 8 skill, README, `docs/defense.md` | đọc lại từng mục, bỏ phần không khớp đề bài; chốt phân vai A/B/C/D |
 | 11-09 | AI agent | soạn nháp `infra/Dockerfile`, `.dockerignore`, `docker-compose.prod.yml`, `cafetlu.spec`, `cafetlu.iss`, `build_installer.sh`, `release.yml` | **sửa 3 lỗi thật:** (1) spec trỏ `SPECPATH.parent.parent` ra `~/Desktop` → `FileNotFoundError`; (2) Git Bash đổi `/DMyAppVersion` thành đường dẫn Windows → ISCC báo "more than one script filename", sửa bằng `MSYS_NO_PATHCONV=1`; (3) `doctor` chỉ kiểm container chạy → đổi sang health + socket. Kiểm chứng: build local ra `dist/CafeTLU/`, CI release xanh, chạy `make doctor` từng dòng |
