@@ -22,12 +22,14 @@
 | 2026-11-11 | #17, #32 | `feature/db-erd-schema-trungdung` | `report/03-phan-tich.md` | Hoàn thiện Chương 3 Báo cáo BTL (Phân tích Use Case, ERD, 3NF, Snapshot pricing) | Chuẩn bị đầy đủ báo cáo học phần theo rubric, có chứng minh 3NF và minh chứng kỹ thuật |
 | 2026-11-17 | #17, #18, #28 | `feature/db-erd-schema-trungdung` | `db/schema.sql`, `db/seed.sql`, `db/verify_seed.sql`, `docs/erd.md` | **D làm thay (B vắng):** siết ràng buộc DB (CHECK, unique ảo `active_name`/`open_table_id`, index ghép, JSON), sửa 3 mã trùng, thêm script kiểm 21 phép | CHECK + cột ảo để DB tự chặn dữ liệu sai thay vì chỉ ghi quy ước trong tài liệu; mã trùng là nguyên nhân thật làm seed mất dòng |
 | 2026-11-18 | #22 (phần DB) | `docs/refresh-token-schema-d` | `db/schema.sql`, `db/verify_seed.sql`, `docs/erd.md`, `docs/decisions.md` | **D làm thay (B vắng):** thêm bảng thứ 10 `refresh_tokens` (hash SHA-256, `expires_at`, `revoked_at`, `replaced_by_id`, 2 CHECK) + từ điển/bất biến/ADR-013, 2 phép kiểm mới | Hợp đồng #3/#4 và skill `security` đòi logout thu hồi được token — JWT tự chứa không rút lại được, phải có chỗ lưu trạng thái phiên |
+| 2026-11-19 | #88 | PR #131 / `e938bbf` | `gui/views/dashboard_view.py`, `tests/test_gui_dashboard.py`, `docs/screenshots/dashboard/` | Rebase lên `develop` (`b569224`), giữ trạng thái chờ/staff/Demo của #125; tìm KPI theo ngày +07, thiếu row thì hai KPI hôm nay bằng 0, giữ tổng kỳ và chart | `DB_NAME=cafe_tlu_test make lint` sạch; `make test` đạt 142 passed, 20 warnings; Floor QSS OK; E2E API thật còn chờ #95 |
 
 ## 3. AI đã làm gì
 
 | Ngày | Công cụ | AI làm gì | Tôi sửa / kiểm chứng gì |
 |---|---|---|---|
 | 2026-11-11 | Antigravity (Google DeepMind) | Soạn thảo khung Mermaid ERD, tạo danh mục menu 51 món và viết khung ReportService | Rà soát kiểu dữ liệu DECIMAL tiền tệ, kiểm tra ràng buộc ON DELETE, đối soát khớp tổng tiền hoá đơn và kiểm thử hàm xuất file |
+| 2026-11-19 | Codex | Rebase #131 lên `b569224`, giải quyết xung đột CHANGELOG/Dashboard/test; giữ 3 test #125 và không gọi `/reports/*` khi API chưa có; thêm fixture ngày hôm qua/hôm nay theo +07 | `DB_NAME=cafe_tlu_test make lint` sạch; `DB_NAME=cafe_tlu_test make test`: 142 passed, 20 warnings; Floor QSS OK; B xác nhận nghiệp vụ và nghiệm thu API thật vẫn chờ #95 |
 
 ## 4. Câu hỏi thầy hay hỏi (vùng B)
 
@@ -52,6 +54,7 @@
 - [x] `scripts/seed_data.py`: Sinh 120 đơn hàng mẫu trải dài đúng 30 ngày (Issue #28) và đã nạp vào `db/seed.sql`.
 - [x] `api/services/reports.py`: Triển khai các hàm truy vấn thống kê (doanh thu theo ngày, top món, theo danh mục) và module xuất Excel/PDF (Issue #31).
 - [x] `tests/test_reports.py`: Kiểm thử logic thống kê và định dạng file xuất.
+- [ ] #88: Dashboard KPI đã có kiểm thử fixture theo timezone quán; nghiệm thu E2E với MySQL/API khi #95 triển khai xong.
 - [x] `report/03-phan-tich.md`: Đã hoàn thiện Chương 3 Báo cáo BTL (Phân tích & Thiết kế CSDL, ERD, 3NF).
 - [ ] Cổng G4: Tối ưu hóa chỉ mục (Index) khi đo kiểm tải và viết kịch bản sao lưu định kỳ `scripts/backup_db.sh`.
 

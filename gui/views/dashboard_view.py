@@ -7,7 +7,7 @@ Tuân thủ:
 - .claude/skills/pyside6-screen/SKILL.md: 4 trạng thái, HTTP trên luồng nền, F5 làm mới.
 """
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from PySide6.QtCharts import (
@@ -38,6 +38,12 @@ from gui.views.base import BaseView
 
 PERIOD_DAYS = 30
 TOP_PRODUCT_LIMIT = 5
+CAFE_TIMEZONE = timezone(timedelta(hours=7), name="Asia/Ho_Chi_Minh")
+
+
+def _cafe_today() -> date:
+    """Ngày lịch của quán theo timezone Việt Nam, không phụ thuộc timezone máy chạy GUI."""
+    return datetime.now(CAFE_TIMEZONE).date()
 
 
 # Dữ liệu mẫu chỉ dùng sau khi người dùng chủ động chọn Demo.
@@ -52,7 +58,7 @@ MOCK_TOP_PRODUCTS: list[dict[str, Any]] = [
 
 def build_mock_daily(today: date | None = None) -> list[dict[str, Any]]:
     """Sinh doanh thu mẫu 30 ngày ổn định để dựng và kiểm thử Dashboard."""
-    end = today or date.today()
+    end = today or _cafe_today()
     rows: list[dict[str, Any]] = []
     for offset in range(PERIOD_DAYS - 1, -1, -1):
         day = end - timedelta(days=offset)
@@ -338,7 +344,8 @@ class DashboardView(BaseView):
     def _update_kpis(
         self, daily: list[dict[str, Any]], top: list[dict[str, Any]], total_revenue: int
     ) -> None:
-        today_row = daily[-1] if daily else {}
+        today_iso = _cafe_today().isoformat()
+        today_row = next((row for row in daily if str(row.get("date") or "")[:10] == today_iso), {})
         today_revenue = _row_revenue(today_row)
         today_orders = _row_orders(today_row)
 
@@ -347,7 +354,7 @@ class DashboardView(BaseView):
 
         self._kpi_values["orders_today"].setText(str(today_orders))
         self._kpi_hints["orders_today"].setText(
-            t("dashboard_today_hint", date=_short_date(today_row.get("date")))
+            t("dashboard_today_hint", date=_short_date(today_iso))
         )
 
         self._kpi_values["revenue_period"].setText(

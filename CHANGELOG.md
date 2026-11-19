@@ -13,6 +13,9 @@ phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 ### Fixed — kiểm tra dữ liệu món
 - PATCH món từ chối `null` ở trường không nullable nhưng vẫn cho `image_url: null` xoá ảnh; create/update chặn giá vượt `DECIMAL(12,0)` bằng 422; test MySQL xác nhận tên trùng trả 409 và dữ liệu không bị đổi khi request lỗi (#84)
 
+### Fixed — KPI doanh thu hôm nay
+- Dashboard chọn dòng `date` khớp ngày hiện tại tại quán (`Asia/Ho_Chi_Minh`); nếu ngày đó chưa có giao dịch, doanh thu và số đơn hôm nay là 0, tổng kỳ và biểu đồ tiếp tục dùng nguyên dữ liệu báo cáo (#88)
+
 ### Fixed — vòng đời phiên
 - Refresh token rotation khoá row khi đổi token và logout khoá token trước khi thu hồi, bảo đảm hai request refresh đồng thời chỉ một thành công; lỗi 422 chỉ trả `loc`/`msg`/`type`, không echo `input` (tránh lộ mật khẩu) (#86)
 
