@@ -140,7 +140,7 @@ mỗi PR có "Giải thích được" 3 câu.
 **Mục tiêu:** đủ **6 yêu cầu đề bài**: CRUD · Login · thống kê · tìm kiếm · bộ cài · phân quyền.
 **Ra cổng khi:** installer cài được trên máy sạch · đủ chức năng · demo chạy full luồng.
 
-> Các hạng mục dưới đây đều đã có Issue trên GitHub để D gán linh hoạt cho thành viên theo chức năng (không khoá cứng theo vai thư mục). Giao diện `OrderView`/`DashboardView` đã có khung từ #44, #70 — cần hoàn thiện nối API thật, sửa bug phát sinh và nghiệm thu.
+> Các hạng mục chính dưới đây đã có Issue trên GitHub để D gán linh hoạt theo chức năng. TC-SRC-02 được chuyển vào backlog G3 theo quyết định ngày 19-11; cần tạo Issue nghiệm thu/triển khai trước khi bắt đầu việc này. Giao diện `OrderView`/`DashboardView` đã có khung từ #44, #70 — cần hoàn thiện nối API thật, sửa bug phát sinh và nghiệm thu.
 
 | # | Chức năng / Đầu việc | Issue | Tầng chạm | Phụ thuộc | Phụ trách (cụm chức năng) |
 |---|---|---|---|---|---|
@@ -151,6 +151,7 @@ mỗi PR có "Giải thích được" 3 câu.
 | 5 | Hiện đúng KPI hôm nay khi không có giao dịch | #88 | `gui` | #70 ✅, #95 | **B** (gộp từ C theo cụm Dashboard) |
 | 6 | Nhật ký thao tác quản trị (ghi `audit_logs` + `GET /audit-logs`) | #96 | `api`, `db` | #29 ✅, #94 | **B** (`@trungdunxg`) |
 | 7 | Kịch bản `scripts/smoke_test.py`, điền `TC-ORD`/`TC-RPT`, ảnh chụp & kiểm bộ cài MVP | #97 | `infra`, `docs` | #93, #94, #95, #96 | **D** (`@Haianh4705`) |
+| 8 | Bổ sung lọc thực đơn theo khoảng giá (min/max gồm hai đầu mút), nghiệm thu `TC-SRC-02` đã chuyển khỏi G2 | Issue cần tạo trước khi nhận việc | `api`, `gui`, `tests` | #29 ✅, #30 ✅ | Phân công khi tạo Issue |
 
 > **Rủi ro lớn nhất của G3:** transaction của `checkout` (#94). Bắt buộc giữ các bất biến đã ghi ở mục 3.3 của `docs/erd.md` (1 bàn tối đa 1 đơn mở, lưu snapshot `unit_price`, cập nhật `orders.status` + `invoices` + `tables.status` trong 1 transaction).
 

@@ -65,6 +65,26 @@ def test_format_currency_vnd() -> None:
     assert format_currency(99000.0) == "99.000 đ"
 
 
+def test_product_form_rejects_non_positive_price_before_submit(qapp: Any) -> None:
+    """Giá âm bị QSpinBox chặn ở 0 và form không submit giá không hợp lệ."""
+    submitted: list[dict[str, Any]] = []
+    dialog = ProductFormDialog(
+        [{"id": 1, "name": "Cà phê"}],
+        on_submit=submitted.append,
+    )
+    dialog._name_input.setText("Cà phê mới")
+    dialog._unit_input.setText("ly")
+
+    dialog._price_spin.setValue(-1000)
+    assert dialog._price_spin.value() == 0
+
+    dialog._validate_and_accept()
+
+    assert dialog.result() != ProductFormDialog.DialogCode.Accepted
+    assert dialog._error_label.isHidden() is False
+    assert submitted == []
+
+
 def test_product_list_view_render_table(qapp: Any) -> None:
     """Kiểm tra ProductListView điền dữ liệu vào bảng và định dạng các cột (TC-PRD-01)."""
     client = ApiClient(base_url="http://127.0.0.1:8000/api/v1")
