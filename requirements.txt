@@ -9,15 +9,15 @@
 # ============================================================
 
 # --- Backend API ---
-fastapi==0.162.0
+fastapi==0.165.0
 uvicorn[standard]==0.54.0
-pydantic==2.14.3
-pydantic-settings==2.16.2
+pydantic==2.14.4
+pydantic-settings==2.16.3
 
 # --- Cơ sở dữ liệu ---
-sqlalchemy==2.1.8
+sqlalchemy==2.1.9
 alembic==1.20.1
-pymysql==1.2.3
+pymysql==1.2.4
 
 # --- Xác thực & phân quyền ---
 passlib[bcrypt]==1.7.4
